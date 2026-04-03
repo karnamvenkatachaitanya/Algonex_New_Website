@@ -174,6 +174,8 @@ All endpoints under `/api/v1/`:
 | POST | `/api/v1/auth/password/reset/` | Request password reset email | No |
 | POST | `/api/v1/auth/password/reset/confirm/` | Confirm reset with token + new password | No |
 
+Password reset uses `dj-rest-auth`'s built-in flow. Email backend: console in development, SMTP in production (configured in settings).
+
 ### Auth Flow
 
 **Email/password:**
@@ -300,7 +302,7 @@ New users default to `student`. Admins promote via Django Admin.
 2. Validate updated fields
 3. Save and return course
 
-**`publish_course(course, instructor)`:**
+**`publish_course(course, instructor)`** (triggered via `PATCH` setting `is_published=True`):
 1. Verify ownership or admin role
 2. Verify course has at least one module with at least one topic
 3. Set `is_published=True`
