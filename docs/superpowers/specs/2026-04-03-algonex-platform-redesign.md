@@ -23,13 +23,13 @@ Transform Algonex from a static learning platform into a full-featured web appli
 | Frontend components | Ant Design with centralized theme.js |
 | Deployment | Docker (docker-compose) |
 | E2E testing | Playwright |
-| Database | SQLite |
+| Database | SQLite (single Gunicorn worker; upgrade to PostgreSQL if concurrent writes become an issue) |
 
 ## Architecture
 
 ### Approach: Monolithic Django + React SPA
 
-Single Django project with multiple apps. React stays as a separate Vite SPA, communicates via DRF REST API with JWT authentication. Django Admin for content management.
+Single Django project with multiple apps. React stays as a separate Vite SPA, communicates via DRF REST API with JWT authentication. Django Admin for content management. CORS configured via `django-cors-headers` — allowed origins set per environment in settings (development: `localhost:5173`, production: the deployed frontend domain). SQLite is acceptable for initial deployment with a single Gunicorn worker; if concurrent writes become a bottleneck, swap to PostgreSQL (only a settings change).
 
 ### Backend — 4-Layer Architecture (per app)
 
@@ -135,7 +135,7 @@ All endpoints under `/api/v1/`:
 - `/api/v1/events/`
 - `/api/v1/careers/`
 - `/api/v1/portfolio/`
-- `/api/v1/contact/`
+- `/api/v1/contact/` (existing `contactform` app — already built, no changes needed beyond adding versioned URL prefix)
 
 ---
 
@@ -171,6 +171,8 @@ All endpoints under `/api/v1/`:
 | GET | `/api/v1/auth/user/` | Get current user profile | Yes |
 | PATCH | `/api/v1/auth/user/` | Update profile | Yes |
 | POST | `/api/v1/auth/password/change/` | Change password | Yes |
+| POST | `/api/v1/auth/password/reset/` | Request password reset email | No |
+| POST | `/api/v1/auth/password/reset/confirm/` | Confirm reset with token + new password | No |
 
 ### Auth Flow
 
@@ -256,7 +258,7 @@ New users default to `student`. Admins promote via Django Admin.
 - `student` FK → User
 - `course` FK → Course
 - `enrolled_at` — auto
-- `status` — choices: `active` | `completed` | `dropped`
+- `status` — choices: `active` | `completed` | `dropped` (drop endpoint: POST `/api/v1/enrollments/:id/drop/`)
 - `unique_together: (student, course)`
 
 **CourseFAQ:**
@@ -287,10 +289,33 @@ New users default to `student`. Admins promote via Django Admin.
 
 ### Service Layer Logic
 
+**`create_course(instructor, data)`:**
+1. Verify user has instructor or admin role
+2. Auto-generate slug from name
+3. Create course with `is_published=False` (draft)
+4. Return course
+
+**`update_course(course, instructor, data)`:**
+1. Verify `course.instructor == instructor` (ownership check) or user is admin
+2. Validate updated fields
+3. Save and return course
+
+**`publish_course(course, instructor)`:**
+1. Verify ownership or admin role
+2. Verify course has at least one module with at least one topic
+3. Set `is_published=True`
+
 **`enroll_student(student, course)`:**
 1. Verify course is published
 2. Verify student not already enrolled
 3. Create Enrollment with `active` status
+
+**`drop_enrollment(enrollment)`:**
+1. Set enrollment status to `dropped`
+
+### Permissions
+
+Instructor ownership is enforced via a custom `IsInstructorOwner` permission: checks `course.instructor == request.user`. Admins bypass this check. Applied to all write endpoints on courses, modules, and topics.
 
 ### Data Migration
 
@@ -313,7 +338,7 @@ A Django management command (`python manage.py seed_courses`) imports the 4 exis
 - `image` — ImageField
 - `event_type` — choices: `workshop` | `webinar` | `hackathon` | `meetup`
 - `location` — CharField (or "Online")
-- `meeting_link` — optional URLField (for online events)
+- `meeting_link` — optional URLField (for online events, visible only to confirmed registrants)
 - `start_date`, `end_date` — DateTimeField
 - `capacity` — PositiveIntegerField
 - `is_published` — BooleanField
@@ -382,7 +407,7 @@ A Django management command (`python manage.py seed_courses`) imports the 4 exis
 **Application:**
 - `job` FK → Job
 - `applicant` FK → User
-- `resume` — FileField (PDF)
+- `resume` — FileField (PDF only, max 5MB, stored in `media/resumes/`)
 - `cover_letter` — TextField
 - `status` — choices: `applied` | `reviewed` | `interview` | `hired` | `rejected`
 - `admin_notes` — TextField (internal, never exposed to applicants)
@@ -474,6 +499,8 @@ Single source of truth for all design tokens:
 - `colorPrimary: "#00B4D8"` — controls all antd components globally
 - Component-level overrides for Button, Card, Menu, Tag
 - Feeds into `ConfigProvider` wrapping the entire app
+
+**Frontend data fetching:** Custom hooks use `useEffect` + `useState` for simplicity. No external caching library (React Query/SWR) initially — can be added later if performance demands it.
 
 **Custom tokens:**
 - `colors` — primary palette, text colors, backgrounds, status colors, pipeline colors
@@ -643,7 +670,7 @@ algonex-backend/
 
 Each sub-project gets its own implementation plan, branch, and review cycle:
 
-1. **Auth & Users** — foundation, everything depends on it
+1. **Auth & Users** — foundation, everything depends on it. Includes initial Django project scaffolding (config/, common/, requirements.txt, settings split)
 2. **Courses** — revamp existing data, connect to DB
 3. **Events & Registrations** — builds on auth
 4. **Careers & Pipeline** — independent but needs auth
