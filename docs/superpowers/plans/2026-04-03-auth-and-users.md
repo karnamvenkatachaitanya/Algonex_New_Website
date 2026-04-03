@@ -1774,7 +1774,7 @@ export default function LoginPage() {
             onClick={() => {
               const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
               const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
-              window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile`;
+              window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=google`;
             }}
           >
             Continue with Google
@@ -1787,7 +1787,7 @@ export default function LoginPage() {
             onClick={() => {
               const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
               const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
-              window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email`;
+              window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email&state=github`;
             }}
           >
             Continue with GitHub
@@ -1930,10 +1930,29 @@ export default function SignupPage() {
         <Divider plain>or</Divider>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <Button icon={<GoogleOutlined />} block size="large">
+          <Button
+            icon={<GoogleOutlined />}
+            block
+            size="large"
+            onClick={() => {
+              const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+              const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
+              window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=google`;
+            }}
+          >
             Sign up with Google
           </Button>
-          <Button icon={<GithubOutlined />} block size="large" style={{ background: "#24292e", color: "white" }}>
+          <Button
+            icon={<GithubOutlined />}
+            block
+            size="large"
+            style={{ background: "#24292e", color: "white" }}
+            onClick={() => {
+              const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+              const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
+              window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email&state=github`;
+            }}
+          >
             Sign up with GitHub
           </Button>
         </div>
@@ -1977,15 +1996,14 @@ export default function OAuthCallbackPage() {
 
   useEffect(() => {
     const code = searchParams.get("code");
-    if (!code) {
+    const state = searchParams.get("state"); // "google" or "github"
+    if (!code || !state) {
       setError("No authorization code received.");
       return;
     }
 
-    // Determine provider from referrer or state param
-    const isGithub = document.referrer.includes("github.com") ||
-                     window.location.href.includes("github");
-    const endpoint = isGithub ? "/auth/github/" : "/auth/google/";
+    // Provider determined by `state` param passed in the OAuth redirect
+    const endpoint = state === "github" ? "/auth/github/" : "/auth/google/";
 
     apiClient.post(endpoint, { code })
       .then((response) => {
