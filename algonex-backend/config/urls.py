@@ -10,6 +10,7 @@ urlpatterns = [
     path("api/v1/", include("courses.urls")),
     path("api/v1/", include("events.urls")),
     path("api/v1/", include("careers.urls")),
+    path("api/v1/", include("portfolio.urls")),
     path("api/v1/contact/", include("contactform.urls")),
 ]
 
