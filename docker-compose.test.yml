@@ -1,0 +1,34 @@
+version: "3.9"
+
+# CI testing — run with: docker compose -f docker-compose.yml -f docker-compose.test.yml up --build --abort-on-container-exit
+
+services:
+  backend:
+    build: ./algonex-backend
+    command: >
+      sh -c "
+        python manage.py migrate --run-syncdb &&
+        python manage.py seed_courses &&
+        python -m pytest -v --tb=short &&
+        echo '=== Backend tests passed ==='
+      "
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.testing
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: algonex_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  # Override frontend to skip — E2E tests need a running app
+  frontend:
+    profiles:
+      - disabled
+
+  nginx:
+    profiles:
+      - disabled

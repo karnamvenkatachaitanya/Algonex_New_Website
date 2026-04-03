@@ -1,5 +1,6 @@
 .superpowers/
 .env
+.env.local
 __pycache__/
 *.pyc
 *.pyo
@@ -7,3 +8,12 @@ db.sqlite3
 test_media/
 *.egg-info/
 .pytest_cache/
+node_modules/
+dist/
+staticfiles/
+media/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
