@@ -340,13 +340,13 @@ All endpoint contracts are defined above in the "API Endpoints" section. Both ag
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| `programs` app (models, views, services, selectors) | pending | |
-| `signin` registration (RegistrationProfile, step1/step2 views) | pending | |
-| `accounts` auth (check-email, send-setup-email, set-password) | pending | |
-| Email configuration | pending | |
-| URL routing | pending | |
-| Tests | pending | |
-| Seed data (`seed_programs`) | pending | |
+| `programs` app (models, views, services, selectors) | done | |
+| `signin` registration (RegistrationProfile, step1/step2 views) | done | |
+| `accounts` auth (check-email, send-setup-email, set-password) | done | |
+| Email configuration | done | console backend for dev |
+| URL routing | done | |
+| Tests | done | |
+| Seed data (`seed_programs`) | done | |
 
 ### Frontend Status
 
