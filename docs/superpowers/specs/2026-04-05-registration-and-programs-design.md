@@ -325,3 +325,67 @@ For development, use `django.core.mail.backends.console.EmailBackend` (prints to
 - **Selectors:** Filtering, annotations (registration_count), ordering
 - **Views:** Full API integration tests for all endpoints, permission checks
 - **Auth:** Token generation, expiry, password set flow, check-email edge cases
+
+---
+
+## Backend ↔ Frontend Communication
+
+Backend and frontend are being implemented in parallel by separate agents. Use this section to coordinate.
+
+### API Contract (source of truth)
+
+All endpoint contracts are defined above in the "API Endpoints" section. Both agents must follow these exactly. If either agent needs to change a contract, update this spec first.
+
+### Backend Status
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| `programs` app (models, views, services, selectors) | pending | |
+| `signin` registration (RegistrationProfile, step1/step2 views) | pending | |
+| `accounts` auth (check-email, send-setup-email, set-password) | pending | |
+| Email configuration | pending | |
+| URL routing | pending | |
+| Tests | pending | |
+| Seed data (`seed_programs`) | pending | |
+
+### Frontend Status
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Registration page (two-step form) | pending | |
+| Programs list/detail pages | pending | |
+| Login page (two-step email-first) | pending | |
+| Set password page | pending | |
+| API modules (registration.js, programs.js) | pending | |
+
+### Open Questions / Decisions Log
+
+_Add items here when either agent needs input from the other._
+
+| Date | From | Question | Resolution |
+|------|------|----------|------------|
+| | | | |
+
+### Response Format Reference
+
+All API responses follow the project standard:
+```json
+// Success
+{ "status": "success", "data": { ... } }
+
+// Error
+{ "status": "error", "error": { "code": "ERROR_CODE", "message": "Human-readable message" } }
+```
+
+### Error Codes (for frontend to handle)
+
+| Endpoint | Error Code | When |
+|----------|-----------|------|
+| `POST /register/step1/` | `INVALID_EMAIL` | Email format invalid |
+| `POST /register/step2/` | `USER_NOT_FOUND` | Email from step1 doesn't exist |
+| `POST /register/step2/` | `TERMS_NOT_AGREED` | terms_agreed is false |
+| `POST /auth/check-email/` | `INVALID_EMAIL` | Email format invalid |
+| `POST /auth/send-setup-email/` | `USER_NOT_FOUND` | Email doesn't exist |
+| `POST /auth/send-setup-email/` | `PASSWORD_ALREADY_SET` | User already has a password |
+| `POST /auth/set-password/` | `INVALID_TOKEN` | Token expired or invalid |
+| `POST /auth/set-password/` | `PASSWORD_MISMATCH` | password != confirm_password |
