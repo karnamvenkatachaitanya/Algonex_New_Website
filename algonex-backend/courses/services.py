@@ -1,3 +1,4 @@
+from django.db import IntegrityError, transaction
 from django.utils.text import slugify
 from .models import Course, Enrollment
 from .exceptions import CourseNotPublished, AlreadyEnrolled, CourseNotReady
@@ -25,8 +26,11 @@ def update_course(*, course, **data):
     return course
 
 
+@transaction.atomic
 def enroll_student(*, student, course):
-    """Enroll a student in a published course."""
+    """Enroll a student in a published course.
+    Atomic + IntegrityError catch to handle concurrent enrollment attempts.
+    """
     if not course.is_published:
         raise CourseNotPublished()
 
@@ -39,7 +43,10 @@ def enroll_student(*, student, course):
         existing.save()
         return existing
 
-    return Enrollment.objects.create(student=student, course=course, status="active")
+    try:
+        return Enrollment.objects.create(student=student, course=course, status="active")
+    except IntegrityError:
+        raise AlreadyEnrolled()
 
 
 def drop_enrollment(*, enrollment):

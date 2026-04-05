@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from common.mixins import TimestampMixin, SlugMixin
 
@@ -33,13 +34,17 @@ class Course(TimestampMixin, SlugMixin, models.Model):
     description = models.TextField()
     image = models.ImageField(upload_to="courses/images/", blank=True, null=True)
     banner = models.ImageField(upload_to="courses/banners/", blank=True, null=True)
-    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default="beginner")
+    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default="beginner", db_index=True)
     prior_knowledge = models.TextField(blank=True)
     duration = models.CharField(max_length=50)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    discount = models.IntegerField(default=0, help_text="Discount percentage")
-    is_trending = models.BooleanField(default=False)
-    is_published = models.BooleanField(default=False)
+    discount = models.IntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        help_text="Discount percentage (0-100)",
+    )
+    is_trending = models.BooleanField(default=False, db_index=True)
+    is_published = models.BooleanField(default=False, db_index=True)
     skills = models.ManyToManyField(Skill, blank=True, related_name="courses")
 
     class Meta:
@@ -47,10 +52,6 @@ class Course(TimestampMixin, SlugMixin, models.Model):
 
     def __str__(self):
         return self.name
-
-    @property
-    def student_count(self):
-        return self.enrollments.filter(status="active").count()
 
 
 class Module(models.Model):

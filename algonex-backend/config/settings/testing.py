@@ -20,3 +20,10 @@ PASSWORD_HASHERS = [
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
 MEDIA_ROOT = BASE_DIR / "test_media"
+
+# Disable throttling in tests
+REST_FRAMEWORK = {
+    **REST_FRAMEWORK,  # noqa: F405
+    "DEFAULT_THROTTLE_CLASSES": [],
+    "DEFAULT_THROTTLE_RATES": {},
+}

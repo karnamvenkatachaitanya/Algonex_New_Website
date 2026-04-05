@@ -36,6 +36,13 @@ class ApplicationSubmitSerializer(serializers.Serializer):
     resume = serializers.FileField()
     cover_letter = serializers.CharField(required=False, allow_blank=True, default="")
 
+    def validate_resume(self, value):
+        if not value.name.lower().endswith(".pdf"):
+            raise serializers.ValidationError("Only PDF files are accepted.")
+        if value.size > 5 * 1024 * 1024:  # 5MB
+            raise serializers.ValidationError("File size must not exceed 5MB.")
+        return value
+
 
 class ApplicationListSerializer(serializers.ModelSerializer):
     """Applicant-facing — no admin_notes."""

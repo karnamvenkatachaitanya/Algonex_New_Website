@@ -1,9 +1,16 @@
-from .models import Registration
+from django.db import transaction
+from .models import Event, Registration
 from .exceptions import EventNotOpen, AlreadyRegistered
 
 
+@transaction.atomic
 def register_for_event(*, user, event):
-    """Register a user for an event. Auto-confirm or waitlist based on capacity."""
+    """Register a user for an event. Auto-confirm or waitlist based on capacity.
+    Wrapped in atomic transaction to prevent race conditions on capacity check.
+    """
+    # Lock the event row to prevent concurrent over-booking
+    event = Event.objects.select_for_update().get(pk=event.pk)
+
     if event.status != "upcoming":
         raise EventNotOpen()
 
@@ -20,8 +27,11 @@ def register_for_event(*, user, event):
     return Registration.objects.create(event=event, user=user, status=status)
 
 
+@transaction.atomic
 def cancel_registration(*, registration):
-    """Cancel a registration and promote the next waitlisted person."""
+    """Cancel a registration and promote the next waitlisted person.
+    Atomic to ensure promotion is consistent.
+    """
     registration.status = "cancelled"
     registration.save()
 

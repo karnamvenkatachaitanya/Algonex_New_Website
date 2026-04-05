@@ -15,12 +15,12 @@ def get_published_events(*, filters=None):
             from django.utils import timezone
             qs = qs.filter(start_date__gt=timezone.now())
 
-    return qs
+    return qs.order_by("start_date")
 
 
 def get_event_detail(*, slug):
-    """Return a single event with registration data."""
-    return Event.objects.filter(slug=slug).first()
+    """Return a single published event with registration data."""
+    return Event.objects.filter(slug=slug, is_published=True).first()
 
 
 def get_user_registrations(*, user):

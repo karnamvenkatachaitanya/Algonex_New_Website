@@ -26,8 +26,10 @@ class SlugMixin(models.Model):
             self.slug = slugify(source)
             # Ensure uniqueness
             original_slug = self.slug
-            counter = 1
-            while self.__class__.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+            for counter in range(1, 101):
+                if not self.__class__.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+                    break
                 self.slug = f"{original_slug}-{counter}"
-                counter += 1
+            else:
+                raise ValueError(f"Could not generate unique slug for '{original_slug}' after 100 attempts.")
         super().save(*args, **kwargs)

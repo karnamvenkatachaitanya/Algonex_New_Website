@@ -1,5 +1,5 @@
 from django.db import models
-from common.mixins import SlugMixin
+from common.mixins import SlugMixin, TimestampMixin
 
 
 class TechTag(models.Model):
@@ -14,7 +14,7 @@ class TechTag(models.Model):
         return self.name
 
 
-class CaseStudy(SlugMixin, models.Model):
+class CaseStudy(TimestampMixin, SlugMixin, models.Model):
     """A case study showcasing work done for a client."""
 
     title = models.CharField(max_length=255)

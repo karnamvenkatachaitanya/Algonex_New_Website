@@ -17,7 +17,7 @@ class Event(TimestampMixin, SlugMixin, models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     image = models.ImageField(upload_to="events/", blank=True, null=True)
-    event_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    event_type = models.CharField(max_length=20, choices=TYPE_CHOICES, db_index=True)
     location = models.CharField(max_length=255)
     meeting_link = models.URLField(blank=True, help_text="Visible only to confirmed registrants")
     start_date = models.DateTimeField()
@@ -32,6 +32,11 @@ class Event(TimestampMixin, SlugMixin, models.Model):
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.start_date and self.end_date and self.end_date <= self.start_date:
+            raise ValidationError("End date must be after start date.")
 
     @property
     def spots_left(self):

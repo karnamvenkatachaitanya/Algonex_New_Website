@@ -21,8 +21,8 @@ class Job(TimestampMixin, SlugMixin, models.Model):
     ]
 
     title = models.CharField(max_length=255)
-    department = models.CharField(max_length=20, choices=DEPARTMENT_CHOICES)
-    job_type = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES)
+    department = models.CharField(max_length=20, choices=DEPARTMENT_CHOICES, db_index=True)
+    job_type = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES, db_index=True)
     location = models.CharField(max_length=255)
     is_remote = models.BooleanField(default=False)
     description = models.TextField()
@@ -39,6 +39,11 @@ class Job(TimestampMixin, SlugMixin, models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.department})"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.salary_min and self.salary_max and self.salary_min > self.salary_max:
+            raise ValidationError("Minimum salary cannot exceed maximum salary.")
 
 
 class Application(models.Model):
