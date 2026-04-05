@@ -56,6 +56,35 @@ The project has an nginx config, but Caddy provides:
 
 The existing nginx config in `nginx/nginx.conf` will be preserved but replaced by a `Caddyfile` for production deployment.
 
+### Frontend Serving Strategy
+
+The frontend container becomes a **build-only artifact** in production. The multi-stage `algonex-frontend/Dockerfile` builds the React app, and the final `dist/` output is copied to a shared Docker volume (`frontend_build`). Caddy serves these static files directly — no frontend runtime container needed.
+
+```
+# In docker-compose.prod.yml:
+frontend-build:
+  build: ./algonex-frontend
+  volumes:
+    - frontend_build:/app/dist   # Build output shared with Caddy
+  # No CMD — exits after build
+
+caddy:
+  volumes:
+    - frontend_build:/srv/frontend  # Caddy serves static files from here
+```
+
+### Staging vs Production Database Isolation
+
+Both environments share a single PostgreSQL container but use **separate databases**:
+- Production: `algonex_prod`
+- Staging: `algonex_staging`
+
+Each environment's `.env` file sets its own `DB_NAME`. This avoids the RAM overhead of running two PostgreSQL instances on a 4GB VPS while keeping data completely isolated.
+
+### SSL and Django's SECURE_SSL_REDIRECT
+
+Since Caddy terminates SSL and proxies to Django over HTTP, `SECURE_SSL_REDIRECT` must be `False` in the `.env` file to avoid redirect loops. Instead, configure Caddy to pass the `X-Forwarded-Proto: https` header, and set `SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")` in Django production settings so Django knows the original request was HTTPS.
+
 ## CI/CD Pipeline
 
 ### Flow
@@ -80,8 +109,8 @@ Push to main branch → GitHub Actions:
 ### GitHub Actions Details
 
 - **Registry:** GitHub Container Registry (ghcr.io) — free 500MB for private repos
-- **Image pruning:** Auto-delete images older than 3 versions to stay within free tier
-- **Deploy mechanism:** SSH into VPS, run `docker compose pull && docker compose up -d --remove-orphans`
+- **Image pruning:** Auto-delete images older than 2 versions to stay within 500MB free tier
+- **Deploy mechanism:** SSH into VPS, run `docker compose pull && docker compose up -d --remove-orphans && docker compose exec backend python manage.py migrate --noinput`
 - **Authentication:** GitHub Personal Access Token stored on VPS for `docker login ghcr.io`
 - **Minutes budget:** ~2,000 free min/month for private repos; typical run ~5-8 min; infrequent deploys use <50 min/month
 
@@ -106,7 +135,8 @@ Push to main branch → GitHub Actions:
 A cron job runs after backups to verify:
 - Today's backup file exists
 - File size is >0 bytes
-- Email alert if either check fails
+- File size is at least 50% of yesterday's backup (catches truncation/corruption)
+- Email alert if any check fails
 
 ### Recovery Procedure
 
@@ -117,7 +147,17 @@ A cron job runs after backups to verify:
 5. `docker compose up -d`
 6. Update DNS to new VPS IP
 
-Estimated recovery time: ~15 minutes.
+Estimated recovery time: ~30-60 minutes (DNS propagation is the bottleneck — keep DNS TTL at 300 seconds to minimize this).
+
+### Rollback Procedure
+
+If a deployment introduces a bug:
+1. Identify the previous working image tag from ghcr.io
+2. Update `docker-compose.prod.yml` image tags to the previous version
+3. `docker compose pull && docker compose up -d`
+4. If a database migration was applied, restore from the latest pre-deploy backup
+
+Since images are tagged by git SHA in ghcr.io, rollback is a matter of changing the tag and restarting.
 
 ## Security
 
@@ -127,11 +167,11 @@ Estimated recovery time: ~15 minutes.
 - Firewall (ufw): allow only ports 80, 443, and SSH port
 - Fail2ban: auto-block brute force attempts on SSH
 - Unattended upgrades: auto-install security patches (Ubuntu)
-- Docker: non-root containers (existing Dockerfiles already comply)
+- Docker: non-root containers (backend Dockerfile needs `USER` directive added — see Files to Modify)
 
 ### Application Security (Already Implemented)
 
-- `SECURE_SSL_REDIRECT=True` in production settings
+- `SECURE_SSL_REDIRECT=False` in `.env` (Caddy handles SSL termination; see SSL section above)
 - HSTS headers enabled
 - Secure cookies (SESSION_COOKIE_SECURE, CSRF_COOKIE_SECURE)
 - JWT auth with rotating refresh tokens
@@ -150,7 +190,7 @@ Estimated recovery time: ~15 minutes.
 |------|------|------|
 | Uptime | UptimeRobot free tier (5-min ping interval, email alerts) | $0 |
 | Server health | Cron script: disk usage, memory, container status → email alert | $0 |
-| Application logs | `docker compose logs` with Docker log rotation | $0 |
+| Application logs | `docker compose logs` with log rotation (`json-file`, max 10MB, 3 files) | $0 |
 | Backup health | Cron verification script (see Backups section) | $0 |
 
 ### Not Included (Overkill at This Scale)
@@ -171,8 +211,8 @@ Estimated recovery time: ~15 minutes.
 | `scripts/health-check.sh` | Create | Server health monitoring cron script |
 | `scripts/vps-setup.sh` | Create | Initial VPS hardening (SSH, ufw, fail2ban, Docker) |
 | `docs/deployment-guide.md` | Create | Runbook for setup, deploy, backup, and recovery |
-| `algonex-backend/Dockerfile` | Modify | Ensure non-root user, multi-stage if not already |
-| `algonex-frontend/Dockerfile` | Modify | Swap nginx stage for simple static file output |
+| `algonex-backend/Dockerfile` | Modify | Add non-root user (`adduser appuser` + `USER appuser`) before CMD |
+| `algonex-frontend/Dockerfile` | Modify | Build-only: multi-stage build outputs `dist/` to shared volume, no runtime container |
 
 ## Cost Summary
 
