@@ -12,6 +12,7 @@ urlpatterns = [
     path("api/v1/", include("events.urls")),
     path("api/v1/", include("careers.urls")),
     path("api/v1/", include("portfolio.urls")),
+    path("api/v1/programs/", include("programs.urls")),
     path("api/v1/contact/", include("contactform.urls")),
     path("api/v1/banner/", ActiveBannerView.as_view(), name="active-banner"),
     path("api/v1/search/", SearchView.as_view(), name="global-search"),
