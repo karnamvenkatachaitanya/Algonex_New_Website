@@ -6,6 +6,10 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Admin notifications
+ADMINS = [("Algonex Admin", "contact@algonex.in"), ("Sai Kumar", "pappakasaikumar@gmail.com")]
+DEFAULT_FROM_EMAIL = "Algonex <noreply@algonex.in>"
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -34,6 +38,8 @@ INSTALLED_APPS = [
     "careers",
     "portfolio",
     "contactform",
+    "signin",
+    "programs",
 ]
 
 MIDDLEWARE = [
@@ -116,10 +122,13 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
         "anon": "30/minute",
         "user": "120/minute",
+        "registration": "5/minute",
+        "auth_check": "5/minute",
     },
 }
 
@@ -151,3 +160,9 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
+
+# Email (console backend for dev, override in production.py)
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Frontend URL for password setup links
+FRONTEND_URL = "http://localhost:5173"
