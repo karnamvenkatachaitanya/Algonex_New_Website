@@ -14,6 +14,7 @@ urlpatterns = [
     path("api/v1/", include("portfolio.urls")),
     path("api/v1/programs/", include("programs.urls")),
     path("api/v1/contact/", include("contactform.urls")),
+    path("api/v1/register/", include("signin.urls")),
     path("api/v1/banner/", ActiveBannerView.as_view(), name="active-banner"),
     path("api/v1/search/", SearchView.as_view(), name="global-search"),
     path("api/v1/admin/stats/", AdminStatsView.as_view(), name="admin-stats"),
