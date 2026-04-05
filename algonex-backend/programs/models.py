@@ -59,7 +59,12 @@ class Program(TimestampMixin, SlugMixin, models.Model):
 
     @property
     def registration_count(self):
-        return self.registration_profiles.count()
+        # When annotation is present, Django sets this via __dict__; fall back to DB query.
+        return self.__dict__.get("_registration_count", self.registration_profiles.count())
+
+    @registration_count.setter
+    def registration_count(self, value):
+        self.__dict__["_registration_count"] = value
 
     @property
     def spots_left(self):

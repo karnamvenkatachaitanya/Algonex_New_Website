@@ -30,11 +30,10 @@ class TestGetPublishedPrograms(TestCase):
         self.assertEqual(programs.count(), 1)
         self.assertEqual(programs.first().title, "Published")
 
-    # Uncomment after Task 7 when RegistrationProfile exists:
-    # def test_has_registration_count_annotation(self):
-    #     _create_program(title="P1")
-    #     programs = get_published_programs()
-    #     self.assertTrue(hasattr(programs.first(), "registration_count"))
+    def test_has_registration_count_annotation(self):
+        _create_program(title="P1")
+        programs = get_published_programs()
+        self.assertTrue(hasattr(programs.first(), "registration_count"))
 
 
 class TestGetProgramDetail(TestCase):
