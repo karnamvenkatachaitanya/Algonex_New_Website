@@ -155,7 +155,7 @@ Request: {
   interest_category, program_slug (optional), specific_interests,
   terms_agreed
 }
-Response: 201/200: { status: "success", data: { profile_id } }
+Response: 201/200: { status: "success", data: { registered: true } }
 ```
 
 ### URL Routing
