@@ -23,6 +23,13 @@ Two features:
 - Payment/billing for programs
 - Program enrollment tracking beyond registration interest
 
+## Security Considerations
+
+- **Email enumeration:** Both `/register/step1/` and `/auth/check-email/` reveal whether an email exists. This is inherent to the two-step login design. Mitigate with DRF throttling (e.g., 5 requests/minute per IP on these endpoints).
+- **Step 1 → Step 2 binding:** Step 2 accepts `email` and creates/updates profile for that user without authentication. This is accepted risk for the low-friction registration use case. Step 2 uses `update_or_create` semantics (not destructive overwrite). For users with `has_usable_password: true`, profile updates still work but the frontend shows a "login to manage your data" suggestion.
+- **No `user_id` in responses:** Registration endpoints never expose internal user IDs. Responses use `is_new` and `has_password` flags only.
+- **Rate limiting:** Apply DRF throttle classes to: `/register/step1/`, `/register/step2/`, `/auth/check-email/`, `/auth/send-setup-email/`.
+
 ---
 
 ## Data Models
@@ -30,6 +37,9 @@ Two features:
 ### `RegistrationProfile` (extends `signin` app, replaces `SigninProfile`)
 
 OneToOneField to User. Stores all registration-specific data.
+
+- `__str__`: `f"{user.email} - {interest_category}"`
+- `Meta.ordering`: `["-created_at"]`
 
 ```
 RegistrationProfile (TimestampMixin)
@@ -99,7 +109,15 @@ Program (TimestampMixin, SlugMixin)
 ├── Properties (computed)
 │   ├── is_accepting         → application_deadline >= today
 │   ├── spots_left           → capacity - registration_count
+│
+├── Meta
+│   ├── __str__              → f"{title} ({program_type})"
+│   ├── ordering             → ["-is_featured", "application_deadline"]
 ```
+
+**`registration_count` definition:** `RegistrationProfile.objects.filter(program=self).count()`. Since RegistrationProfile is OneToOne with User, each user can only have one registration — no double-counting.
+
+**`eligible_branches` note:** Stored as comma-separated text for simplicity (SQLite compatibility in dev). Can be migrated to JSONField or M2M if branch-based filtering becomes a requirement.
 
 ---
 
@@ -111,12 +129,16 @@ Program (TimestampMixin, SlugMixin)
 
 Creates or finds a User by email. No password set.
 
+**Implementation note:** Use `User.objects.create_user(email=email, password=None, ...)` to ensure `has_usable_password()` returns `False`. The existing `UserManager.create_user` calls `set_password(None)` which sets an unusable password hash — this is the desired behavior.
+
+**Username uniqueness:** `UserManager.create_user` generates username from `email.split("@")[0]`. To handle collisions (e.g., `john@gmail.com` vs `john@yahoo.com`), the `register_step1` service must catch `IntegrityError` on username and append a numeric suffix (e.g., `john`, `john1`, `john2`).
+
 ```
 Request:  { first_name, last_name, email, phone }
 Response:
-  New user     → 201: { status: "success", data: { user_id, is_new: true } }
-  Existing (no pwd) → 200: { status: "success", data: { user_id, is_new: false, has_password: false } }
-  Existing (has pwd) → 200: { status: "success", data: { user_id, is_new: false, has_password: true,
+  New user     → 201: { status: "success", data: { is_new: true } }
+  Existing (no pwd) → 200: { status: "success", data: { is_new: false, has_password: false } }
+  Existing (has pwd) → 200: { status: "success", data: { is_new: false, has_password: true,
                                message: "Account exists. Login to manage your data." } }
 ```
 
@@ -134,6 +156,21 @@ Request: {
   terms_agreed
 }
 Response: 201/200: { status: "success", data: { profile_id } }
+```
+
+### URL Routing
+
+Add to `config/urls.py`:
+```
+path("api/v1/register/", include("signin.urls")),
+path("api/v1/programs/", include("programs.urls")),
+```
+
+New auth endpoints added to `accounts/urls.py`:
+```
+path("check-email/", CheckEmailView.as_view()),
+path("send-setup-email/", SendSetupEmailView.as_view()),
+path("set-password/", SetPasswordView.as_view()),
 ```
 
 ### Two-Step Login (new auth endpoints)
@@ -173,6 +210,8 @@ DELETE /api/v1/programs/:slug/     → Delete (admin only)
 **ProgramListSerializer:** title, slug, program_type, image, duration, stipend, location, is_remote, application_deadline, start_date, is_featured, registration_count, is_accepting
 
 **ProgramDetailSerializer:** all list fields + description, banner, eligibility_criteria, min_degree_level, eligible_branches, end_date, capacity, spots_left
+
+**Pagination:** Uses `StandardPagination` (10 items/page) from `common.pagination`, same as all other list endpoints.
 
 ---
 
@@ -251,6 +290,33 @@ programs/
 | `src/components/Navbar/` | Add "Programs" nav link, update "Get Started" CTA |
 
 ---
+
+## Migration Plan
+
+The existing `SigninProfile` model is a standalone model (no FK to User). The migration strategy:
+
+1. **Keep `SigninProfile` as-is** — do not drop the table. Existing data remains accessible.
+2. **Create `RegistrationProfile`** as a new model alongside it in the `signin` app.
+3. **Optional management command** (`migrate_signin_profiles`) — matches existing `SigninProfile` records by email to User records, creates `RegistrationProfile` entries where possible. Run manually; not part of the Django migration.
+4. **Deprecate `SigninProfile`** — remove the old view/serializer endpoints. The model stays until data is confirmed migrated.
+
+## Email Configuration
+
+The `send-setup-email` endpoint requires email sending capability. Required settings:
+
+```python
+# config/settings/base.py
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"  # or console for dev
+DEFAULT_FROM_EMAIL = "noreply@algonex.com"
+```
+
+For development, use `django.core.mail.backends.console.EmailBackend` (prints to stdout).
+
+**Email template content:**
+- Subject: "Set up your Algonex password"
+- Body: Brief message with a link to `{FRONTEND_URL}/set-password?token={token}&uid={uid_b64}`
+- Token generated via Django's `PasswordResetTokenGenerator`, which auto-invalidates once password is set.
+- Token expiry: controlled by `PASSWORD_RESET_TIMEOUT` setting (default 3 days).
 
 ## Testing Strategy
 
