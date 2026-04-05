@@ -1,1164 +1,355 @@
 export const STACKS = [
-    {
-        id: 1,
-        name: "Python Full Stack",
-        description: "Description 1",
-        image: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner_text: "Python Full Stack",
-        recommended: {
-            level: "Beginner",
-            prior_knowledge: "No prior knowledge required",
-        },
-        isTrending: true,
-        category: "Category 1",
-        duration: "10 days",
-        price: "1000",
-        discount: "10%",
-        rating: 4.5,
-        reviews: 100,
-        students: 1000,
-        skills: ["Python", "Data Analysis", "Data Visualization", "Data Cleaning", "Data Manipulation", "Data Modeling","SQL","Pandas", "NumPy", "Matplotlib", "Seaborn", "Scikit-learn", "TensorFlow"],
-        modules: [
-            {   id: 1,
-                title: "Module 1",
-                description: "Description 1",
-                link: "/course/module/1",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-            },
-            {
-                id: 2,
-                title: "Module 2",
-                description: "Description 2",
-                link: "/course/module/2",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-
-            },
-            {
-                id: 3,
-                title: "Module 3",
-                description: "Description 3",
-                link: "/course/module/3",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-            }
-        ],
-        who_can_take: "Who Can Take 3",
-        career_prospects: "Career Prospects 3",
-        student_testimonials: [
-            {
-                id:1,
-                name: "Student 1",
-                testimonial: "Testimonial 1"
-            },
-            {
-                id:2,
-                name: "Student 2",
-                testimonial: "Testimonial 2"
-            },
-            {
-                id:3,
-                name: "Student 3",
-                testimonial: "Testimonial 3"
-            }
-        ],
-        learn_from_experts: [
-            {
-                id:1,
-                name: "Expert 1",
-                description: "Description 1"
-            },
-            {
-                id:2,
-                name: "Expert 2",
-                description: "Description 2"
-            },
-            {   
-                id:3,
-                name: "Expert 3",
-                description: "Description 3"
-            }
-        ],
-        why_choose_us: [
-            {
-                title: "Why Choose Us 1",
-                description: "Description 1"
-            },
-            {
-                title: "Why Choose Us 2",
-                description: "Description 2"
-            },
-            {
-                title: "Why Choose Us 3",
-                description: "Description 3"
-            }
-        ],
-        faq:[
-            {
-                question: "Question 1",
-                answer: "Answer 1"
-            },
-            {
-                question: "Question 2",
-                answer: "Answer 2"
-            },
-            {
-                question: "Question 3",
-                answer: "Answer 3"
-            }
-        ],
-        testimonials: [
-            {
-                name: "Priya Sharma",
-                role: "Data Analyst at Microsoft",
-                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "The Data Analyst course gave me the skills I needed to land my dream job at Microsoft. The hands-on projects with real datasets were invaluable."
-            },
-            {
-                name: "Rahul Kumar",
-                role: "Business Analyst at Flipkart",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "From basic Excel to advanced Python analytics, this course covered everything. Now I'm driving data-driven decisions at Flipkart."
-            },
-            {
-                name: "Sneha Reddy",
-                role: "Analytics Consultant at Deloitte",
-                image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "The SQL and visualization modules were exceptional. I went from zero knowledge to confidently presenting insights to clients."
-            }
-        ]
+  {
+    id: 1,
+    name: "Python Full Stack",
+    description: "Master Python, Django, and React to build complete web applications from scratch. Includes REST APIs, PostgreSQL, deployment, and real-world projects.",
+    image: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=600&auto=format&fit=crop",
+    banner: "https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=1200&auto=format&fit=crop",
+    banner_text: "Python Full Stack Development",
+    recommended: {
+      level: "Beginner",
+      prior_knowledge: "No prior programming experience required. Basic computer skills are sufficient.",
     },
-    {
-        id: 2,
-        name: "MERN Stack",
-        description: "Description 2",
-        image: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner_text: "Banner Text 2",
-        recommended: {
-            level: "Beginner",
-            prior_knowledge: "No prior knowledge required",
-        },
-        isTrending: true,
-        category: "Category 2",
-        duration: "10 days",
-        price: "1000",
-        discount: "10%",
-        rating: 4.5,
-        reviews: 100,
-        students: 1000,
-        modules: [
-            {   id: 1,
-                title: "Module 1",
-                description: "Description 1",
-                link: "/course/module/1",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-            },
-            {
-                id: 2,
-                title: "Module 2",
-                description: "Description 2",
-                link: "/course/module/2",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-
-            },
-            {
-                id: 3,
-                title: "Module 3",
-                description: "Description 3",
-                link: "/course/module/3",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-            }
+    isTrending: true,
+    category: "Full Stack",
+    duration: "12 Weeks",
+    price: "24999",
+    discount: "20%",
+    rating: 4.8,
+    reviews: 342,
+    students: 2450,
+    skills: ["Python", "Django", "Django REST Framework", "React", "PostgreSQL", "Redis", "Docker", "Git", "AWS", "REST APIs", "HTML/CSS", "JavaScript"],
+    modules: [
+      {
+        id: 1, title: "Python Fundamentals", description: "Build a strong foundation in Python programming",
+        topics: [
+          { id: 1, title: "Variables, Data Types & Operators" },
+          { id: 2, title: "Control Flow & Loops" },
+          { id: 3, title: "Functions & Modules" },
+          { id: 4, title: "Object-Oriented Programming" },
+          { id: 5, title: "File Handling & Exceptions" },
+          { id: 6, title: "List Comprehensions & Generators" },
         ],
-        who_can_take: "Who Can Take 3",
-        career_prospects: "Career Prospects 3",
-        student_testimonials: [
-            {
-                id:1,
-                name: "Student 1",
-                testimonial: "Testimonial 1"
-            },
-            {
-                id:2,
-                name: "Student 2",
-                testimonial: "Testimonial 2"
-            },
-            {
-                id:3,
-                name: "Student 3",
-                testimonial: "Testimonial 3"
-            }
+      },
+      {
+        id: 2, title: "Django Web Framework", description: "Build robust backends with Django",
+        topics: [
+          { id: 1, title: "Django Project Structure & Settings" },
+          { id: 2, title: "Models, Migrations & ORM" },
+          { id: 3, title: "Views, Templates & URL Routing" },
+          { id: 4, title: "Forms & Validation" },
+          { id: 5, title: "Authentication & Permissions" },
+          { id: 6, title: "Django Admin Customization" },
         ],
-        learn_from_experts: [
-            {
-                id:1,
-                name: "Expert 1",
-                description: "Description 1"
-            },
-            {
-                id:2,
-                name: "Expert 2",
-                description: "Description 2"
-            },
-            {   
-                id:3,
-                name: "Expert 3",
-                description: "Description 3"
-            }
+      },
+      {
+        id: 3, title: "REST APIs with DRF", description: "Design and build production-grade APIs",
+        topics: [
+          { id: 1, title: "Serializers & ViewSets" },
+          { id: 2, title: "Authentication — JWT & OAuth" },
+          { id: 3, title: "Pagination, Filtering & Search" },
+          { id: 4, title: "File Uploads & Media Handling" },
+          { id: 5, title: "Testing APIs with pytest" },
+          { id: 6, title: "API Documentation with Swagger" },
         ],
-        why_choose_us: [
-            {
-                title: "Why Choose Us 1",
-                description: "Description 1"
-            },
-            {
-                title: "Why Choose Us 2",
-                description: "Description 2"
-            },
-            {
-                title: "Why Choose Us 3",
-                description: "Description 3"
-            }
+      },
+      {
+        id: 4, title: "React Frontend", description: "Build dynamic single-page applications",
+        topics: [
+          { id: 1, title: "Components, Props & State" },
+          { id: 2, title: "Hooks — useState, useEffect, useContext" },
+          { id: 3, title: "React Router & Navigation" },
+          { id: 4, title: "API Integration with Axios" },
+          { id: 5, title: "State Management Patterns" },
+          { id: 6, title: "Forms & Validation" },
         ],
-        faq:[
-            {
-                question: "Question 1",
-                answer: "Answer 1"
-            },
-            {
-                question: "Question 2",
-                answer: "Answer 2"
-            },
-            {
-                question: "Question 3",
-                answer: "Answer 3"
-            }
+      },
+      {
+        id: 5, title: "Deployment & DevOps", description: "Ship your applications to production",
+        topics: [
+          { id: 1, title: "Docker & Docker Compose" },
+          { id: 2, title: "PostgreSQL Setup & Optimization" },
+          { id: 3, title: "AWS EC2 & S3 Deployment" },
+          { id: 4, title: "Nginx & Gunicorn Configuration" },
+          { id: 5, title: "CI/CD with GitHub Actions" },
+          { id: 6, title: "Monitoring & Logging" },
         ],
-        testimonials: [
-            {
-                name: "Arjun Mehta",
-                role: "Full Stack Developer at Amazon",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "This course transformed my career. The hands-on projects and mentorship helped me land a job at Amazon within 3 months of completion."
-            },
-            {
-                name: "Ananya Singh",
-                role: "Software Engineer at Microsoft",
-                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "Best investment I made in my career. The curriculum is up-to-date with industry standards and the instructors are incredibly supportive."
-            },
-            {
-                name: "Rohan Desai",
-                role: "Lead Developer at Startup",
-                image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "From zero coding experience to building my own startup's tech stack. This course gave me the confidence and skills to execute my vision."
-            }
-        ]
+      },
+    ],
+    faq: [
+      { question: "Do I need prior programming experience?", answer: "No! This course starts from absolute basics. We teach Python from scratch and progressively build up to full stack development." },
+      { question: "What kind of projects will I build?", answer: "You'll build 5+ projects including an e-commerce platform, a blog with comments, a REST API, and a capstone full-stack application of your choice." },
+      { question: "Is placement support included?", answer: "Yes. You get resume reviews, mock interviews, and access to our hiring partner network of 50+ companies." },
+      { question: "How are classes conducted?", answer: "Live online classes on weekends with recordings available. You also get 1-on-1 mentor sessions and 24/7 community support." },
+    ],
+    testimonials: [
+      { name: "Priya Sharma", role: "Backend Developer at Razorpay", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop", rating: 5, text: "Went from zero Python knowledge to getting hired as a backend developer in 4 months. The Django projects were exactly what interviewers wanted to see." },
+      { name: "Rahul Kumar", role: "Full Stack Developer at Flipkart", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop", rating: 5, text: "The best investment in my career. The curriculum is practical, not theoretical — every concept is taught through real projects." },
+      { name: "Sneha Reddy", role: "Software Engineer at Atlassian", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format&fit=crop", rating: 5, text: "The deployment module alone was worth the entire course fee. I can now confidently deploy and manage production applications." },
+    ],
+  },
+  {
+    id: 2,
+    name: "MERN Stack",
+    description: "Build modern web applications with MongoDB, Express.js, React, and Node.js. Full JavaScript stack from frontend to backend with real-time features.",
+    image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=600&auto=format&fit=crop",
+    banner: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=1200&auto=format&fit=crop",
+    banner_text: "MERN Stack Development",
+    recommended: {
+      level: "Beginner",
+      prior_knowledge: "Basic HTML & CSS knowledge recommended but not required.",
     },
-    {
-        id: 3,
-        name: "Data Analyst",
-        description: "Description 3",
-        image: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner_text: "Banner Text 3",
-        recommended: {
-            level: "Beginner",
-            prior_knowledge: "No prior knowledge required",
-        },
-        isTrending: true,
-        category: "Category 3",
-        duration: "10 days",
-        price: "1000",
-        discount: "10%",
-        rating: 4.5,
-        reviews: 100,
-        students: 1000,
-        skills: ["Python", "Data Analysis", "Data Visualization", "Data Cleaning", "Data Manipulation", "Data Modeling","SQL","Pandas", "NumPy", "Matplotlib", "Seaborn", "Scikit-learn", "TensorFlow"],
-        modules: [
-            {   id: 1,
-                title: "Module 1",
-                description: "Description 1",
-                link: "/course/module/1",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-            },
-            {
-                id: 2,
-                title: "Module 2",
-                description: "Description 2",
-                link: "/course/module/2",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-
-            },
-            {
-                id: 3,
-                title: "Module 3",
-                description: "Description 3",
-                link: "/course/module/3",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-            }
+    isTrending: true,
+    category: "Full Stack",
+    duration: "10 Weeks",
+    price: "22999",
+    discount: "15%",
+    rating: 4.7,
+    reviews: 287,
+    students: 1850,
+    skills: ["JavaScript", "Node.js", "Express.js", "React", "MongoDB", "Mongoose", "JWT", "Socket.io", "Redux", "REST APIs", "Git", "Heroku"],
+    modules: [
+      {
+        id: 1, title: "JavaScript & ES6+", description: "Modern JavaScript from fundamentals to advanced patterns",
+        topics: [
+          { id: 1, title: "Variables, Scope & Hoisting" },
+          { id: 2, title: "Arrow Functions & Destructuring" },
+          { id: 3, title: "Promises & Async/Await" },
+          { id: 4, title: "Array Methods — map, filter, reduce" },
+          { id: 5, title: "Modules & Import/Export" },
+          { id: 6, title: "Error Handling Patterns" },
         ],
-        who_can_take: "Who Can Take 3",
-        career_prospects: "Career Prospects 3",
-        student_testimonials: [
-            {
-                id:1,
-                name: "Student 1",
-                testimonial: "Testimonial 1"
-            },
-            {
-                id:2,
-                name: "Student 2",
-                testimonial: "Testimonial 2"
-            },
-            {
-                id:3,
-                name: "Student 3",
-                testimonial: "Testimonial 3"
-            }
+      },
+      {
+        id: 2, title: "Node.js & Express", description: "Server-side JavaScript and REST API development",
+        topics: [
+          { id: 1, title: "Node.js Core Modules & NPM" },
+          { id: 2, title: "Express Routing & Middleware" },
+          { id: 3, title: "REST API Design Principles" },
+          { id: 4, title: "JWT Authentication" },
+          { id: 5, title: "Error Handling & Validation" },
+          { id: 6, title: "File Uploads with Multer" },
         ],
-        learn_from_experts: [
-            {
-                id:1,
-                name: "Expert 1",
-                description: "Description 1"
-            },
-            {
-                id:2,
-                name: "Expert 2",
-                description: "Description 2"
-            },
-            {   
-                id:3,
-                name: "Expert 3",
-                description: "Description 3"
-            }
+      },
+      {
+        id: 3, title: "MongoDB & Mongoose", description: "NoSQL database design and data modeling",
+        topics: [
+          { id: 1, title: "MongoDB Atlas Setup" },
+          { id: 2, title: "CRUD Operations" },
+          { id: 3, title: "Schema Design & Validation" },
+          { id: 4, title: "Indexing & Performance" },
+          { id: 5, title: "Aggregation Pipeline" },
+          { id: 6, title: "Relationships & Population" },
         ],
-        why_choose_us: [
-            {
-                title: "Why Choose Us 1",
-                description: "Description 1"
-            },
-            {
-                title: "Why Choose Us 2",
-                description: "Description 2"
-            },
-            {
-                title: "Why Choose Us 3",
-                description: "Description 3"
-            }
+      },
+      {
+        id: 4, title: "React & Redux", description: "Build dynamic, state-managed frontends",
+        topics: [
+          { id: 1, title: "Components & JSX" },
+          { id: 2, title: "Hooks — useState, useEffect, useRef" },
+          { id: 3, title: "Context API & Custom Hooks" },
+          { id: 4, title: "React Router v7" },
+          { id: 5, title: "Redux Toolkit & RTK Query" },
+          { id: 6, title: "Performance Optimization" },
         ],
-        faq:[
-            {
-                question: "Question 1",
-                answer: "Answer 1"
-            },
-            {
-                question: "Question 2",
-                answer: "Answer 2"
-            },
-            {
-                question: "Question 3",
-                answer: "Answer 3"
-            }
+      },
+      {
+        id: 5, title: "Full Stack Integration", description: "Connect everything and deploy",
+        topics: [
+          { id: 1, title: "Frontend-Backend Integration" },
+          { id: 2, title: "Real-time Features with Socket.io" },
+          { id: 3, title: "Payment Integration" },
+          { id: 4, title: "Docker Containerization" },
+          { id: 5, title: "Deployment to Production" },
+          { id: 6, title: "CI/CD & Monitoring" },
         ],
-        testimonials: [
-            {
-                name: "Vikram Patel",
-                role: "Python Developer at Google",
-                image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "The Python Full Stack course exceeded my expectations. The Django projects prepared me perfectly for my role at Google."
-            },
-            {
-                name: "Meera Iyer",
-                role: "Backend Engineer at Netflix",
-                image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "Comprehensive curriculum covering Python, Django, and modern deployment practices. The instructors are industry experts who really care about student success."
-            },
-            {
-                name: "Karthik Reddy",
-                role: "Full Stack Engineer at Swiggy",
-                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "I switched from manual testing to full stack development thanks to this course. The structured approach made learning Python and Django enjoyable."
-            }
-        ]
+      },
+    ],
+    faq: [
+      { question: "Is JavaScript experience required?", answer: "No. We start from JavaScript fundamentals and build up. If you know basic HTML/CSS, you're ready." },
+      { question: "Why MERN over other stacks?", answer: "MERN uses JavaScript across the entire stack, making it easier to learn and very popular with startups and modern companies." },
+      { question: "What projects will I build?", answer: "A social media app with real-time chat, an e-commerce store with payments, and a capstone project of your choice." },
+      { question: "Do you provide job assistance?", answer: "Yes — resume building, LinkedIn optimization, mock interviews, and referrals to our 50+ hiring partners." },
+    ],
+    testimonials: [
+      { name: "Arjun Mehta", role: "Frontend Developer at Amazon", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop", rating: 5, text: "The React + Node.js combination is incredibly powerful. This course gave me the confidence to build anything from scratch." },
+      { name: "Ananya Singh", role: "Software Engineer at Microsoft", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop", rating: 5, text: "Best-structured MERN course I've found. The Socket.io real-time module was a highlight — we built a full chat app!" },
+      { name: "Rohan Desai", role: "CTO at Startup", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop", rating: 5, text: "From complete beginner to building my startup's entire tech stack. This course changed my life." },
+    ],
+  },
+  {
+    id: 3,
+    name: "Data Analytics",
+    description: "Learn to analyze, visualize, and derive insights from data using Python, SQL, and modern BI tools. Become a data-driven decision maker.",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop",
+    banner: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop",
+    banner_text: "Data Analytics Professional",
+    recommended: {
+      level: "Beginner",
+      prior_knowledge: "Basic math and spreadsheet knowledge helpful. No programming required.",
     },
-    {
-        id: 4,
-        name: "Java Full Stack",
-        description: "Description 4",
-        image: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner: "https://www.emexotechnologies.com/wp-content/uploads/2021/01/python-training-emexo.png",
-        banner_text: "Banner Text 4",
-        isTrending: true,
-        recommended: {
-            level: "Advanced",
-            prior_knowledge: "No prior knowledge required",
-        },
-        category: "Category 4",
-        duration: "10 days", 
-        price: "1000",
-        discount: "10%",
-        rating: 4.5,
-        reviews: 100,
-        students: 1000,
-        modules: [
-            {   id: 1,
-                title: "Module 1",
-                description: "Description 1",
-                link: "/course/module/1",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-            },
-            {
-                id: 2,
-                title: "Module 2",
-                description: "Description 2",
-                link: "/course/module/2",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-
-            },
-            {
-                id: 3,
-                title: "Module 3",
-                description: "Description 3",
-                link: "/course/module/3",
-                topics: [
-                    {
-                        id: 1,
-                        title: "Topic 1",
-                        description: "Description 1",
-                    },
-                    {
-                        id: 2,
-                        title: "Topic 2",
-                        description: "Description 2",
-                    },
-                    {
-                        id: 3,
-                        title: "Topic 3",
-                        description: "Description 3",
-                    },
-                    {
-                        id: 4,
-                        title: "Topic 4",
-                        description: "Description 4",
-                    },
-                    {
-                        id: 5,
-                        title: "Topic 5",
-                        description: "Description 5",
-                    },
-                    {
-                        id: 6,
-                        title: "Topic 6",
-                        description: "Description 6",
-                    },
-                    {
-                        id: 7,
-                        title: "Topic 7",
-                        description: "Description 7",
-                    },
-                    {
-                        id: 8,
-                        title: "Topic 8",
-                        description: "Description 8",
-                    },
-                    {
-                        id: 9,
-                        title: "Topic 9",
-                        description: "Description 9",
-                    },
-                    {
-                        id: 10,
-                        title: "Topic 10",
-                        description: "Description 10",
-                    }
-                ]
-            }
+    isTrending: true,
+    category: "Data",
+    duration: "8 Weeks",
+    price: "19999",
+    discount: "10%",
+    rating: 4.6,
+    reviews: 198,
+    students: 1320,
+    skills: ["Python", "SQL", "Pandas", "NumPy", "Matplotlib", "Seaborn", "Power BI", "Excel", "Statistics", "Data Cleaning", "Data Visualization", "Jupyter"],
+    modules: [
+      {
+        id: 1, title: "Python for Data Analysis", description: "Python fundamentals tailored for data work",
+        topics: [
+          { id: 1, title: "Python Basics & Data Types" },
+          { id: 2, title: "NumPy Arrays & Operations" },
+          { id: 3, title: "Pandas DataFrames" },
+          { id: 4, title: "Data Cleaning Techniques" },
+          { id: 5, title: "Handling Missing Data" },
+          { id: 6, title: "Data Transformation & Aggregation" },
         ],
-        who_can_take: "Who Can Take 3",
-        career_prospects: "Career Prospects 3",
-        student_testimonials: [
-            {
-                id:1,
-                name: "Student 1",
-                testimonial: "Testimonial 1"
-            },
-            {
-                id:2,
-                name: "Student 2",
-                testimonial: "Testimonial 2"
-            },
-            {
-                id:3,
-                name: "Student 3",
-                testimonial: "Testimonial 3"
-            }
+      },
+      {
+        id: 2, title: "SQL & Database Querying", description: "Extract and analyze data from relational databases",
+        topics: [
+          { id: 1, title: "SELECT, WHERE, ORDER BY" },
+          { id: 2, title: "JOINs — INNER, LEFT, RIGHT, FULL" },
+          { id: 3, title: "GROUP BY & Aggregate Functions" },
+          { id: 4, title: "Subqueries & CTEs" },
+          { id: 5, title: "Window Functions" },
+          { id: 6, title: "Query Optimization" },
         ],
-        learn_from_experts: [
-            {
-                id:1,
-                name: "Expert 1",
-                description: "Description 1"
-            },
-            {
-                id:2,
-                name: "Expert 2",
-                description: "Description 2"
-            },
-            {   
-                id:3,
-                name: "Expert 3",
-                description: "Description 3"
-            }
+      },
+      {
+        id: 3, title: "Data Visualization", description: "Tell compelling stories with data",
+        topics: [
+          { id: 1, title: "Matplotlib Fundamentals" },
+          { id: 2, title: "Seaborn Statistical Plots" },
+          { id: 3, title: "Interactive Dashboards with Plotly" },
+          { id: 4, title: "Power BI Desktop" },
+          { id: 5, title: "Dashboard Design Principles" },
+          { id: 6, title: "Presenting Data to Stakeholders" },
         ],
-        why_choose_us: [
-            {
-                title: "Why Choose Us 1",
-                description: "Description 1"
-            },
-            {
-                title: "Why Choose Us 2",
-                description: "Description 2"
-            },
-            {
-                title: "Why Choose Us 3",
-                description: "Description 3"
-            }
+      },
+      {
+        id: 4, title: "Statistics & Analysis", description: "Statistical thinking for data professionals",
+        topics: [
+          { id: 1, title: "Descriptive Statistics" },
+          { id: 2, title: "Probability Distributions" },
+          { id: 3, title: "Hypothesis Testing" },
+          { id: 4, title: "Correlation & Regression" },
+          { id: 5, title: "A/B Testing" },
+          { id: 6, title: "Business Case Studies" },
         ],
-        faq:[
-            {
-                question: "Question 1",
-                answer: "Answer 1"
-            },
-            {
-                question: "Question 2",
-                answer: "Answer 2"
-            },
-            {
-                question: "Question 3",
-                answer: "Answer 3"
-            }
+      },
+    ],
+    faq: [
+      { question: "Do I need to know programming?", answer: "No. We start with Python basics and teach you everything you need for data analysis. Many of our students come from non-tech backgrounds." },
+      { question: "Is this course good for career switchers?", answer: "Absolutely. Data analytics is one of the most accessible tech roles for career changers. We've helped 200+ students transition from other fields." },
+      { question: "Will I learn Power BI?", answer: "Yes. The visualization module covers both Python-based plotting and Power BI for enterprise dashboards." },
+      { question: "What's the job market like for data analysts?", answer: "Data analytics is one of the fastest-growing fields. Average starting salary for freshers is ₹5-8 LPA, going up to ₹15+ LPA with experience." },
+    ],
+    testimonials: [
+      { name: "Vikram Patel", role: "Data Analyst at Google", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop", rating: 5, text: "The SQL and Python modules were exceptional. I went from an MBA grad with no coding skills to a data analyst at Google." },
+      { name: "Meera Iyer", role: "Business Analyst at Flipkart", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format&fit=crop", rating: 5, text: "The Power BI and visualization modules were game-changing. I now create dashboards that leadership actually uses for decision-making." },
+      { name: "Karthik Reddy", role: "Analytics Lead at Swiggy", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop", rating: 5, text: "Switched from manual testing to data analytics. The statistics module gave me confidence to drive A/B testing at scale." },
+    ],
+  },
+  {
+    id: 4,
+    name: "Java Full Stack",
+    description: "Enterprise-grade development with Java, Spring Boot, and Angular. Build scalable microservices and master the most in-demand enterprise stack.",
+    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop",
+    banner: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&auto=format&fit=crop",
+    banner_text: "Java Full Stack Development",
+    isTrending: true,
+    recommended: {
+      level: "Intermediate",
+      prior_knowledge: "Basic programming concepts recommended. Some OOP experience is helpful.",
+    },
+    category: "Full Stack",
+    duration: "14 Weeks",
+    price: "29999",
+    discount: "20%",
+    rating: 4.7,
+    reviews: 256,
+    students: 1680,
+    skills: ["Java", "Spring Boot", "Spring Security", "Hibernate", "Angular", "TypeScript", "MySQL", "Docker", "Microservices", "REST APIs", "JUnit", "Maven"],
+    modules: [
+      {
+        id: 1, title: "Core Java", description: "Strong Java foundations for enterprise development",
+        topics: [
+          { id: 1, title: "OOP — Classes, Inheritance, Polymorphism" },
+          { id: 2, title: "Collections Framework" },
+          { id: 3, title: "Exception Handling" },
+          { id: 4, title: "Generics & Streams API" },
+          { id: 5, title: "Multithreading & Concurrency" },
+          { id: 6, title: "Java 17+ Features" },
         ],
-        testimonials: [
-            {
-                name: "Aditya Sharma",
-                role: "Java Developer at TCS",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "The Java Full Stack program was comprehensive and well-structured. The Spring Boot and microservices modules were particularly valuable for my role."
-            },
-            {
-                name: "Neha Gupta",
-                role: "Full Stack Developer at Infosys",
-                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "From core Java to advanced Spring frameworks, this course covered everything. The capstone project gave me real-world experience that impressed my interviewers."
-            },
-            {
-                name: "Sanjay Kumar",
-                role: "Senior Developer at Wipro",
-                image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop",
-                rating: 5,
-                text: "As someone with basic programming knowledge, this course helped me become a confident full stack developer. The instructor support was exceptional throughout."
-            }
-        ]
-    }
-]
+      },
+      {
+        id: 2, title: "Spring Boot & Microservices", description: "Build production-grade backend services",
+        topics: [
+          { id: 1, title: "Spring Boot Auto-Configuration" },
+          { id: 2, title: "REST Controllers & Request Mapping" },
+          { id: 3, title: "Spring Data JPA & Hibernate" },
+          { id: 4, title: "Spring Security & JWT" },
+          { id: 5, title: "Microservices Architecture" },
+          { id: 6, title: "Service Discovery & API Gateway" },
+        ],
+      },
+      {
+        id: 3, title: "Database & ORM", description: "Relational database mastery with Hibernate",
+        topics: [
+          { id: 1, title: "MySQL Database Design" },
+          { id: 2, title: "Hibernate Mapping & Relationships" },
+          { id: 3, title: "JPQL & Native Queries" },
+          { id: 4, title: "Transactions & Caching" },
+          { id: 5, title: "Database Migration with Flyway" },
+          { id: 6, title: "Performance Tuning" },
+        ],
+      },
+      {
+        id: 4, title: "Angular Frontend", description: "Enterprise frontend with Angular & TypeScript",
+        topics: [
+          { id: 1, title: "TypeScript Fundamentals" },
+          { id: 2, title: "Components & Data Binding" },
+          { id: 3, title: "Services & Dependency Injection" },
+          { id: 4, title: "Routing & Guards" },
+          { id: 5, title: "Reactive Forms & Validation" },
+          { id: 6, title: "HTTP Client & Interceptors" },
+        ],
+      },
+      {
+        id: 5, title: "DevOps & Deployment", description: "Containerize and deploy enterprise applications",
+        topics: [
+          { id: 1, title: "Docker & Docker Compose" },
+          { id: 2, title: "Kubernetes Basics" },
+          { id: 3, title: "CI/CD with Jenkins" },
+          { id: 4, title: "AWS Elastic Beanstalk" },
+          { id: 5, title: "Logging with ELK Stack" },
+          { id: 6, title: "Application Monitoring" },
+        ],
+      },
+    ],
+    faq: [
+      { question: "Why Java over other languages?", answer: "Java powers 90% of enterprise applications and Fortune 500 backends. It offers the highest-paying full stack roles and unmatched job stability." },
+      { question: "Is this harder than Python or MERN?", answer: "Java has a steeper learning curve but the payoff is higher — enterprise roles, better salaries, and long-term career stability. We make it approachable with project-based learning." },
+      { question: "Do you cover microservices?", answer: "Yes — we dedicate an entire module to microservices architecture with Spring Cloud, service discovery, API gateway, and inter-service communication." },
+      { question: "What companies hire Java developers?", answer: "TCS, Infosys, Wipro, Amazon, Google, Goldman Sachs, JP Morgan, and virtually every large enterprise. Java demand is massive." },
+    ],
+    testimonials: [
+      { name: "Aditya Sharma", role: "Java Developer at Goldman Sachs", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop", rating: 5, text: "The Spring Boot and microservices modules prepared me perfectly for my role in fintech. Worth every rupee." },
+      { name: "Neha Gupta", role: "Full Stack Developer at Infosys", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop", rating: 5, text: "From basic Java to building enterprise microservices — this course accelerated my career by years. The capstone project was interview gold." },
+      { name: "Sanjay Kumar", role: "Senior Developer at Wipro", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format&fit=crop", rating: 5, text: "As a career switcher from mechanical engineering, this course gave me a clear path into software. Now leading a team of 5 developers." },
+    ],
+  },
+];
 
 export const ALGONEX_FAQS = [
-    {
-      id: 1,
-      question: 'How do I know which career path is right for me?',
-      answer: 'Our career assessment tools and expert guidance help you identify your strengths, interests, and market opportunities to choose the right path.'
-    },
-    {
-      id: 2,
-      question: 'Where should I search for jobs and internships?',
-      answer: 'We provide access to our exclusive job portal, partner company listings, and direct connections with hiring managers from top companies.'
-    },
-    {
-      id: 3,
-      question: 'What are the most common interview questions for freshers?',
-      answer: 'We cover technical questions, behavioral questions, and industry-specific scenarios with detailed preparation materials and mock interviews.'
-    },
-    {
-      id: 4,
-      question: 'How do I prepare for technical interviews?',
-      answer: 'Our structured curriculum includes coding challenges, system design concepts, and hands-on projects that mirror real interview scenarios.'
-    },
-    {
-      id: 5,
-      question: 'Which programming languages should I learn first?',
-      answer: 'Based on current market demand, we recommend starting with Python or JavaScript, followed by specialized languages based on your career goals.'
-    }
-  ];
+  { id: 1, question: "How do I know which career path is right for me?", answer: "Our career assessment tools and expert guidance help you identify your strengths, interests, and market opportunities to choose the right path." },
+  { id: 2, question: "Where should I search for jobs and internships?", answer: "We provide access to our exclusive job portal, partner company listings, and direct connections with hiring managers from top companies." },
+  { id: 3, question: "What are the most common interview questions for freshers?", answer: "We cover technical questions, behavioral questions, and industry-specific scenarios with detailed preparation materials and mock interviews." },
+  { id: 4, question: "How do I prepare for technical interviews?", answer: "Our structured curriculum includes coding challenges, system design concepts, and hands-on projects that mirror real interview scenarios." },
+  { id: 5, question: "Which programming languages should I learn first?", answer: "Based on current market demand, we recommend starting with Python or JavaScript, followed by specialized languages based on your career goals." },
+];

@@ -7,6 +7,30 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class ActiveBannerView(APIView):
+    """
+    GET /api/v1/banner/
+    Returns the currently active site banner (if any).
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from .models import SiteBanner
+        banner = SiteBanner.objects.filter(is_active=True).first()
+        if not banner:
+            return Response({"status": "success", "data": None})
+        return Response({
+            "status": "success",
+            "data": {
+                "text": banner.text,
+                "link": banner.link,
+                "bg_color": banner.bg_color,
+                "text_color": banner.text_color,
+            },
+        })
+
+
 class SearchView(APIView):
     """
     GET /api/v1/search/?q=python

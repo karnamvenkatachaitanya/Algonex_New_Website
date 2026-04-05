@@ -1,76 +1,133 @@
-import React from 'react';
-import { FaWhatsapp, FaLinkedin } from 'react-icons/fa';
+import React from "react";
+import { Link } from "react-router-dom";
+import {
+  MailOutlined,
+  PhoneOutlined,
+  EnvironmentOutlined,
+  LinkedinOutlined,
+  GithubOutlined,
+  TwitterOutlined,
+} from "@ant-design/icons";
 
-const Footer = () => {
+const navLinks = [
+  { label: "Home", to: "/" },
+  { label: "Courses", to: "/allcourses" },
+  { label: "Events", to: "/events" },
+  { label: "About Us", to: "/aboutus" },
+  { label: "Contact", to: "/contact" },
+];
+
+const courseLinks = [
+  { label: "Python Full Stack", to: "/courses/python-full-stack" },
+  { label: "MERN Stack", to: "/courses/mern-stack" },
+  { label: "Data Analytics", to: "/courses/data-analytics" },
+  { label: "Java Full Stack", to: "/courses/java-full-stack" },
+];
+
+export default function Footer() {
   return (
-    <footer className="bg-gray-800 text-white text-center py-4">
-
-      {/* Footer */}
-      <div className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h4 className="text-2xl font-bold mb-4 text-[#66E5FF]">Algonex Academy</h4>
-              <p className="text-gray-400 mb-4">
-                Empowering careers through innovative education and community events
-              </p>
-            </div>
-            <div>
-              <h5 className="font-bold mb-4 text-[#66E5FF]">Quick Links</h5>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-[#66E5FF] transition-colors">Home</a></li>
-                <li><a href="#" className="hover:text-[#66E5FF] transition-colors">Events</a></li>
-                <li><a href="#" className="hover:text-[#66E5FF] transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-[#66E5FF] transition-colors">Contact</a></li>
-                <div className='flex justify-center gap-5'>
-                  <li>
-                  <a
-                    href="https://wa.me/919000000000"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 hover:text-[#25D366] transition-colors"
-                  >
-                    <FaWhatsapp size={20} />
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.linkedin.com/company/algonex"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 hover:text-[#0A66C2] transition-colors"
-                  >
-                    <FaLinkedin size={20} />
-                  </a>
-                </li>
-                </div>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold mb-4 text-[#66E5FF]">Event Types</h5>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-[#66E5FF] transition-colors">Workshops</a></li>
-                <li><a href="#" className="hover:text-[#66E5FF] transition-colors">Webinars</a></li>
-                <li><a href="#" className="hover:text-[#66E5FF] transition-colors">Bootcamps</a></li>
-                <li><a href="#" className="hover:text-[#66E5FF] transition-colors">Career Fairs</a></li>
-              </ul>
-            </div>
-            <div>
-              <h5 className="font-bold mb-4 text-[#66E5FF]">Contact</h5>
-              <ul className="space-y-2 text-gray-400">
-                <li>Bangalore, Karnataka</li>
-                <li>events@algonexacademy.com</li>
-                <li>+91 1800-123-4567</li>
-              </ul>
+    <footer style={{ background: "#0c1222", color: "rgba(255,255,255,0.7)", padding: "48px 24px 24px" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: 40,
+            marginBottom: 40,
+          }}
+        >
+          {/* Brand */}
+          <div>
+            <h3 style={{ color: "white", fontSize: 20, fontWeight: 700, marginBottom: 12 }}>
+              <span style={{ color: "#00B4D8" }}>A</span>lgonex
+            </h3>
+            <p style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 16 }}>
+              Training institute & software solutions company building the next generation of tech professionals in Bangalore.
+            </p>
+            <div style={{ display: "flex", gap: 12 }}>
+              <a href="https://linkedin.com/company/algonex" target="_blank" rel="noopener noreferrer"
+                style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.7)", transition: "all 0.2s" }}
+              >
+                <LinkedinOutlined />
+              </a>
+              <a href="https://github.com/algonex" target="_blank" rel="noopener noreferrer"
+                style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.7)" }}
+              >
+                <GithubOutlined />
+              </a>
+              <a href="https://twitter.com/algonex" target="_blank" rel="noopener noreferrer"
+                style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.7)" }}
+              >
+                <TwitterOutlined />
+              </a>
             </div>
           </div>
-          <div className="border-t border-gray-700 pt-8 text-center text-gray-400">
-            <p>© 2025 Algonex Academy. All rights reserved.</p>
+
+          {/* Quick Links */}
+          <div>
+            <h4 style={{ color: "white", fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Quick Links</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {navLinks.map((link) => (
+                <Link key={link.to} to={link.to} style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, textDecoration: "none" }}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Courses */}
+          <div>
+            <h4 style={{ color: "white", fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Popular Courses</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {courseLinks.map((link) => (
+                <Link key={link.to} to={link.to} style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, textDecoration: "none" }}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 style={{ color: "white", fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Contact</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <EnvironmentOutlined style={{ color: "#00B4D8" }} />
+                Marthahalli, Bangalore 560037
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <PhoneOutlined style={{ color: "#00B4D8" }} />
+                +91 80-4567-8900
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <MailOutlined style={{ color: "#00B4D8" }} />
+                contact@algonex.in
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom */}
+        <div
+          style={{
+            borderTop: "1px solid rgba(255,255,255,0.1)",
+            paddingTop: 20,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 12,
+            fontSize: 13,
+            color: "rgba(255,255,255,0.4)",
+          }}
+        >
+          <span>&copy; {new Date().getFullYear()} Algonex. All rights reserved.</span>
+          <div style={{ display: "flex", gap: 20 }}>
+            <Link to="/privacy" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Privacy Policy</Link>
+            <Link to="/terms" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Terms of Service</Link>
           </div>
         </div>
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

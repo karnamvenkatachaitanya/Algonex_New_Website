@@ -1,0 +1,421 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Tag, Collapse, Rate, Button, Card, Row, Col, Carousel, Avatar, Empty, Modal, App, Spin } from "antd";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import {
+  ClockCircleOutlined,
+  UserOutlined,
+  BookOutlined,
+  TrophyOutlined,
+  ArrowLeftOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
+import { coursesAPI } from "../../api/courses";
+import { STACKS } from "../../constants/constant";
+import CourseCard from "../../components/courses/CourseCard";
+import { useAuth } from "../../hooks/useAuth";
+
+export default function CourseDetailPage() {
+  const { slug, id } = useParams();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [course, setCourse] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [enrolled, setEnrolled] = useState(false);
+  const [enrollLoading, setEnrollLoading] = useState(false);
+  const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [showSigninModal, setShowSigninModal] = useState(false);
+  const { message } = App.useApp();
+
+  // Reset all state when navigating between courses
+  useEffect(() => {
+    setCourse(null);
+    setLoading(true);
+    setEnrolled(false);
+    setEnrollLoading(false);
+    setShowEnrollModal(false);
+    setShowSigninModal(false);
+  }, [slug, id]);
+
+  // Fetch course from API
+  useEffect(() => {
+    const fetchCourse = async () => {
+      let courseSlug = slug;
+
+      // If on /stack/:id route, look up slug from static data
+      if (!courseSlug && id) {
+        const staticCourse = STACKS.find((c) => c.id === parseInt(id));
+        if (staticCourse) {
+          courseSlug = staticCourse.name.toLowerCase().replace(/\s+/g, "-");
+        }
+      }
+
+      if (courseSlug) {
+        try {
+          const res = await coursesAPI.detail(courseSlug);
+          const data = res.data?.data || res.data;
+          setCourse(data);
+          if (data.is_enrolled) setEnrolled(true);
+          setLoading(false);
+          return;
+        } catch {
+          // API failed, fall back to static
+        }
+      }
+
+      // Fallback to static data
+      if (id) {
+        setCourse(STACKS.find((c) => c.id === parseInt(id)) || null);
+      } else {
+        setCourse(null);
+      }
+      setLoading(false);
+    };
+
+    fetchCourse();
+  }, [slug, id]);
+
+  const handleEnroll = () => {
+    if (!isAuthenticated) {
+      setShowSigninModal(true);
+      return;
+    }
+    setShowEnrollModal(true);
+  };
+
+  const confirmEnroll = async () => {
+    const courseSlug = course.slug || course.name?.toLowerCase().replace(/\s+/g, "-");
+    if (!courseSlug) {
+      message.error("Cannot enroll — course data is incomplete.");
+      return;
+    }
+    setEnrollLoading(true);
+    try {
+      await coursesAPI.enroll(courseSlug);
+      setEnrolled(true);
+      setShowEnrollModal(false);
+      message.success("Successfully enrolled!");
+    } catch (err) {
+      const errMsg = err.response?.data?.error?.message || "Enrollment failed.";
+      message.error(errMsg);
+      setShowEnrollModal(false);
+    } finally {
+      setEnrollLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div style={{ textAlign: "center", padding: 100 }}><Spin size="large" /></div>;
+  }
+
+  if (!course) {
+    return (
+      <div style={{ padding: 80, textAlign: "center" }}>
+        <Empty description="Course not found" />
+        <Button type="primary" onClick={() => navigate("/allcourses")} style={{ marginTop: 16 }}>
+          Browse Courses
+        </Button>
+      </div>
+    );
+  }
+
+  const discountNum = parseInt(course.discount) || 0;
+  const priceNum = parseInt(course.price) || 0;
+  const discountedPrice = discountNum > 0 ? Math.round(priceNum * (1 - discountNum / 100)) : priceNum;
+  const trendingCourses = STACKS.filter((c) => (c.isTrending || c.is_trending) && c.id !== course.id).slice(0, 4);
+
+  return (
+    <div style={{ background: "#f8fafc" }}>
+      {/* Banner */}
+      <div
+        style={{
+          position: "relative",
+          minHeight: 320,
+          background: `linear-gradient(135deg, rgba(0,180,216,0.85), rgba(8,145,178,0.9)), url(${course.banner}) center/cover`,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", width: "100%", color: "white" }}>
+          <Button
+            type="text"
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate(-1)}
+            style={{ color: "white", marginBottom: 16, padding: 0 }}
+          >
+            Back
+          </Button>
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <Tag color="cyan">{course.recommended?.level || "All Levels"}</Tag>
+            {course.isTrending && <Tag color="magenta">Trending</Tag>}
+            <Tag color="green">{course.duration}</Tag>
+          </div>
+          <h1 style={{ fontSize: "clamp(26px, 6vw, 40px)", fontWeight: 700, color: "white", marginBottom: 12 }}>
+            {course.name}
+          </h1>
+          <p style={{ fontSize: 18, color: "rgba(255,255,255,0.9)", maxWidth: 600, marginBottom: 24 }}>
+            {course.description}
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Rate disabled defaultValue={course.rating} allowHalf style={{ fontSize: 16 }} />
+              <span style={{ color: "rgba(255,255,255,0.8)" }}>({course.reviews} reviews)</span>
+            </span>
+            <span><UserOutlined /> {course.students?.toLocaleString()} students</span>
+            <span><BookOutlined /> {course.modules?.length} modules</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Bar */}
+      <div style={{ maxWidth: 1200, margin: "-40px auto 0", padding: "0 24px", position: "relative", zIndex: 1 }}>
+        <Card style={{ borderRadius: 16 }}>
+          <Row gutter={[24, 16]} justify="space-around" align="middle">
+            <Col>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 700, color: "#00B4D8" }}>
+                  ₹{discountedPrice.toLocaleString()}
+                </div>
+                {discountNum > 0 && (
+                  <div style={{ textDecoration: "line-through", color: "#999", fontSize: 14 }}>
+                    ₹{priceNum.toLocaleString()}
+                  </div>
+                )}
+                <div style={{ color: "#888", fontSize: 12 }}>Price</div>
+              </div>
+            </Col>
+            <Col>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 700 }}>{course.duration}</div>
+                <div style={{ color: "#888", fontSize: 12 }}>Duration</div>
+              </div>
+            </Col>
+            <Col>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 700 }}>{course.recommended?.level}</div>
+                <div style={{ color: "#888", fontSize: 12 }}>Level</div>
+              </div>
+            </Col>
+            <Col>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 700 }}>{course.rating}</div>
+                <div style={{ color: "#888", fontSize: 12 }}>Rating</div>
+              </div>
+            </Col>
+            <Col>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 24, fontWeight: 700 }}>{course.modules?.length}</div>
+                <div style={{ color: "#888", fontSize: 12 }}>Modules</div>
+              </div>
+            </Col>
+            <Col>
+              {enrolled ? (
+                <Button size="large" style={{ height: 48, fontSize: 16, borderRadius: 8, background: "#22c55e", color: "white", border: "none" }} icon={<CheckCircleOutlined />}>
+                  Enrolled
+                </Button>
+              ) : (
+                <Button type="primary" size="large" onClick={handleEnroll} style={{ height: 48, fontSize: 16, borderRadius: 8 }}>
+                  Enroll Now
+                </Button>
+              )}
+            </Col>
+          </Row>
+        </Card>
+      </div>
+
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
+        {/* Skills */}
+        {course.skills && course.skills.length > 0 && (
+          <section style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, color: "#2c3e50" }}>
+              Skills You'll Learn
+            </h2>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {course.skills.map((skill, idx) => (
+                <Tag
+                  key={skill.id || idx}
+                  color="cyan"
+                  style={{ padding: "4px 16px", fontSize: 14, borderRadius: 20 }}
+                >
+                  {typeof skill === "string" ? skill : skill.name}
+                </Tag>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Modules */}
+        {course.modules && course.modules.length > 0 && (
+          <section style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, color: "#2c3e50" }}>
+              Course Modules
+            </h2>
+            <Collapse
+              accordion
+              size="large"
+              expandIconPosition="end"
+              items={course.modules.map((mod, idx) => ({
+                key: mod.id || idx,
+                label: (
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div
+                      style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: 8,
+                        background: "#00B4D8",
+                        color: "white",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 700,
+                        fontSize: 14,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 16 }}>{mod.title}</div>
+                      <div style={{ color: "#888", fontSize: 13 }}>{mod.topics?.length || 0} topics</div>
+                    </div>
+                  </div>
+                ),
+                children: (
+                  <div>
+                    {mod.description && (
+                      <p style={{ color: "#666", marginBottom: 16 }}>{mod.description}</p>
+                    )}
+                    <Row gutter={[12, 12]}>
+                      {mod.topics?.map((topic, tIdx) => (
+                        <Col key={topic.id || tIdx} xs={24} sm={12}>
+                          <div
+                            style={{
+                              padding: "10px 14px",
+                              background: "#f8fafc",
+                              borderRadius: 8,
+                              borderLeft: "3px solid #00B4D8",
+                              fontSize: 14,
+                            }}
+                          >
+                            <span style={{ color: "#00B4D8", fontWeight: 600, marginRight: 8 }}>
+                              {String(tIdx + 1).padStart(2, "0")}
+                            </span>
+                            {topic.title}
+                          </div>
+                        </Col>
+                      ))}
+                    </Row>
+                  </div>
+                ),
+              }))}
+            />
+          </section>
+        )}
+
+        {/* Prior Knowledge */}
+        {course.recommended?.prior_knowledge && (
+          <section style={{ marginBottom: 40 }}>
+            <Card style={{ borderRadius: 12, background: "#EBFBFF", border: "1px solid #CCF6FF" }}>
+              <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+                <TrophyOutlined style={{ color: "#00B4D8", marginRight: 8 }} />
+                Prerequisites
+              </h3>
+              <p style={{ color: "#555", margin: 0 }}>{course.recommended.prior_knowledge}</p>
+            </Card>
+          </section>
+        )}
+
+        {/* Testimonials */}
+        {course.testimonials && course.testimonials.length > 0 && (
+          <section style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, color: "#2c3e50" }}>
+              Student Reviews
+            </h2>
+            <Carousel autoplay dots={{ className: "custom-dots" }} slidesToShow={Math.min(course.testimonials.length, 3)} responsive={[
+              { breakpoint: 768, settings: { slidesToShow: 1 } },
+              { breakpoint: 1024, settings: { slidesToShow: 2 } },
+            ]}>
+              {course.testimonials.map((t, idx) => (
+                <div key={idx} style={{ padding: "0 8px" }}>
+                  <Card style={{ borderRadius: 12, margin: "0 8px", height: "100%" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+                      <Avatar size={48} src={t.image} icon={<UserOutlined />} />
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{t.name}</div>
+                        <div style={{ color: "#888", fontSize: 13 }}>{t.role}</div>
+                      </div>
+                    </div>
+                    <Rate disabled defaultValue={t.rating} style={{ fontSize: 14, marginBottom: 8 }} />
+                    <p style={{ color: "#555", fontStyle: "italic", margin: 0 }}>"{t.text}"</p>
+                  </Card>
+                </div>
+              ))}
+            </Carousel>
+          </section>
+        )}
+
+        {/* FAQ */}
+        {course.faq && course.faq.length > 0 && (
+          <section style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, color: "#2c3e50" }}>
+              Frequently Asked Questions
+            </h2>
+            <Collapse
+              accordion
+              expandIconPosition="end"
+              items={course.faq.map((f, idx) => ({
+                key: idx,
+                label: <span style={{ fontWeight: 500, fontSize: 15 }}>{f.question}</span>,
+                children: <div className="md-content"><Markdown remarkPlugins={[remarkGfm]}>{f.answer}</Markdown></div>,
+              }))}
+            />
+          </section>
+        )}
+
+        {/* Trending Courses */}
+        {trendingCourses.length > 0 && (
+          <section style={{ marginBottom: 40 }}>
+            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, color: "#2c3e50" }}>
+              Other Courses You Might Like
+            </h2>
+            <Row gutter={[24, 24]}>
+              {trendingCourses.map((c) => (
+                <Col key={c.id} xs={24} sm={12} lg={6}>
+                  <CourseCard course={c} />
+                </Col>
+              ))}
+            </Row>
+          </section>
+        )}
+      </div>
+
+      {/* Enroll Confirmation Modal */}
+      <Modal
+        title={`Enroll in ${course.name}?`}
+        open={showEnrollModal}
+        onOk={confirmEnroll}
+        onCancel={() => setShowEnrollModal(false)}
+        okText="Confirm Enrollment"
+        confirmLoading={enrollLoading}
+      >
+        <p>You're about to enroll in this {course.duration} course.</p>
+      </Modal>
+
+      {/* Sign In Required Modal */}
+      <Modal
+        title="Sign in required"
+        open={showSigninModal}
+        onOk={() => {
+          setShowSigninModal(false);
+          navigate("/signin", { state: { from: { pathname: `/stack/${id}` } } });
+        }}
+        onCancel={() => setShowSigninModal(false)}
+        okText="Sign In"
+      >
+        <p>You need to sign in before enrolling in a course.</p>
+      </Modal>
+    </div>
+  );
+}

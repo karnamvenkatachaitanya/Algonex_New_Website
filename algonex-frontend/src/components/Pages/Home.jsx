@@ -1,412 +1,252 @@
-import React from 'react';
-import Slider from 'react-slick';
-import 'slick-carousel/slick/slick.css';
-import 'slick-carousel/slick/slick-theme.css';
-import { Link } from 'react-router-dom';
-import { FaArrowUpRightFromSquare } from 'react-icons/fa6';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Button, Row, Col } from "antd";
+import {
+  RocketOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+  CodeOutlined,
+  SafetyCertificateOutlined,
+  GlobalOutlined,
+  ArrowRightOutlined,
+} from "@ant-design/icons";
+import { STACKS } from "../../constants/constant";
+import CourseCard from "../courses/CourseCard";
 
-const carouselImages = [
-  'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009',
-  'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009',
-  'https://ik.imagekit.io/ipo22webapp/1bcdac68561d678bbfc4e872b8b69a1972698c51.png?updatedAt=1759554862009'
+const stats = [
+  { value: "5,000+", label: "Students Trained" },
+  { value: "50+", label: "Industry Partners" },
+  { value: "95%", label: "Placement Rate" },
+  { value: "4.8/5", label: "Student Rating" },
 ];
 
-const Home = () => {
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 2000
-  };
-const courses = Array(8).fill({
-  title: 'PYTHON',
-  image: 'https://ik.imagekit.io/ipo22webapp/96587e71447ca82f4b9dd7615eea1d6397c4d1c2.png?updatedAt=1759585799341',
-  level: 'Beginner',
-  duration: '6 months',
-  modules: '56',
-});
+const features = [
+  {
+    icon: <CodeOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
+    title: "Industry-Ready Curriculum",
+    desc: "Courses designed with top tech companies to match real-world job requirements.",
+  },
+  {
+    icon: <TeamOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
+    title: "Expert Mentorship",
+    desc: "Learn from senior engineers at FAANG companies with 10+ years of experience.",
+  },
+  {
+    icon: <TrophyOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
+    title: "Guaranteed Internships",
+    desc: "Every student gets a hands-on internship with our partner companies.",
+  },
+  {
+    icon: <SafetyCertificateOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
+    title: "Certified Programs",
+    desc: "Industry-recognized certifications to validate your skills to employers.",
+  },
+  {
+    icon: <RocketOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
+    title: "Career Acceleration",
+    desc: "Resume reviews, mock interviews, and direct company referrals.",
+  },
+  {
+    icon: <GlobalOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
+    title: "Global Community",
+    desc: "Join a network of 5,000+ alumni working at top companies worldwide.",
+  },
+];
+
+export default function Home() {
+  const trendingCourses = STACKS.filter((c) => c.isTrending).slice(0, 4);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#CCF6FF]">
-      <div className="container mx-auto p-4">
-        <Slider {...settings}>
-          {carouselImages.map((url, index) => (
-            <div key={index}>
-              <div
-                className="flex flex-col justify-end bg-cover bg-center h-[65vh] px-4 py-20 rounded-2xl"
-                style={{ backgroundImage: `url(${url})` }}
-              >
-                <h1 className="text-4xl font-bold text-white mb-4 ml-6">Become Top 1% in the<br/> AI-First World</h1>
-                <p className="text-lg text-white mb-6 ml-6">Whether it is Product, Growth, Design, Business,<br/> Tech or Data, GrowthSchool is the place to learn from<br/> top experts in the field to become the Top 1%</p>
-                 <div className="relative flex space-x-[-10px] mb-10 ml-6">
-                    <div className="w-8 h-8 rounded-full bg-pink-400 shadow-lg z-10" />
-                    <div className="w-8 h-8 rounded-full bg-yellow-200 shadow-lg z-20" />
-                    <div className="w-8 h-8 rounded-full bg-green-300 shadow-lg z-30" />
-                    <div className="w-8 h-8 rounded-full bg-gray-300 shadow-lg z-40" />
-                 </div>
-                <div className="flex space-x-4 ml-6">
-                  <button className="bg-[#EBFBFF] px-4 py-2 rounded-xl transition cursor-pointer">
-                    Learn More
-                  </button>
-                  <button className="bg-[#00B4D8] px-4 py-2 hover:bg-blue-700 transition cursor-pointer rounded-xl">
-                    Explore More
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </Slider>
-      </div>
-
-      <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Ready to Reimagine Your Career?</h1>
-        <p className="text-lg text-gray-600 mb-10">Kickstart your career with confidence</p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-8">
-          <div
-          className="relative bg-cover bg-center rounded-xl overflow-hidden"
+    <div>
+      {/* Hero */}
+      <section
+        style={{
+          background: "linear-gradient(135deg, #0c1222 0%, #0a2540 50%, #0e3a5e 100%)",
+          padding: "clamp(40px, 8vw, 80px) 24px",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
           style={{
-            backgroundImage: 'url("https://ik.imagekit.io/ipo22webapp/Picture3.png?updatedAt=1759557480087")',
+            position: "absolute",
+            top: -100,
+            right: -100,
+            width: 400,
+            height: 400,
+            background: "radial-gradient(circle, rgba(0,180,216,0.15) 0%, transparent 70%)",
+            borderRadius: "50%",
           }}
-        >
-          {/* NEW Badge */}
-          <div className="absolute top-4 right-4 bg-[#66E5FF] text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-            NEW
-          </div>
-
-          {/* Bottom Card */}
-          <div className="absolute bottom-3 left-3 right-3 bg-[#ebfbff] p-4 rounded-xl shadow-lg">
-            <div className="flex justify-between items-start">
-              <h1 className="text-2xl font-bold text-gray-800">Internship</h1>
-              <FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" />
-            </div>
-            <div className="flex flex-col gap-4 mt-4">
-              {/* First Row */}
-              <div className="flex flex-row gap-3">
-                <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                  Developer
-                </button>
-                <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                  Data Science & AI
-                </button>
-                <p className="text-sm text-gray-600 self-center">+12</p>
+        />
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <Row gutter={[48, 48]} align="middle">
+            <Col xs={24} lg={14}>
+              <div
+                style={{
+                  display: "inline-block",
+                  background: "rgba(0,180,216,0.15)",
+                  border: "1px solid rgba(0,180,216,0.3)",
+                  borderRadius: 20,
+                  padding: "6px 16px",
+                  color: "#66E5FF",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  marginBottom: 24,
+                }}
+              >
+                #1 Tech Training Institute in Bangalore
               </div>
-
-              {/* Second Row */}
-              <div className="flex flex-row gap-1">
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  2 Months
-                </button>
-
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  6 Months
-                </button>
-
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/aa811ecebf620f0d8790c489d7fa4019bbe44911.png?updatedAt=1759588563739"
-                    alt="AI Tools"
-                    className="w-4 h-4"
-                  />
-                  10+ AI Tools
-                </button>
-
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/b04dbda97308e590577f869e17e07cbee0ed620d.png?updatedAt=1759588563953"
-                    alt="Total Enrolled"
-                    className="w-4 h-4"
-                  />
-                  56
-                </button>
+              <h1
+                style={{
+                  fontSize: "clamp(28px, 6vw, 48px)",
+                  fontWeight: 800,
+                  color: "white",
+                  lineHeight: 1.15,
+                  marginBottom: 20,
+                }}
+              >
+                Build Your Tech Career{" "}
+                <span style={{ color: "#00B4D8" }}>From Zero to Hero</span>
+              </h1>
+              <p
+                style={{
+                  fontSize: 18,
+                  color: "rgba(255,255,255,0.7)",
+                  lineHeight: 1.7,
+                  marginBottom: 32,
+                  maxWidth: 520,
+                }}
+              >
+                Industry-designed courses with guaranteed internships, expert mentorship, and
+                placement support. Join 5,000+ students who launched their tech careers with Algonex.
+              </p>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <Link to="/allcourses">
+                  <Button type="primary" size="large" icon={<ArrowRightOutlined />} style={{ height: 50, fontSize: 16, borderRadius: 8 }}>
+                    Explore Courses
+                  </Button>
+                </Link>
+                <Link to="/contact">
+                  <Button size="large" ghost style={{ height: 50, fontSize: 16, borderRadius: 8, color: "white", borderColor: "rgba(255,255,255,0.3)" }}>
+                    Book Free Demo
+                  </Button>
+                </Link>
               </div>
-        </div>
-      </div>
-          </div>
-
-          <div
-            className="relative h-[300px] bg-cover bg-center rounded-xl overflow-hidden"
-            style={{
-              backgroundImage: 'url("https://ik.imagekit.io/ipo22webapp/Picture4.png?updatedAt=1759557479904")',
-            }}>
-                {/* NEW Badge */}
-                <div className="absolute top-4 right-4 bg-[#66E5FF] text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-                  NEW
-                </div>
-
-                {/* Bottom Card */}
-                <div className="absolute bottom-3 left-3 right-3 bg-[#ebfbff] p-4 rounded-xl shadow-lg">
-                  <div className="flex justify-between items-start">
-                    <h1 className="text-2xl font-bold text-gray-800">Fullstack</h1>
-                    <Link to="/stack/1"><FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" /></Link>
+            </Col>
+            <Col xs={24} lg={10}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {stats.map((s, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 16,
+                      padding: "28px 20px",
+                      textAlign: "center",
+                      backdropFilter: "blur(10px)",
+                    }}
+                  >
+                    <div style={{ fontSize: 32, fontWeight: 800, color: "white" }}>{s.value}</div>
+                    <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, marginTop: 4 }}>{s.label}</div>
                   </div>
-                  <div className="flex flex-col gap-4 mt-4">
-                    {/* First Row */}
-                    <div className="flex flex-row gap-3">
-                      <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                        Python Fullstack
-                      </button>
-                      <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                        Data Courses with AI
-                      </button>
-                      <p className="text-sm text-gray-600 self-center">+5</p>
-                    </div>
-
-                    {/* Second Row */}
-                    <div className="flex flex-row gap-1">
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  4 Months Training
-                </button>
-
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  2 Months Internship
-                </button>
-
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/aa811ecebf620f0d8790c489d7fa4019bbe44911.png?updatedAt=1759588563739"
-                    alt="AI Tools"
-                    className="w-4 h-4"
-                  />
-                  15 + AI Tools
-                </button>
-
-                {/* <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/b04dbda97308e590577f869e17e07cbee0ed620d.png?updatedAt=1759588563953"
-                    alt="Total Enrolled"
-                    className="w-4 h-4"
-                  />
-                  82
-                </button> */}
+                ))}
               </div>
-              </div>
+            </Col>
+          </Row>
+        </div>
+      </section>
+
+      {/* Trending Courses */}
+      <section style={{ background: "#f8fafc", padding: "64px 24px" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
+            <div>
+              <h2 style={{ fontSize: 32, fontWeight: 700, color: "#2c3e50", marginBottom: 4 }}>
+                Trending Courses
+              </h2>
+              <p style={{ color: "#666" }}>Programs our students love the most</p>
             </div>
+            <Link to="/allcourses">
+              <Button type="link" size="large">
+                View All Courses <ArrowRightOutlined />
+              </Button>
+            </Link>
           </div>
+          <Row gutter={[24, 24]}>
+            {trendingCourses.map((course) => (
+              <Col key={course.id} xs={24} sm={12} lg={6}>
+                <CourseCard course={course} />
+              </Col>
+            ))}
+          </Row>
+        </div>
+      </section>
 
-          <div
-            className="relative h-[300px] bg-cover bg-center rounded-xl overflow-hidden"
-            style={{
-              backgroundImage: 'url("https://ik.imagekit.io/ipo22webapp/Picture5.png?updatedAt=1759557479964")',
-            }}>
-            {/* NEW Badge */}
-            <div className="absolute top-4 right-4 bg-[#66E5FF] text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-              NEW
-            </div>
-
-            {/* Bottom Card */}
-            <div className="absolute bottom-3 left-3 right-3 bg-[#ebfbff] p-4 rounded-xl shadow-lg">
-              <div className="flex justify-between items-start">
-                <h1 className="text-2xl font-bold text-gray-800">Freelance</h1>
-                <FaArrowUpRightFromSquare className="text-[#66E5FF] text-xl cursor-pointer" />
-              </div>
-              <div className="flex flex-col gap-4 mt-4">
-                {/* First Row */}
-                <div className="flex flex-row gap-3">
-                  <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                    Stipend Provided
-                  </button>
-                  <button className="px-2 py-1 bg-[#66E5FF] text-black text-sm cursor-pointer rounded-md transition hover:bg-[#4dcff0]">
-                    Fullstack Developer
-                  </button>
-                  <p className="text-sm text-gray-600 self-center">+3</p>
+      {/* Why Algonex */}
+      <section style={{ padding: "64px 24px", background: "white" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 48 }}>
+            <h2 style={{ fontSize: 32, fontWeight: 700, color: "#2c3e50", marginBottom: 8 }}>
+              Why Algonex?
+            </h2>
+            <p style={{ color: "#666", fontSize: 16, maxWidth: 600, margin: "0 auto" }}>
+              We don't just teach technology — we build careers
+            </p>
+          </div>
+          <Row gutter={[24, 24]}>
+            {features.map((f, i) => (
+              <Col key={i} xs={24} sm={12} lg={8}>
+                <div
+                  style={{
+                    padding: 28,
+                    borderRadius: 16,
+                    border: "1px solid #e8e8e8",
+                    height: "100%",
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#00B4D8";
+                    e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,180,216,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#e8e8e8";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <div style={{ marginBottom: 16 }}>{f.icon}</div>
+                  <h3 style={{ fontSize: 18, fontWeight: 600, color: "#2c3e50", marginBottom: 8 }}>{f.title}</h3>
+                  <p style={{ color: "#666", margin: 0, lineHeight: 1.6 }}>{f.desc}</p>
                 </div>
+              </Col>
+            ))}
+          </Row>
+        </div>
+      </section>
 
-                {/* Second Row */}
-                <div className="flex flex-row gap-1">
-                <button className="flex items-center gap-1 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/dd633407c004d0747c47c11815a35f98692126fc.png?updatedAt=1759588354353"
-                    alt="All Levels Icon"
-                    className="w-4 h-4"
-                  />
-                  Paying for every Project
-                </button>
-
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/59690c968648007a2420eabecf38f3fed802c334.png?updatedAt=1759588564115"
-                    alt="Course Duration"
-                    className="w-4 h-4"
-                  />
-                  Flexible Timing
-                </button>
-
-                <button className="flex items-center gap-2 px-2 py-1 bg-transparent border border-[#66E5FF] text-black text-xs rounded-md transition hover:bg-[#e6faff]">
-                  <img
-                    src="https://ik.imagekit.io/ipo22webapp/b04dbda97308e590577f869e17e07cbee0ed620d.png?updatedAt=1759588563953"
-                    alt="Total Enrolled"
-                    className="w-4 h-4"
-                  />
-                  12
-                </button>
-              </div>
-          </div>
-            </div>
+      {/* CTA */}
+      <section style={{ background: "linear-gradient(135deg, #00B4D8, #0891b2)", padding: "64px 24px", textAlign: "center" }}>
+        <div style={{ maxWidth: 600, margin: "0 auto" }}>
+          <h2 style={{ fontSize: 32, fontWeight: 700, color: "white", marginBottom: 12 }}>
+            Ready to Start Your Journey?
+          </h2>
+          <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 16, marginBottom: 28, lineHeight: 1.6 }}>
+            Join thousands of students who transformed their careers. First consultation is free.
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            <Link to="/signup">
+              <Button size="large" style={{ height: 48, fontSize: 16, borderRadius: 8, background: "white", color: "#00B4D8", fontWeight: 600, border: "none" }}>
+                Get Started Free
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button size="large" ghost style={{ height: 48, fontSize: 16, borderRadius: 8, color: "white", borderColor: "rgba(255,255,255,0.4)" }}>
+                Contact Us
+              </Button>
+            </Link>
           </div>
         </div>
-
-        <Link to="/allcourses">
-          <button className="bg-[#00B4D8] text-white px-6 py-3 rounded-3xl cursor-pointer transition">
-            All Career Accelerators
-          </button>
-        </Link>
-      </div>
-
-      <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Explore Online Courses</h1>
-
-        {/* Buttons */}
-        <div className="flex flex-row justify-center flex-wrap gap-5 mb-8">
-          {[
-            'Trending', 'Frontend', 'Backend', 'Data Engineer', 'Java', 'Python', 'Excel',
-            'Gen AI', 'Data Courses', 'Cyber Security', 'DevOps', 'Cloud',
-            'Machine Learning', 'Power BI', 'Testing', 'Github'
-          ].map((category, index) => (
-            <button
-              key={index}
-              className="px-4 py-2 bg-[#ccf6ff] border border-black text-black rounded-full hover:bg-[#d3f6ff] transition"
-            >
-              {category}
-            </button>
-          ))}
-        </div>
-
-       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
-        {courses.map((course, index) => (
-          <div
-            key={index}
-            className="rounded-xl shadow-md p-4 hover:shadow-lg transition"
-            style={{
-              backgroundImage: 'linear-gradient(to bottom, #FFE608, #585900)',
-            }}
-          >
-            <img
-              src={course.image}
-              alt={`${course.title} Course`}
-              className="w-full h-48 object-cover rounded-md mb-4"
-            />
-            <h2 className="text-xl font-semibold text-white mb-2">{course.title}</h2>
-
-            <div className="flex flex-row flex-wrap gap-2 mb-4">
-              <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
-                {course.level}
-              </button>
-              <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
-                {course.duration}
-              </button>
-              <button className="px-3 py-1 text-white border border-amber-200 rounded-md text-sm">
-                {course.modules}
-              </button>
-            </div>
-
-            <button className="w-full px-4 py-2 bg-[#ccf6ff] text-black rounded-md hover:bg-[#4dcff0] transition">
-              Explore Course
-            </button>
-          </div>
-        ))}
-      </div>
-      </div>
-
-
-      <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold text-gray-800 text-center mb-6">Why Algonex</h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Column 1 */}
-          <div className="flex flex-col gap-4">
-            <div
-              className="h-90 bg-cover bg-center rounded-xl text-white text-5xl font-semibold shadow-md ml-3 flex items-end justify-start p-4 
-                        transform transition-transform duration-300 hover:scale-105"
-              style={{
-                backgroundImage:
-                  'url("https://ik.imagekit.io/ipo22webapp/2cd43e0ca079a01f4b9629bbafe92a56299a4a1f.jpg?updatedAt=1759587051791")',
-              }}
-            >
-              Solving<br /> Problems<br /> Matter
-            </div>
-            <div
-              className="h-40 bg-cover bg-center rounded-xl flex items-center justify-center text-white text-xl font-semibold shadow-md 
-                        transform transition-transform duration-300 hover:scale-105"
-              style={{
-                backgroundImage:
-                  'url("https://ik.imagekit.io/ipo22webapp/d135d30df2a0df0759bac0d9fb5020d984111047.jpg?updatedAt=1759587110164")',
-              }}
-            ></div>
-          </div>
-
-          {/* Column 2 */}
-          <div className="flex flex-col gap-4">
-            <div
-              className="h-78 bg-cover bg-center rounded-xl flex items-center justify-center text-white text-xl font-semibold shadow-md 
-                        transform transition-transform duration-300 hover:scale-105"
-              style={{
-                backgroundImage:
-                  'url("https://ik.imagekit.io/ipo22webapp/ebb357bc544220fa94b25d4f63fdf7f920b10ccc.jpg?updatedAt=1759587259094")',
-              }}
-            ></div>
-            <div
-              className="h-51 bg-cover bg-center rounded-xl text-white text-4xl font-semibold shadow-md flex items-end justify-center p-2 
-                        transform transition-transform duration-300 hover:scale-105"
-              style={{
-                backgroundImage:
-                  'url("https://ik.imagekit.io/ipo22webapp/b8f8f0002f65d23c6110e87aa3e08f288a3c4d8f.jpg?updatedAt=1759587259315")',
-              }}
-            >
-              Smarter <br />With <br />Gen AI
-            </div>
-          </div>
-
-          {/* Column 3 */}
-          <div className="flex flex-col gap-4">
-            <div
-              className="h-100 bg-cover bg-center rounded-xl text-white text-4xl font-semibold shadow-md ml-3 flex items-end justify-start p-4 
-                        transform transition-transform duration-300 hover:scale-105"
-              style={{
-                backgroundImage:
-                  'url("https://ik.imagekit.io/ipo22webapp/7c7342c9eb086b7fba6a4607ce317bb026d07de6.jpg?updatedAt=1759587259013")',
-              }}
-            >
-              Real Industry<br /> Real Connections
-            </div>
-            <div
-              className="h-30 bg-cover bg-center rounded-xl flex items-center justify-center text-white text-xl font-semibold shadow-md 
-                        transform transition-transform duration-300 hover:scale-105"
-              style={{
-                backgroundImage:
-                  'url("https://ik.imagekit.io/ipo22webapp/d8c92713d1f16c2a4bc3fe93fb4f9c6d2717425c.jpg?updatedAt=1759587259155")',
-              }}
-            ></div>
-          </div>
-        </div>
-      </div>
-
-
+      </section>
     </div>
-      
   );
-};
-export default Home;
+}

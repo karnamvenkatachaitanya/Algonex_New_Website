@@ -1,389 +1,331 @@
-import React, { useState } from 'react';
-import { Calendar, MapPin, Users, Clock, ArrowRight, Search, Filter } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card, Tag, Button, Input, Segmented, Row, Col, Empty, Modal, App, Spin } from "antd";
+import { useAuth } from "../../hooks/useAuth";
+import { eventsAPI } from "../../api/events";
+import {
+  CalendarOutlined,
+  EnvironmentOutlined,
+  TeamOutlined,
+  ClockCircleOutlined,
+  SearchOutlined,
+  ArrowRightOutlined,
+} from "@ant-design/icons";
 
-const EventsPage = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+const upcomingEvents = [
+  {
+    id: 1,
+    title: "Full Stack Web Development Workshop",
+    date: "April 15, 2026",
+    time: "10:00 AM - 4:00 PM",
+    location: "Algonex Campus, Bangalore",
+    type: "Workshop",
+    image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop",
+    spots: 30,
+    registered: 22,
+    description: "Hands-on workshop covering React, Node.js, and MongoDB with real-world projects.",
+  },
+  {
+    id: 2,
+    title: "AI & Machine Learning Masterclass",
+    date: "April 22, 2026",
+    time: "2:00 PM - 5:00 PM",
+    location: "Online (Zoom)",
+    type: "Webinar",
+    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&auto=format&fit=crop",
+    spots: 100,
+    registered: 78,
+    description: "Deep dive into neural networks, NLP, and computer vision with industry expert.",
+  },
+  {
+    id: 3,
+    title: "Hackathon: Build for Impact",
+    date: "May 3-4, 2026",
+    time: "9:00 AM - 9:00 PM",
+    location: "Algonex Campus, Bangalore",
+    type: "Hackathon",
+    image: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&auto=format&fit=crop",
+    spots: 50,
+    registered: 45,
+    description: "48-hour hackathon to build solutions for real social challenges. ₹1L prize pool.",
+  },
+  {
+    id: 4,
+    title: "Cloud Computing & DevOps Bootcamp",
+    date: "May 10, 2026",
+    time: "10:00 AM - 3:00 PM",
+    location: "Algonex Campus, Bangalore",
+    type: "Workshop",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop",
+    spots: 40,
+    registered: 15,
+    description: "AWS, Docker, Kubernetes — from setup to deployment in a single day.",
+  },
+];
 
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: 'AI & Machine Learning Workshop',
-      date: 'Nov 15, 2025',
-      time: '10:00 AM - 4:00 PM',
-      location: 'Microsoft Office, Bellandur',
-      type: 'Workshop',
-      mode: 'Offline',
-      participants: 50,
-      image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop',
-      description: 'Deep dive into AI agents and practical machine learning implementations',
-      status: 'Upcoming',
-      spots: 15
-    },
-    {
-      id: 2,
-      title: 'Cloud Computing Bootcamp',
-      date: 'Nov 22, 2025',
-      time: '9:00 AM - 5:00 PM',
-      location: 'AWS Office, KR Puram',
-      type: 'Bootcamp',
-      mode: 'Offline',
-      participants: 40,
-      image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&auto=format&fit=crop',
-      description: 'Hands-on AWS cloud architecture and deployment strategies',
-      status: 'Upcoming',
-      spots: 20
-    },
-    {
-      id: 3,
-      title: 'Full Stack Development Webinar',
-      date: 'Nov 28, 2025',
-      time: '7:00 PM - 9:00 PM',
-      location: 'Online',
-      type: 'Webinar',
-      mode: 'Online',
-      participants: 200,
-      image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop',
-      description: 'Modern web development practices and industry trends',
-      status: 'Upcoming',
-      spots: 50
-    },
-    {
-      id: 4,
-      title: 'DevOps & Agile Masterclass',
-      date: 'Dec 5, 2025',
-      time: '10:00 AM - 3:00 PM',
-      location: 'ThoughtWorks, Whitefield',
-      type: 'Masterclass',
-      mode: 'Offline',
-      participants: 35,
-      image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&auto=format&fit=crop',
-      description: 'CI/CD pipelines, containerization, and modern DevOps practices',
-      status: 'Upcoming',
-      spots: 10
+const pastEvents = [
+  { title: "Python Data Science Workshop", date: "March 20, 2026", attendees: 85, type: "Workshop" },
+  { title: "Open Source Contribution Day", date: "March 8, 2026", attendees: 120, type: "Meetup" },
+  { title: "System Design Interview Prep", date: "Feb 25, 2026", attendees: 64, type: "Webinar" },
+  { title: "React Native Mobile Dev Sprint", date: "Feb 15, 2026", attendees: 42, type: "Workshop" },
+  { title: "Tech Career Fair 2026", date: "Jan 30, 2026", attendees: 300, type: "Meetup" },
+  { title: "Blockchain & Web3 Introduction", date: "Jan 18, 2026", attendees: 55, type: "Webinar" },
+];
+
+const EVENT_TYPES = ["All", "Workshop", "Webinar", "Hackathon", "Meetup"];
+
+export default function EventsPage() {
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [registeredEvents, setRegisteredEvents] = useState(new Set());
+  const [modalEvent, setModalEvent] = useState(null);
+  const [showSigninModal, setShowSigninModal] = useState(false);
+  const [apiEvents, setApiEvents] = useState(null);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const { message } = App.useApp();
+  const navigate = useNavigate();
+
+  // Try API, fall back to static data
+  useEffect(() => {
+    eventsAPI.list()
+      .then((res) => {
+        const results = res.data?.data?.results || res.data?.results || [];
+        if (results.length > 0) setApiEvents(results);
+      })
+      .catch(() => {})
+      .finally(() => setEventsLoading(false));
+  }, []);
+
+  const activeEvents = apiEvents || upcomingEvents;
+
+  const handleRegister = (event) => {
+    if (!isAuthenticated) {
+      setShowSigninModal(true);
+      return;
     }
-  ];
+    setModalEvent(event);
+  };
 
-  const pastEvents = [
-    {
-      id: 5,
-      title: 'AI Agents Workshop',
-      date: 'Sep 20, 2024',
-      location: 'Microsoft Office, Bellandur',
-      type: 'Workshop',
-      mode: 'Offline',
-      participants: 60,
-      image: 'https://images.unsplash.com/photo-1676299081847-824916de030a?w=800&auto=format&fit=crop',
-      description: 'Explored autonomous AI agents and their real-world applications',
-      highlights: ['45+ attendees', 'Hands-on labs', 'Industry expert speakers']
-    },
-    {
-      id: 6,
-      title: 'Travel Tech Innovation Summit',
-      date: 'Aug 15, 2024',
-      location: 'Amadeus Office, Bangalore',
-      type: 'Summit',
-      mode: 'Offline',
-      participants: 80,
-      image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&auto=format&fit=crop',
-      description: 'Technology innovations in travel and hospitality industry',
-      highlights: ['80+ professionals', 'Panel discussions', 'Networking sessions']
-    },
-    {
-      id: 7,
-      title: 'AWS Cloud Certification Drive',
-      date: 'Jul 28, 2024',
-      location: 'AWS Office, KR Puram',
-      type: 'Certification',
-      mode: 'Offline',
-      participants: 55,
-      image: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=800&auto=format&fit=crop',
-      description: 'Intensive AWS certification preparation workshop',
-      highlights: ['55 participants', 'Mock exams', '90% pass rate']
-    },
-    {
-      id: 8,
-      title: 'Agile Transformation Workshop',
-      date: 'Jun 10, 2024',
-      location: 'ThoughtWorks, Whitefield',
-      type: 'Workshop',
-      mode: 'Offline',
-      participants: 45,
-      image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&auto=format&fit=crop',
-      description: 'Agile methodologies and continuous delivery practices',
-      highlights: ['Real case studies', 'Interactive sessions', 'Certification']
-    },
-    {
-      id: 9,
-      title: 'Data Science Hackathon',
-      date: 'May 25, 2024',
-      location: 'Algonex Academy, Bangalore',
-      type: 'Hackathon',
-      mode: 'Offline',
-      participants: 70,
-      image: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&auto=format&fit=crop',
-      description: '24-hour data science problem-solving competition',
-      highlights: ['15 teams', 'Industry mentors', 'Prize pool ₹50K']
-    },
-    {
-      id: 10,
-      title: 'Tech Career Fair 2024',
-      date: 'Apr 18, 2024',
-      location: 'Online',
-      type: 'Career Fair',
-      mode: 'Online',
-      participants: 150,
-      image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&auto=format&fit=crop',
-      description: 'Connect with top companies for placement opportunities',
-      highlights: ['30+ companies', '150+ candidates', '40 job offers']
+  const confirmRegister = async () => {
+    if (!modalEvent) return;
+    const eventSlug = modalEvent.slug || modalEvent.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    setRegisterLoading(true);
+    try {
+      await eventsAPI.register(eventSlug);
+      setRegisteredEvents((prev) => new Set([...prev, modalEvent.id]));
+      message.success(`Registered for ${modalEvent.title}!`);
+      setModalEvent(null);
+    } catch (err) {
+      const errMsg = err.response?.data?.error?.message || "Registration failed.";
+      message.error(errMsg);
+      setModalEvent(null);
+    } finally {
+      setRegisterLoading(false);
     }
-  ];
+  };
 
-  const eventTypes = ['all', 'Workshop', 'Webinar', 'Bootcamp', 'Masterclass', 'Summit', 'Hackathon', 'Career Fair'];
-
-  const filteredUpcoming = upcomingEvents.filter(event => 
-    (activeFilter === 'all' || event.type === activeFilter) &&
-    (searchQuery === '' || event.title.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
-
-  const filteredPast = pastEvents.filter(event => 
-    (activeFilter === 'all' || event.type === activeFilter) &&
-    (searchQuery === '' || event.title.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filtered = useMemo(() => {
+    return activeEvents.filter((e) => {
+      const matchesSearch = !search || e.title.toLowerCase().includes(search.toLowerCase());
+      const eventType = e.type || e.event_type || "";
+      const matchesType = typeFilter === "All" || eventType === typeFilter;
+      return matchesSearch && matchesType;
+    });
+  }, [activeEvents, search, typeFilter]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#CCF6FF] via-[#E0F7FF] to-[#B3E5FF]">
-      {/* Hero Banner */}
-      <div className="relative w-full h-[500px] md:h-[612px] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#00B4D8] to-[#0077B6] opacity-95"></div>
-        <img 
-          src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920&auto=format&fit=crop" 
-          alt="Events Banner"
-          className="absolute inset-0 w-full h-full object-cover mix-blend-overlay"
-        />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-center drop-shadow-2xl">
-            Events & Workshops
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-center max-w-3xl leading-relaxed">
-            Join our community events, workshops, and networking sessions to accelerate your career growth
-          </p>
-          <div className="flex gap-4 flex-wrap justify-center">
-            <a href="https://www.google.com" target="_blank" rel="noopener noreferrer">
-              <button className="bg-white text-[#00B4D8] px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-2xl hover:shadow-3xl transform hover:scale-105">
-                Register Now
-              </button>
-            </a>
-
-            <button className="border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-[#00B4D8] transition-all shadow-2xl">
-              View Calendar
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Section */}
-      <div className="max-w-7xl mx-auto px-4 -mt-16 relative z-20">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
-            <div className="text-4xl font-bold text-[#00B4D8] mb-2">50+</div>
-            <div className="text-gray-600 font-semibold">Events Hosted</div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
-            <div className="text-4xl font-bold text-[#00B4D8] mb-2">3000+</div>
-            <div className="text-gray-600 font-semibold">Participants</div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
-            <div className="text-4xl font-bold text-[#00B4D8] mb-2">25+</div>
-            <div className="text-gray-600 font-semibold">Partner Venues</div>
-          </div>
-          <div className="bg-white rounded-2xl p-6 shadow-2xl text-center hover:shadow-3xl transition-all transform hover:scale-105">
-            <div className="text-4xl font-bold text-[#00B4D8] mb-2">4.8/5</div>
-            <div className="text-gray-600 font-semibold">Avg Rating</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filter */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-2xl p-6 shadow-xl">
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="flex-1 relative w-full">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input
-                type="text"
-                placeholder="Search events..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#00B4D8] focus:outline-none"
-              />
-            </div>
-            <div className="flex gap-2 flex-wrap justify-center">
-              {eventTypes.map(type => (
-                <button
-                  key={type}
-                  onClick={() => setActiveFilter(type)}
-                  className={`px-4 py-2 rounded-xl font-semibold transition-all ${
-                    activeFilter === type
-                      ? 'bg-[#00B4D8] text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+    <div>
+      {/* Hero */}
+      <section
+        style={{
+          background: "linear-gradient(135deg, #0c1222, #0a2540)",
+          padding: "60px 24px",
+          textAlign: "center",
+          color: "white",
+        }}
+      >
+        <h1 style={{ fontSize: "clamp(26px, 6vw, 40px)", fontWeight: 800, marginBottom: 12 }}>Events & Workshops</h1>
+        <p style={{ fontSize: 18, color: "rgba(255,255,255,0.7)", maxWidth: 600, margin: "0 auto 32px" }}>
+          Learn, network, and build with the Algonex community
+        </p>
+        <Row gutter={[24, 16]} justify="center">
+          {[
+            { value: "50+", label: "Events Hosted" },
+            { value: "3,000+", label: "Participants" },
+            { value: "25+", label: "Expert Speakers" },
+            { value: "4.8/5", label: "Avg Rating" },
+          ].map((s, i) => (
+            <Col key={i}>
+              <div style={{ padding: "12px 28px" }}>
+                <div style={{ fontSize: 28, fontWeight: 800 }}>{s.value}</div>
+                <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 13 }}>{s.label}</div>
+              </div>
+            </Col>
+          ))}
+        </Row>
+      </section>
 
       {/* Upcoming Events */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-4xl font-bold text-gray-800 mb-2">Upcoming Events</h2>
-          <p className="text-gray-600 text-lg">Register now to secure your spot</p>
+      <section style={{ padding: "48px 24px", maxWidth: 1200, margin: "0 auto" }}>
+        <h2 style={{ fontSize: 28, fontWeight: 700, color: "#2c3e50", marginBottom: 24 }}>
+          Upcoming Events
+        </h2>
+
+        {/* Filters */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 32, padding: 20, background: "#f8fafc", borderRadius: 12 }}>
+          <Input
+            placeholder="Search events..."
+            prefix={<SearchOutlined />}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ maxWidth: 280, flex: "1 1 200px" }}
+            size="large"
+            allowClear
+          />
+          <Segmented options={EVENT_TYPES} value={typeFilter} onChange={setTypeFilter} size="large" />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {filteredUpcoming.map(event => (
-            <div key={event.id} className="bg-white rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all transform hover:scale-[1.02] border-2 border-[#66E5FF]">
-              <div className="relative h-64 overflow-hidden">
-                <img 
-                  src={event.image} 
-                  alt={event.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 right-4 bg-[#00B4D8] text-white px-4 py-2 rounded-xl font-bold shadow-lg">
-                  {event.type}
-                </div>
-                <div className="absolute top-4 left-4 bg-white text-[#00B4D8] px-4 py-2 rounded-xl font-bold shadow-lg">
-                  {event.mode}
-                </div>
-              </div>
-              
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">{event.title}</h3>
-                <p className="text-gray-600 mb-4">{event.description}</p>
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Calendar className="text-[#00B4D8]" size={20} />
-                    <span className="font-semibold">{event.date}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Clock className="text-[#00B4D8]" size={20} />
-                    <span>{event.time}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <MapPin className="text-[#00B4D8]" size={20} />
-                    <span>{event.location}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-gray-700">
-                    <Users className="text-[#00B4D8]" size={20} />
-                    <span>{event.spots} spots remaining</span>
-                  </div>
-                </div>
-
-                <button className="w-full bg-gradient-to-r from-[#00B4D8] to-[#0077B6] text-white py-3 rounded-xl font-bold hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center gap-2">
-                  Register Now <ArrowRight size={20} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+        {filtered.length > 0 ? (
+          <Row gutter={[24, 24]}>
+            {filtered.map((event) => {
+              const spotsLeft = event.spots_left ?? (event.spots != null ? event.spots - (event.registered || 0) : null);
+              return (
+                <Col key={event.id} xs={24} sm={12}>
+                  <Card
+                    hoverable
+                    cover={
+                      <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
+                        <img
+                          alt={event.title}
+                          src={event.image}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                        <Tag
+                          color={(event.event_type || event.type) === "hackathon" ? "magenta" : (event.event_type || event.type) === "webinar" ? "blue" : "cyan"}
+                          style={{ position: "absolute", top: 12, left: 12, margin: 0 }}
+                        >
+                          {event.event_type || event.type}
+                        </Tag>
+                        {spotsLeft != null && <Tag
+                          color={spotsLeft <= 5 ? "red" : spotsLeft <= 15 ? "orange" : "green"}
+                          style={{ position: "absolute", top: 12, right: 12, margin: 0 }}
+                        >
+                          {spotsLeft} spots left
+                        </Tag>}
+                      </div>
+                    }
+                  >
+                    <Link to={event.slug ? `/events/${event.slug}` : "#"} style={{ textDecoration: "none", color: "inherit" }}>
+                      <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>{event.title}</h3>
+                    </Link>
+                    <p style={{ color: "#666", fontSize: 14, marginBottom: 16 }}>
+                      {event.summary || (event.description || "").substring(0, 120) + (event.description?.length > 120 ? "..." : "")}
+                    </p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 16, color: "#888", fontSize: 13, marginBottom: 16 }}>
+                      <span><CalendarOutlined /> {event.date || (event.start_date && new Date(event.start_date).toLocaleDateString())}</span>
+                      {event.time && <span><ClockCircleOutlined /> {event.time}</span>}
+                      <span><EnvironmentOutlined /> {event.location}</span>
+                      <span><TeamOutlined /> {event.spots_left != null ? `${event.spots_left} spots left` : `${event.registered || 0}/${event.spots || event.capacity}`}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {event.slug && (
+                        <Link to={`/events/${event.slug}`} style={{ flex: 1 }}>
+                          <Button block>View Details</Button>
+                        </Link>
+                      )}
+                      <div style={{ flex: 1 }}>
+                        {registeredEvents.has(event.id) ? (
+                          <Button block style={{ background: "#22c55e", color: "white", border: "none" }}>
+                            Registered
+                          </Button>
+                        ) : (
+                          <Button type="primary" block onClick={() => handleRegister(event)}>
+                            Register <ArrowRightOutlined />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                </Col>
+              );
+            })}
+          </Row>
+        ) : (
+          <Empty description="No events match your search" style={{ padding: 60 }} />
+        )}
+      </section>
 
       {/* Past Events */}
-      <div className="bg-white/60 backdrop-blur-sm py-16 mt-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="mb-12">
-            <h2 className="text-4xl font-bold text-gray-800 mb-2">Past Events</h2>
-            <p className="text-gray-600 text-lg">Explore our successful event history</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {filteredPast.map(event => (
-              <div key={event.id} className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all transform hover:scale-105 border-2 border-[#66E5FF]">
-                <div className="relative h-48 overflow-hidden">
-                  <img 
-                    src={event.image} 
-                    alt={event.title}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute top-4 right-4 bg-gray-800 text-white px-3 py-1 rounded-lg text-sm font-bold">
-                    {event.type}
-                  </div>
-                </div>
-                
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">{event.title}</h3>
-                  <p className="text-sm text-gray-600 mb-4">{event.description}</p>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <Calendar className="text-[#00B4D8]" size={16} />
-                      <span>{event.date}</span>
+      <section style={{ padding: "48px 24px", background: "#f8fafc" }}>
+        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: "#2c3e50", marginBottom: 24 }}>
+            Past Events
+          </h2>
+          <Row gutter={[24, 24]}>
+            {pastEvents.map((event, i) => (
+              <Col key={i} xs={24} sm={12} lg={8}>
+                <Card size="small">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                    <div>
+                      <h4 style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{event.title}</h4>
+                      <div style={{ color: "#888", fontSize: 13 }}>
+                        <CalendarOutlined /> {event.date}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                      <MapPin className="text-[#00B4D8]" size={16} />
-                      <span>{event.location}</span>
-                    </div>
+                    <Tag color="default">{event.type}</Tag>
                   </div>
-
-                  <div className="bg-[#E6FAFF] p-4 rounded-xl border-2 border-[#66E5FF]">
-                    <div className="font-semibold text-[#00B4D8] mb-2 text-sm">Highlights:</div>
-                    <div className="space-y-1">
-                      {event.highlights.map((highlight, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-sm text-gray-600">
-                          <span className="text-[#00B4D8] font-bold">•</span>
-                          <span>{highlight}</span>
-                        </div>
-                      ))}
-                    </div>
+                  <div style={{ marginTop: 8, color: "#00B4D8", fontWeight: 500, fontSize: 13 }}>
+                    <TeamOutlined /> {event.attendees} attended
                   </div>
-                </div>
-              </div>
+                </Card>
+              </Col>
             ))}
-          </div>
+          </Row>
         </div>
-      </div>
+      </section>
 
-      {/* Event Partners */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">Our Event Partners</h2>
-          <p className="text-gray-600 text-lg">Collaborating with industry leaders</p>
-        </div>
+      {/* CTA */}
+      <section style={{ background: "linear-gradient(135deg, #00B4D8, #0891b2)", padding: "48px 24px", textAlign: "center" }}>
+        <h2 style={{ fontSize: 28, fontWeight: 700, color: "white", marginBottom: 12 }}>
+          Want to Host an Event with Us?
+        </h2>
+        <p style={{ color: "rgba(255,255,255,0.85)", marginBottom: 24 }}>
+          We partner with companies, colleges, and communities for tech events
+        </p>
+        <Link to="/contact">
+          <Button size="large" style={{ height: 48, borderRadius: 8, background: "white", color: "#00B4D8", fontWeight: 600, border: "none" }}>
+            Get in Touch
+          </Button>
+        </Link>
+      </section>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
-          {['Microsoft', 'AWS', 'ThoughtWorks', 'Amadeus', 'Google Cloud'].map((partner, idx) => (
-            <div key={idx} className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:scale-110 flex items-center justify-center border-2 border-[#66E5FF]">
-              <div className="text-2xl font-bold text-[#00B4D8]">{partner}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* CTA Section */}
-      <div className="bg-gradient-to-r from-[#00B4D8] to-[#0077B6] text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6">Never Miss an Event!</h2>
-          <p className="text-xl mb-8 leading-relaxed">
-            Subscribe to our newsletter to get updates on upcoming workshops, webinars, and networking events
-          </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="px-6 py-4 rounded-xl text-gray-800 font-semibold w-full md:w-96 focus:outline-none focus:ring-4 focus:ring-white"
-            />
-            <button className="bg-white text-[#00B4D8] px-10 py-4 rounded-xl font-bold text-lg hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
-              Subscribe
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Register Confirmation Modal */}
+      <Modal
+        title={modalEvent ? `Register for ${modalEvent.title}?` : ""}
+        open={!!modalEvent}
+        onOk={confirmRegister}
+        onCancel={() => setModalEvent(null)}
+        okText="Confirm Registration"
+        confirmLoading={registerLoading}
+      >
+        {modalEvent && <p>{modalEvent.date || modalEvent.start_date} | {modalEvent.location}</p>}
+      </Modal>
+
+      {/* Sign In Required Modal */}
+      <Modal
+        title="Sign in required"
+        open={showSigninModal}
+        onOk={() => {
+          setShowSigninModal(false);
+          navigate("/signin");
+        }}
+        onCancel={() => setShowSigninModal(false)}
+        okText="Sign In"
+      >
+        <p>You need to sign in to register for events.</p>
+      </Modal>
     </div>
   );
-};
-
-export default EventsPage;
+}

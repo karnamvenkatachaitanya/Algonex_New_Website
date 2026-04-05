@@ -15,7 +15,8 @@ class Event(TimestampMixin, SlugMixin, models.Model):
     ]
 
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    summary = models.CharField(max_length=300, blank=True, help_text="Short plain-text description for cards")
+    description = models.TextField(help_text="Full description, supports Markdown")
     image = models.ImageField(upload_to="events/", blank=True, null=True)
     event_type = models.CharField(max_length=20, choices=TYPE_CHOICES, db_index=True)
     location = models.CharField(max_length=255)
