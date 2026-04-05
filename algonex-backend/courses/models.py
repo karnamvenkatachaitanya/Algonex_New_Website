@@ -125,8 +125,29 @@ class CourseFAQ(models.Model):
         return self.question[:50]
 
 
+class CourseReview(models.Model):
+    """Student-submitted review for a course they're enrolled in."""
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="course_reviews"
+    )
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="reviews")
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    text = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("student", "course")
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.student.email} → {self.course.name} ({self.rating}★)"
+
+
 class Testimonial(models.Model):
-    """Student testimonial for a course."""
+    """Admin-curated testimonial for a course."""
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="testimonials")
     name = models.CharField(max_length=100)

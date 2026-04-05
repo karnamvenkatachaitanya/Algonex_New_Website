@@ -1,7 +1,7 @@
 from django.db import IntegrityError, transaction
 from django.utils.text import slugify
-from .models import Course, Enrollment
-from .exceptions import CourseNotPublished, AlreadyEnrolled, CourseNotReady
+from .models import Course, Enrollment, CourseReview
+from .exceptions import CourseNotPublished, AlreadyEnrolled, CourseNotReady, NotEnrolled, AlreadyReviewed
 
 
 def create_course(*, instructor, **data):
@@ -54,6 +54,21 @@ def drop_enrollment(*, enrollment):
     enrollment.status = "dropped"
     enrollment.save()
     return enrollment
+
+
+def submit_review(*, student, course, rating, text=""):
+    """Submit a review for a course the student is enrolled in."""
+    if not Enrollment.objects.filter(
+        student=student, course=course, status__in=["active", "completed"]
+    ).exists():
+        raise NotEnrolled()
+
+    if CourseReview.objects.filter(student=student, course=course).exists():
+        raise AlreadyReviewed()
+
+    return CourseReview.objects.create(
+        student=student, course=course, rating=rating, text=text
+    )
 
 
 def _validate_publish_ready(course):

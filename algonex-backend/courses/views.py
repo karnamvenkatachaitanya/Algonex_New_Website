@@ -7,7 +7,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
 from django.shortcuts import get_object_or_404
 
-from .models import Course, Module, Topic, Enrollment
+from .models import Course, Module, Topic, Enrollment, CourseFAQ
 from .serializers import (
     CourseListSerializer,
     CourseDetailSerializer,
@@ -16,10 +16,14 @@ from .serializers import (
     ModuleCreateSerializer,
     TopicCreateSerializer,
     EnrollmentSerializer,
+    CourseReviewSerializer,
+    CourseReviewSubmitSerializer,
+    CourseFAQSerializer,
+    CourseFAQCreateSerializer,
 )
 from .permissions import IsInstructorOwner
 from .filters import CourseFilter
-from .services import create_course, update_course, enroll_student, drop_enrollment
+from .services import create_course, update_course, enroll_student, drop_enrollment, submit_review
 from .selectors import get_published_courses, get_course_detail, get_student_enrollments
 from common.permissions import IsAdmin
 
@@ -37,7 +41,6 @@ class CourseViewSet(ModelViewSet):
     def get_queryset(self):
         if self.action in ("list", "retrieve"):
             return get_published_courses(filters=self.request.query_params.dict())
-        # For instructor/admin actions, show their own courses
         if self.request.user.is_authenticated and self.request.user.role == "admin":
             return Course.objects.all()
         if self.request.user.is_authenticated and self.request.user.role == "instructor":
@@ -52,7 +55,7 @@ class CourseViewSet(ModelViewSet):
         return CourseCreateUpdateSerializer
 
     def get_permissions(self):
-        if self.action in ("list", "retrieve"):
+        if self.action in ("list", "retrieve", "reviews"):
             return [IsAuthenticatedOrReadOnly()]
         if self.action == "enroll":
             return [IsAuthenticated()]
@@ -60,7 +63,6 @@ class CourseViewSet(ModelViewSet):
             return [IsInstructorOwner()]
         if self.action == "destroy":
             return [IsAdmin()]
-        # update/partial_update
         return [IsInstructorOwner()]
 
     def perform_create(self, serializer):
@@ -96,7 +98,7 @@ class CourseViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response({"status": "success", "data": serializer.data})
 
-    @action(detail=True, methods=["post"], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=["post"])
     def enroll(self, request, slug=None):
         """POST /api/v1/courses/:slug/enroll/"""
         course = get_object_or_404(Course, slug=slug)
@@ -106,6 +108,51 @@ class CourseViewSet(ModelViewSet):
             {"status": "success", "data": serializer.data},
             status=status.HTTP_201_CREATED,
         )
+
+    @action(detail=True, methods=["get", "post"])
+    def reviews(self, request, slug=None):
+        """GET/POST /api/v1/courses/:slug/reviews/"""
+        course = get_object_or_404(Course, slug=slug, is_published=True)
+
+        if request.method == "GET":
+            reviews = course.reviews.select_related("student").all()
+            serializer = CourseReviewSerializer(reviews, many=True)
+            return Response({"status": "success", "data": serializer.data})
+
+        serializer = CourseReviewSubmitSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        review = submit_review(
+            student=request.user,
+            course=course,
+            rating=serializer.validated_data["rating"],
+            text=serializer.validated_data.get("text", ""),
+        )
+        return Response(
+            {"status": "success", "data": CourseReviewSerializer(review).data},
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class CourseFAQViewSet(ModelViewSet):
+    """CRUD for FAQs within a course. Instructor-only for write, public for read."""
+
+    def get_queryset(self):
+        return CourseFAQ.objects.filter(course__slug=self.kwargs["course_slug"])
+
+    def get_serializer_class(self):
+        if self.action in ("list", "retrieve"):
+            return CourseFAQSerializer
+        return CourseFAQCreateSerializer
+
+    def get_permissions(self):
+        if self.action in ("list", "retrieve"):
+            return [IsAuthenticatedOrReadOnly()]
+        return [IsInstructorOwner()]
+
+    def perform_create(self, serializer):
+        course = get_object_or_404(Course, slug=self.kwargs["course_slug"])
+        self.check_object_permissions(self.request, course)
+        serializer.save(course=course)
 
 
 class ModuleViewSet(ModelViewSet):

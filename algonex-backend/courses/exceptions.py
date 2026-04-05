@@ -18,3 +18,15 @@ class CourseNotReady(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = "Course must have at least one module with topics before publishing."
     default_code = "COURSE_NOT_READY"
+
+
+class NotEnrolled(APIException):
+    status_code = status.HTTP_403_FORBIDDEN
+    default_detail = "You must be enrolled in this course to leave a review."
+    default_code = "NOT_ENROLLED"
+
+
+class AlreadyReviewed(APIException):
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = "You have already reviewed this course."
+    default_code = "ALREADY_REVIEWED"

@@ -5,6 +5,7 @@ from .models import Event, Registration
 class EventListSerializer(serializers.ModelSerializer):
     """Lightweight serializer for event listings."""
     spots_left = serializers.IntegerField(read_only=True)
+    confirmed_count = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
 
     class Meta:
@@ -12,24 +13,31 @@ class EventListSerializer(serializers.ModelSerializer):
         fields = [
             "id", "title", "slug", "description", "image", "event_type",
             "location", "start_date", "end_date", "capacity",
-            "spots_left", "status",
+            "spots_left", "confirmed_count", "status",
         ]
+
+    def get_confirmed_count(self, obj):
+        return obj.capacity - obj.spots_left
 
 
 class EventDetailSerializer(serializers.ModelSerializer):
     """Full event detail — includes meeting_link only for confirmed registrants."""
     spots_left = serializers.IntegerField(read_only=True)
+    confirmed_count = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
     is_full = serializers.BooleanField(read_only=True)
     user_registration_status = serializers.SerializerMethodField()
     meeting_link = serializers.SerializerMethodField()
+
+    def get_confirmed_count(self, obj):
+        return obj.capacity - obj.spots_left
 
     class Meta:
         model = Event
         fields = [
             "id", "title", "slug", "description", "image", "event_type",
             "location", "meeting_link", "start_date", "end_date",
-            "capacity", "spots_left", "is_full", "status",
+            "capacity", "spots_left", "confirmed_count", "is_full", "status",
             "is_published", "user_registration_status", "created_at",
         ]
 

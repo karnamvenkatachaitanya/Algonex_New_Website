@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial
+from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial, CourseReview
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -43,11 +43,35 @@ class InstructorSerializer(serializers.Serializer):
         return f"{obj.first_name} {obj.last_name}".strip() or obj.email
 
 
+class CourseReviewSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseReview
+        fields = ["id", "student_name", "rating", "text", "created_at"]
+
+    def get_student_name(self, obj):
+        return f"{obj.student.first_name} {obj.student.last_name}".strip() or "Anonymous"
+
+
+class CourseReviewSubmitSerializer(serializers.Serializer):
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    text = serializers.CharField(required=False, allow_blank=True, default="")
+
+
+class CourseFAQCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseFAQ
+        fields = ["question", "answer", "order"]
+
+
 class CourseListSerializer(serializers.ModelSerializer):
     """Serializer for course list view — lightweight."""
     instructor = InstructorSerializer(read_only=True)
     skills = serializers.SlugRelatedField(many=True, read_only=True, slug_field="name")
     student_count = serializers.IntegerField(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Course
@@ -55,6 +79,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             "id", "name", "slug", "description", "image", "level",
             "duration", "price", "discount", "is_trending",
             "instructor", "skills", "student_count",
+            "average_rating", "review_count",
         ]
 
 
@@ -65,7 +90,10 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     modules = ModuleSerializer(many=True, read_only=True)
     faqs = CourseFAQSerializer(many=True, read_only=True)
     testimonials = TestimonialSerializer(many=True, read_only=True)
+    reviews = CourseReviewSerializer(many=True, read_only=True)
     student_count = serializers.IntegerField(read_only=True)
+    average_rating = serializers.FloatField(read_only=True)
+    review_count = serializers.IntegerField(read_only=True)
     is_enrolled = serializers.SerializerMethodField()
 
     class Meta:
@@ -74,7 +102,8 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             "id", "name", "slug", "description", "image", "banner",
             "level", "prior_knowledge", "duration", "price", "discount",
             "is_trending", "is_published", "instructor", "skills",
-            "modules", "faqs", "testimonials", "student_count", "is_enrolled",
+            "modules", "faqs", "testimonials", "reviews",
+            "student_count", "average_rating", "review_count", "is_enrolled",
             "created_at", "updated_at",
         ]
 

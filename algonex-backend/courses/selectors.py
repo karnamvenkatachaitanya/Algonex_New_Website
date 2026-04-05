@@ -1,9 +1,9 @@
-from django.db.models import Count, Q
+from django.db.models import Avg, Count, Q
 from .models import Course, Enrollment
 
 
 def get_published_courses(*, filters=None):
-    """Return published courses with student_count annotation."""
+    """Return published courses with student_count, average_rating, review_count."""
     qs = Course.objects.filter(is_published=True).select_related("instructor").prefetch_related("skills")
 
     if filters:
@@ -15,7 +15,9 @@ def get_published_courses(*, filters=None):
             qs = qs.filter(name__icontains=filters["search"])
 
     return qs.annotate(
-        student_count=Count("enrollments", filter=Q(enrollments__status="active")),
+        student_count=Count("enrollments", filter=Q(enrollments__status="active"), distinct=True),
+        average_rating=Avg("reviews__rating"),
+        review_count=Count("reviews", distinct=True),
     ).order_by("-created_at")
 
 
@@ -29,9 +31,12 @@ def get_course_detail(*, slug):
             "modules__topics",
             "faqs",
             "testimonials",
+            "reviews__student",
         )
         .annotate(
-            student_count=Count("enrollments", filter=Q(enrollments__status="active")),
+            student_count=Count("enrollments", filter=Q(enrollments__status="active"), distinct=True),
+            average_rating=Avg("reviews__rating"),
+            review_count=Count("reviews", distinct=True),
         )
         .first()
     )
