@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import AllowAny
 from .serializers import SigninProfileSerializer, Step1Serializer, Step2Serializer
 from .services import register_step1, register_step2
 from django.views.decorators.csrf import csrf_exempt
@@ -27,6 +28,7 @@ class SigninFormView(APIView):
 
 class RegisterStep1View(APIView):
     """POST /api/v1/register/step1/ — create or find user by email."""
+    permission_classes = [AllowAny]
     throttle_scope = "registration"
 
     def post(self, request):
@@ -44,6 +46,7 @@ class RegisterStep1View(APIView):
 
 class RegisterStep2View(APIView):
     """POST /api/v1/register/step2/ — create or update registration profile."""
+    permission_classes = [AllowAny]
     throttle_scope = "registration"
 
     def post(self, request):
