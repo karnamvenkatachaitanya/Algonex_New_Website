@@ -20,7 +20,7 @@
 | `docker-compose.prod.yml` | Create | Production orchestration: Caddy, backend, db, frontend-build; log rotation; named volumes |
 | `.github/workflows/deploy.yml` | Create | CI/CD: test → build → push to ghcr.io → deploy via SSH (auto for staging, manual approval for prod) |
 | `.github/workflows/prune-images.yml` | Create | Weekly scheduled cleanup of old ghcr.io images (keep last 2) |
-| `scripts/backup.sh` | Create | Daily pg_dump + media tar + rclone sync to Backblaze B2 with retention and verification |
+| `scripts/backup.sh` | Create | Daily pg_dump + media tar + rclone sync to Backblaze B2 with retention and verification. *Deviation from spec:* DB and media backups combined into one script at 2 AM instead of separate cron jobs at 2 AM / 3 AM — simpler and acceptable at current scale. |
 | `scripts/health-check.sh` | Create | Cron health monitor: disk, memory, containers, backup status → email alert |
 | `scripts/vps-setup.sh` | Create | One-time VPS hardening: SSH lockdown, ufw, fail2ban, unattended-upgrades, Docker install |
 | `docs/deployment-guide.md` | Create | Runbook: initial setup, deploy, backup/restore, rollback, monitoring |
