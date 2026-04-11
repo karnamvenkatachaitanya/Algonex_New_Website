@@ -8,6 +8,7 @@ class JobListSerializer(serializers.ModelSerializer):
         fields = [
             "id", "title", "slug", "department", "job_type", "location",
             "is_remote", "salary_min", "salary_max", "deadline", "created_at",
+            "apply_mode", "company_name", "company_logo", "tags",
         ]
 
 
@@ -18,6 +19,8 @@ class JobDetailSerializer(serializers.ModelSerializer):
             "id", "title", "slug", "department", "job_type", "location",
             "is_remote", "description", "requirements",
             "salary_min", "salary_max", "deadline", "created_at",
+            "apply_mode", "external_link", "company_name", "company_logo",
+            "eligibility_criteria", "tags",
         ]
 
 
@@ -28,7 +31,18 @@ class JobCreateUpdateSerializer(serializers.ModelSerializer):
             "title", "department", "job_type", "location", "is_remote",
             "description", "requirements", "salary_min", "salary_max",
             "is_active", "deadline",
+            "apply_mode", "external_link", "company_name", "company_logo",
+            "eligibility_criteria", "tags",
         ]
+
+    def validate(self, data):
+        apply_mode = data.get("apply_mode", "internal")
+        if apply_mode == "external":
+            if not data.get("external_link"):
+                raise serializers.ValidationError({"external_link": "Required for external listings."})
+            if not data.get("company_name"):
+                raise serializers.ValidationError({"company_name": "Required for external listings."})
+        return data
 
 
 class ApplicationSubmitSerializer(serializers.Serializer):
