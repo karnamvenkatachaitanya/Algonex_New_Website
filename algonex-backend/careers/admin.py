@@ -10,11 +10,30 @@ class ApplicationInline(admin.TabularInline):
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ("title", "department", "job_type", "location", "is_remote", "is_active")
-    list_filter = ("department", "job_type", "is_active", "is_remote")
-    search_fields = ("title", "description")
+    list_display = ("title", "apply_mode", "department", "job_type", "location", "is_remote", "is_active", "company_name")
+    list_filter = ("apply_mode", "department", "job_type", "is_active", "is_remote")
+    search_fields = ("title", "description", "company_name")
     prepopulated_fields = {"slug": ("title",)}
-    inlines = [ApplicationInline]
+
+    fieldsets = (
+        (None, {
+            "fields": (
+                "title", "slug", "apply_mode", "department", "job_type",
+                "location", "is_remote", "description", "requirements",
+                "salary_min", "salary_max", "is_active", "deadline", "tags",
+            ),
+        }),
+        ("External Listing", {
+            "classes": ("collapse",),
+            "fields": ("external_link", "company_name", "company_logo", "eligibility_criteria"),
+            "description": "Only used when Apply Mode is 'External'.",
+        }),
+    )
+
+    def get_inlines(self, request, obj=None):
+        if obj and obj.apply_mode == "external":
+            return []
+        return [ApplicationInline]
 
 
 @admin.register(Application)
