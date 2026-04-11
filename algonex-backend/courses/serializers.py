@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial, CourseReview
+from common.serializers import MediaSerializer
+from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial, CourseReview, StudentOutcome
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -72,6 +73,7 @@ class CourseListSerializer(serializers.ModelSerializer):
     student_count = serializers.IntegerField(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)
+    media = MediaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Course
@@ -79,7 +81,7 @@ class CourseListSerializer(serializers.ModelSerializer):
             "id", "name", "slug", "description", "image", "level",
             "duration", "price", "discount", "is_trending",
             "instructor", "skills", "student_count",
-            "average_rating", "review_count",
+            "average_rating", "review_count", "media",
         ]
 
 
@@ -91,6 +93,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     faqs = CourseFAQSerializer(many=True, read_only=True)
     testimonials = TestimonialSerializer(many=True, read_only=True)
     reviews = CourseReviewSerializer(many=True, read_only=True)
+    media = MediaSerializer(many=True, read_only=True)
     student_count = serializers.IntegerField(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
     review_count = serializers.IntegerField(read_only=True)
@@ -102,7 +105,7 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             "id", "name", "slug", "description", "image", "banner",
             "level", "prior_knowledge", "duration", "price", "discount",
             "is_trending", "is_published", "instructor", "skills",
-            "modules", "faqs", "testimonials", "reviews",
+            "modules", "faqs", "testimonials", "reviews", "media",
             "student_count", "average_rating", "review_count", "is_enrolled",
             "created_at", "updated_at",
         ]
@@ -157,3 +160,21 @@ class EnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Enrollment
         fields = ["id", "course", "enrolled_at", "status"]
+
+
+class OutcomeCourseSerializer(serializers.ModelSerializer):
+    """Lightweight course info for outcome listings."""
+    class Meta:
+        model = Course
+        fields = ["name", "slug"]
+
+
+class StudentOutcomeSerializer(serializers.ModelSerializer):
+    course = OutcomeCourseSerializer(read_only=True)
+
+    class Meta:
+        model = StudentOutcome
+        fields = [
+            "id", "student_name", "achievement_type", "company_name",
+            "role", "package_range", "course", "achieved_at",
+        ]

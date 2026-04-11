@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -24,7 +24,9 @@ from .serializers import (
 from .permissions import IsInstructorOwner
 from .filters import CourseFilter
 from .services import create_course, update_course, enroll_student, drop_enrollment, submit_review
-from .selectors import get_published_courses, get_course_detail, get_student_enrollments
+from .selectors import get_published_courses, get_course_detail, get_student_enrollments, get_published_outcomes
+from .serializers import StudentOutcomeSerializer
+from common.pagination import StandardPagination
 from common.permissions import IsAdmin
 
 
@@ -210,3 +212,18 @@ class EnrollmentViewSet(ListModelMixin, GenericViewSet):
             {"status": "success", "data": {"message": "Enrollment dropped."}},
             status=status.HTTP_200_OK,
         )
+
+
+class OutcomePagination(StandardPagination):
+    page_size = 20
+
+
+class StudentOutcomeViewSet(ListModelMixin, GenericViewSet):
+    """Public read-only endpoint for published student outcomes."""
+    serializer_class = StudentOutcomeSerializer
+    permission_classes = [AllowAny]
+    pagination_class = OutcomePagination
+
+    def get_queryset(self):
+        course_slug = self.request.query_params.get("course")
+        return get_published_outcomes(course_slug=course_slug)

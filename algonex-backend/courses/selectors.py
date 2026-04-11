@@ -1,5 +1,5 @@
 from django.db.models import Avg, Count, Q
-from .models import Course, Enrollment
+from .models import Course, Enrollment, StudentOutcome
 
 
 def get_published_courses(*, filters=None):
@@ -50,3 +50,11 @@ def get_student_enrollments(*, student):
         .select_related("course", "course__instructor")
         .prefetch_related("course__skills")
     )
+
+
+def get_published_outcomes(*, course_slug=None):
+    """Return published student outcomes, optionally filtered by course slug."""
+    qs = StudentOutcome.objects.filter(is_published=True).select_related("course")
+    if course_slug:
+        qs = qs.filter(course__slug=course_slug)
+    return qs
