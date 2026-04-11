@@ -1,0 +1,25 @@
+{$DOMAIN:localhost} {
+    # API and admin to Django
+    handle /api/* {
+        reverse_proxy backend:8000
+    }
+
+    handle /admin/* {
+        reverse_proxy backend:8000
+    }
+
+    # Django static files
+    handle /static/* {
+        reverse_proxy backend:8000
+    }
+
+    # Media files
+    handle /media/* {
+        reverse_proxy backend:8000
+    }
+
+    # Everything else -> React SPA
+    handle {
+        reverse_proxy frontend:80
+    }
+}

@@ -25,8 +25,11 @@ logs: ## View container logs
 migrate: ## Run Django migrations
 	docker compose exec backend python manage.py migrate
 
-seed: ## Seed database with sample courses
+seed: ## Seed database with sample data
 	docker compose exec backend python manage.py seed_courses
+	docker compose exec backend python manage.py seed_events
+	docker compose exec backend python manage.py seed_programs
+	docker compose exec backend python manage.py seed_showcase
 
 createsuperuser: ## Create Django admin superuser
 	docker compose exec backend python manage.py createsuperuser
