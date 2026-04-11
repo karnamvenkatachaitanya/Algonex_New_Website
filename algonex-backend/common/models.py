@@ -79,6 +79,14 @@ class CarouselSlide(models.Model):
 
     class Meta:
         ordering = ["order"]
+        constraints = [
+            models.UniqueConstraint(fields=["order"], name="unique_carousel_order"),
+            models.UniqueConstraint(
+                fields=["slide_type", "item_slug"],
+                condition=~models.Q(item_slug=""),
+                name="unique_carousel_item",
+            ),
+        ]
 
     def __str__(self):
         if self.slide_type == "hero":

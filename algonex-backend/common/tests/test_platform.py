@@ -92,3 +92,17 @@ class TestCarouselAPI(TestCase):
     def test_no_auth_required(self):
         response = self.client.get("/api/v1/carousel/")
         assert response.status_code == 200
+
+    def test_duplicate_item_rejected(self):
+        """Same course can't appear in carousel twice."""
+        CarouselSlide.objects.create(slide_type="course", item_slug="python-full-stack", order=1)
+        from django.db import IntegrityError
+        with self.assertRaises(IntegrityError):
+            CarouselSlide.objects.create(slide_type="course", item_slug="python-full-stack", order=2)
+
+    def test_duplicate_order_rejected(self):
+        """Two slides can't have the same order."""
+        CarouselSlide.objects.create(slide_type="hero", order=1)
+        from django.db import IntegrityError
+        with self.assertRaises(IntegrityError):
+            CarouselSlide.objects.create(slide_type="course", item_slug="python-full-stack", order=1)
