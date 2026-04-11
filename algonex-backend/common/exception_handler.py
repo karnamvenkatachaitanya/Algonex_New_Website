@@ -33,6 +33,9 @@ def custom_exception_handler(exc, context):
 
 
 def _get_error_code(exc, response):
+    code = getattr(exc, "default_code", None)
+    if code and code == code.upper():  # custom uppercase codes (e.g. EXTERNAL_JOB, ALREADY_APPLIED)
+        return code
     status_map = {
         400: "BAD_REQUEST",
         401: "UNAUTHORIZED",

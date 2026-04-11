@@ -147,3 +147,118 @@ class TestApplicationAdminAPI(CareerAPITestMixin, TestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
+
+
+class TestExternalJobListing(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.external_job = Job.objects.create(
+            title="Frontend Dev at TCS",
+            department="engineering",
+            job_type="full_time",
+            location="Mumbai",
+            description="Build UIs",
+            requirements="React, JS",
+            is_active=True,
+            apply_mode="external",
+            external_link="https://careers.tcs.com/frontend",
+            company_name="TCS",
+            tags="React, JavaScript, Frontend",
+        )
+        self.internal_job = Job.objects.create(
+            title="Internal Dev",
+            department="engineering",
+            job_type="full_time",
+            location="Hyderabad",
+            description="Build things",
+            requirements="Python",
+            is_active=True,
+            apply_mode="internal",
+        )
+
+    def test_list_all_jobs(self):
+        response = self.client.get("/api/v1/careers/")
+        results = response.json()["data"]["results"]
+        self.assertEqual(len(results), 2)
+
+    def test_filter_external_only(self):
+        response = self.client.get("/api/v1/careers/?apply_mode=external")
+        results = response.json()["data"]["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["apply_mode"], "external")
+        self.assertEqual(results[0]["company_name"], "TCS")
+
+    def test_filter_internal_only(self):
+        response = self.client.get("/api/v1/careers/?apply_mode=internal")
+        results = response.json()["data"]["results"]
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]["apply_mode"], "internal")
+
+    def test_external_detail_has_link(self):
+        response = self.client.get(f"/api/v1/careers/{self.external_job.slug}/")
+        data = response.json()["data"]
+        self.assertEqual(data["external_link"], "https://careers.tcs.com/frontend")
+        self.assertEqual(data["company_name"], "TCS")
+        self.assertEqual(data["tags"], "React, JavaScript, Frontend")
+
+    def test_apply_to_external_rejected(self):
+        user = User.objects.create_user(email="student@test.com", password="pass123")
+        self.client.force_authenticate(user)
+        resume = SimpleUploadedFile("resume.pdf", b"fake pdf", content_type="application/pdf")
+        response = self.client.post(
+            f"/api/v1/careers/{self.external_job.slug}/apply/",
+            {"resume": resume},
+            format="multipart",
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["error"]["code"], "EXTERNAL_JOB")
+
+
+class TestExternalJobAdmin(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(
+            email="admin@test.com", password="pass123", role="admin"
+        )
+        self.client = APIClient()
+        self.client.force_authenticate(self.admin)
+
+    def test_create_external_job(self):
+        response = self.client.post("/api/v1/careers/", {
+            "title": "Data Analyst at Infosys",
+            "department": "engineering",
+            "job_type": "internship",
+            "location": "Bangalore",
+            "description": "Analyze data",
+            "requirements": "SQL, Python",
+            "apply_mode": "external",
+            "external_link": "https://careers.infosys.com/data",
+            "company_name": "Infosys",
+            "tags": "SQL, Python, Data",
+        })
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_external_missing_link_rejected(self):
+        response = self.client.post("/api/v1/careers/", {
+            "title": "Missing Link Job",
+            "department": "engineering",
+            "job_type": "full_time",
+            "location": "Remote",
+            "description": "Test",
+            "requirements": "Test",
+            "apply_mode": "external",
+            "company_name": "SomeCompany",
+        })
+        self.assertEqual(response.status_code, 400)
+
+    def test_create_external_missing_company_rejected(self):
+        response = self.client.post("/api/v1/careers/", {
+            "title": "Missing Company Job",
+            "department": "engineering",
+            "job_type": "full_time",
+            "location": "Remote",
+            "description": "Test",
+            "requirements": "Test",
+            "apply_mode": "external",
+            "external_link": "https://example.com",
+        })
+        self.assertEqual(response.status_code, 400)
