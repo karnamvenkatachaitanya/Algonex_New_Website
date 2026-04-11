@@ -17,3 +17,9 @@ class JobNotActive(APIException):
 class InvalidTransition(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_code = "INVALID_TRANSITION"
+
+
+class ExternalJob(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = "This is an external listing. Apply via the external link."
+    default_code = "EXTERNAL_JOB"
