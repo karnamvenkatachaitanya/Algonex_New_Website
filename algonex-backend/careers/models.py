@@ -20,6 +20,11 @@ class Job(TimestampMixin, SlugMixin, models.Model):
         ("contract", "Contract"),
     ]
 
+    APPLY_MODE_CHOICES = [
+        ("internal", "Internal"),
+        ("external", "External"),
+    ]
+
     title = models.CharField(max_length=255)
     department = models.CharField(max_length=20, choices=DEPARTMENT_CHOICES, db_index=True)
     job_type = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES, db_index=True)
@@ -31,6 +36,18 @@ class Job(TimestampMixin, SlugMixin, models.Model):
     salary_max = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     deadline = models.DateField(null=True, blank=True)
+
+    # Apply mode — internal (resume upload) or external (third-party link)
+    apply_mode = models.CharField(
+        max_length=10, choices=APPLY_MODE_CHOICES, default="internal", db_index=True
+    )
+
+    # External listing fields (only used when apply_mode="external")
+    external_link = models.URLField(blank=True)
+    company_name = models.CharField(max_length=255, blank=True)
+    company_logo = models.ImageField(upload_to="careers/logos/", blank=True, null=True)
+    eligibility_criteria = models.TextField(blank=True, help_text="Markdown eligibility for external listings")
+    tags = models.TextField(blank=True, help_text="Comma-separated tags, e.g. 'Python, Django, Remote'")
 
     # SlugMixin auto-generates slug from `title`
 
@@ -44,6 +61,11 @@ class Job(TimestampMixin, SlugMixin, models.Model):
         from django.core.exceptions import ValidationError
         if self.salary_min and self.salary_max and self.salary_min > self.salary_max:
             raise ValidationError("Minimum salary cannot exceed maximum salary.")
+        if self.apply_mode == "external":
+            if not self.external_link:
+                raise ValidationError({"external_link": "External link is required for external listings."})
+            if not self.company_name:
+                raise ValidationError({"company_name": "Company name is required for external listings."})
 
 
 class Application(models.Model):
