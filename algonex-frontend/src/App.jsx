@@ -24,15 +24,22 @@ import CaseStudyDetailPage from './pages/portfolio/CaseStudyDetailPage';
 // Auth pages
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
+import RegisterPage from './pages/auth/RegisterPage';
+import SetPasswordPage from './pages/auth/SetPasswordPage';
 import ProfilePage from './pages/auth/ProfilePage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import OAuthCallbackPage from './pages/auth/OAuthCallbackPage';
+
+// Programs
+import ProgramListPage from './pages/programs/ProgramListPage';
+import ProgramDetailPage from './pages/programs/ProgramDetailPage';
 
 // Protected pages
 import MyCoursesPage from './pages/courses/MyCoursesPage';
 import MyEventsPage from './pages/events/MyEventsPage';
 import MyApplicationsPage from './pages/careers/MyApplicationsPage';
 
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -81,6 +88,7 @@ const App = () => {
 
             <Navbar />
             <div style={{ flex: 1 }}>
+              <ErrorBoundary>
               <Routes>
                 {/* Public */}
                 <Route path="/" element={<Home />} />
@@ -96,6 +104,9 @@ const App = () => {
                 <Route path="/careers/:slug" element={<JobDetailPage />} />
                 <Route path="/products" element={<CaseStudyListPage />} />
                 <Route path="/products/:slug" element={<CaseStudyDetailPage />} />
+                <Route path="/programs" element={<ProgramListPage />} />
+                <Route path="/programs/:slug" element={<ProgramDetailPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
                 {/* Legal */}
                 <Route path="/privacy" element={<PrivacyPage />} />
@@ -105,6 +116,7 @@ const App = () => {
                 <Route path="/signin" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/set-password" element={<SetPasswordPage />} />
                 <Route path="/auth/callback" element={<OAuthCallbackPage />} />
 
                 {/* Protected */}
@@ -116,6 +128,7 @@ const App = () => {
                 {/* 404 */}
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
+              </ErrorBoundary>
             </div>
             <Footer />
           </div>
