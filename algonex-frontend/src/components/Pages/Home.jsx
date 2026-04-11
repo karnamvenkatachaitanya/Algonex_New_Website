@@ -675,6 +675,24 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Quiz CTA */}
+      <section style={{ padding: "64px 24px", background: "#EBFBFF" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center" }}>
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: "#2c3e50", marginBottom: 12 }}>
+            Not sure which course is right for you?
+          </h2>
+          <p style={{ color: "#666", fontSize: 16, marginBottom: 28, lineHeight: 1.6 }}>
+            Take our 60-second quiz and get a personalized recommendation based on your background,
+            interests, and career goals.
+          </p>
+          <Link to="/quiz">
+            <Button type="primary" size="large" style={{ height: 50, fontSize: 16, borderRadius: 8 }}>
+              Find Your Perfect Course <ArrowRightOutlined />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
       {/* CTA */}
       <section style={{ background: "linear-gradient(135deg, #00B4D8, #0891b2)", padding: "64px 24px", textAlign: "center" }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
