@@ -40,6 +40,9 @@ import MyEventsPage from './pages/events/MyEventsPage';
 import MyApplicationsPage from './pages/careers/MyApplicationsPage';
 
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import SkillQuiz from './components/quiz/SkillQuiz';
+import AlumniPage from './pages/alumni/AlumniPage';
+import ProjectDetailPage from './pages/alumni/ProjectDetailPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -107,6 +110,9 @@ const App = () => {
                 <Route path="/programs" element={<ProgramListPage />} />
                 <Route path="/programs/:slug" element={<ProgramDetailPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/quiz" element={<SkillQuiz />} />
+                <Route path="/alumni" element={<AlumniPage />} />
+                <Route path="/alumni/projects/:slug" element={<ProjectDetailPage />} />
 
                 {/* Legal */}
                 <Route path="/privacy" element={<PrivacyPage />} />

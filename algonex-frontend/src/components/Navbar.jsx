@@ -7,9 +7,11 @@ import { useAuth } from '../hooks/useAuth';
 const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/allcourses', label: 'Courses' },
+  { to: '/programs', label: 'Programs' },
   { to: '/events', label: 'Events' },
   { to: '/careers', label: 'Careers' },
   { to: '/aboutus', label: 'About' },
+  { to: '/alumni', label: 'Alumni' },
   { to: '/contact', label: 'Contact' },
 ];
 
