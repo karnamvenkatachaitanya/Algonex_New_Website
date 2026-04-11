@@ -53,6 +53,12 @@ Job (existing model — additions only)
 - `submit_application` service rejects applications to external jobs with error code `EXTERNAL_JOB`
 - Existing internal jobs default to `apply_mode="internal"` — no migration data changes needed
 
+**Validation lives in two places:**
+- `Job.clean()` — model-level validation for admin/shell safety. Raises `ValidationError` if `apply_mode="external"` and `external_link` or `company_name` is blank.
+- `JobCreateUpdateSerializer.validate()` — API-level validation with proper DRF error formatting.
+
+**`company_logo` validation:** Accept common image formats (JPEG, PNG, WebP), max 2MB. Pillow is already in requirements.
+
 ### What stays unchanged
 
 - `Application` model — untouched
@@ -141,7 +147,7 @@ class ExternalJob(APIException):
 ### Everything else unchanged
 
 - `transition_application()` — no change
-- All selectors — `get_active_jobs()` already returns all active jobs; frontend filters by `apply_mode`
+- All selectors unchanged — `get_active_jobs()` returns all active jobs. The `apply_mode` filtering is handled by `JobFilter` (django-filter) in the view layer, NOT by the selector. Do not add `apply_mode` filtering to the selector.
 
 ---
 
@@ -164,15 +170,17 @@ Tab 2: "Work with Us"             → GET /careers/?apply_mode=internal
 ```
 If apply_mode == "external":
   - Show company logo + company name in header
-  - Description + eligibility criteria sections
+  - Description + eligibility_criteria sections (NOT requirements)
   - "Apply on [Company Name]" button → window.open(external_link, "_blank")
   - No login required
 
 If apply_mode == "internal":
   - Existing behavior unchanged
-  - Description + requirements sections
+  - Description + requirements sections (NOT eligibility_criteria)
   - "Apply Now" → resume upload modal
   - Requires authentication
+
+Note: Internal jobs use `requirements`, external jobs use `eligibility_criteria`. Both are TextField/markdown but serve different audiences — `requirements` is for job qualifications, `eligibility_criteria` is for student eligibility.
 ```
 
 ### MyApplicationsPage — unchanged
@@ -200,6 +208,7 @@ Only shows internal applications. No changes needed.
 - `list_display` adds: `apply_mode`, `company_name`
 - `list_filter` adds: `apply_mode`
 - Form groups external-only fields under a collapsible "External Listing" fieldset
+- Override `get_inlines()` to exclude `ApplicationInline` when `apply_mode="external"` (applications are meaningless for external jobs)
 
 ---
 
