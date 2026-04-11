@@ -1,5 +1,5 @@
 from .models import Application
-from .exceptions import AlreadyApplied, JobNotActive, InvalidTransition
+from .exceptions import AlreadyApplied, JobNotActive, InvalidTransition, ExternalJob
 
 # Valid hiring pipeline transitions
 VALID_TRANSITIONS = {
@@ -13,6 +13,9 @@ VALID_TRANSITIONS = {
 
 def submit_application(*, applicant, job, resume, cover_letter=""):
     """Submit an application to an active job."""
+    if job.apply_mode == "external":
+        raise ExternalJob()
+
     if not job.is_active:
         raise JobNotActive()
 

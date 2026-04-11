@@ -46,6 +46,17 @@ class TestSubmitApplication(TestCase):
         with self.assertRaises(JobNotActive):
             submit_application(applicant=self.user, job=job, resume=_dummy_resume())
 
+    def test_external_job_raises(self):
+        from careers.exceptions import ExternalJob
+        job = _create_job(
+            title="External Dev",
+            apply_mode="external",
+            external_link="https://example.com/apply",
+            company_name="TCS",
+        )
+        with self.assertRaises(ExternalJob):
+            submit_application(applicant=self.user, job=job, resume=_dummy_resume())
+
 
 class TestTransitionApplication(TestCase):
     def setUp(self):
