@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Tag, Collapse, Rate, Button, Card, Row, Col, Carousel, Avatar, Empty, Modal, App, Spin } from "antd";
+import { Tag, Rate, Button, Card, Row, Col, Carousel, Avatar, Empty, Modal, App, Spin, Collapse } from "antd";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -14,6 +14,7 @@ import {
 import { coursesAPI } from "../../api/courses";
 import { STACKS } from "../../constants/constant";
 import CourseCard from "../../components/courses/CourseCard";
+import CourseRoadmap from "../../components/courses/CourseRoadmap";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function CourseDetailPage() {
@@ -245,73 +246,14 @@ export default function CourseDetailPage() {
           </section>
         )}
 
-        {/* Modules */}
+        {/* Learning Path Roadmap */}
         {course.modules && course.modules.length > 0 && (
-          <section style={{ marginBottom: 40 }}>
-            <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 16, color: "#2c3e50" }}>
-              Course Modules
+          <div style={{ marginTop: 48 }}>
+            <h2 style={{ fontSize: 28, fontWeight: 700, color: "#2c3e50", marginBottom: 24, textAlign: "center" }}>
+              Your Learning Path
             </h2>
-            <Collapse
-              accordion
-              size="large"
-              expandIconPosition="end"
-              items={course.modules.map((mod, idx) => ({
-                key: mod.id || idx,
-                label: (
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        background: "#00B4D8",
-                        color: "white",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: 700,
-                        fontSize: 14,
-                        flexShrink: 0,
-                      }}
-                    >
-                      {idx + 1}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: 16 }}>{mod.title}</div>
-                      <div style={{ color: "#888", fontSize: 13 }}>{mod.topics?.length || 0} topics</div>
-                    </div>
-                  </div>
-                ),
-                children: (
-                  <div>
-                    {mod.description && (
-                      <p style={{ color: "#666", marginBottom: 16 }}>{mod.description}</p>
-                    )}
-                    <Row gutter={[12, 12]}>
-                      {mod.topics?.map((topic, tIdx) => (
-                        <Col key={topic.id || tIdx} xs={24} sm={12}>
-                          <div
-                            style={{
-                              padding: "10px 14px",
-                              background: "#f8fafc",
-                              borderRadius: 8,
-                              borderLeft: "3px solid #00B4D8",
-                              fontSize: 14,
-                            }}
-                          >
-                            <span style={{ color: "#00B4D8", fontWeight: 600, marginRight: 8 }}>
-                              {String(tIdx + 1).padStart(2, "0")}
-                            </span>
-                            {topic.title}
-                          </div>
-                        </Col>
-                      ))}
-                    </Row>
-                  </div>
-                ),
-              }))}
-            />
-          </section>
+            <CourseRoadmap modules={course.modules} />
+          </div>
         )}
 
         {/* Prior Knowledge */}
