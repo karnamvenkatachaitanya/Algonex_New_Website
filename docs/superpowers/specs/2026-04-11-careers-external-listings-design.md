@@ -240,13 +240,13 @@ Add 3-4 sample external job listings to the existing `seed_careers` command:
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| Model migration (new fields) | pending | |
-| Serializer updates | pending | |
-| Filter update | pending | |
-| Service guard (ExternalJob) | pending | |
-| Admin updates | pending | |
-| Seed data | pending | |
-| Tests | pending | |
+| Model migration (new fields) | done | |
+| Serializer updates | done | |
+| Filter update | done | |
+| Service guard (ExternalJob) | done | |
+| Admin updates | done | |
+| Seed data | done | |
+| Tests | done | |
 
 ### Frontend Status
 
