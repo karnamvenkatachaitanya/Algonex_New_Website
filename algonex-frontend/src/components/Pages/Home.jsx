@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Button, Row, Col } from "antd";
+import { Button, Row, Col, Carousel, Tag } from "antd";
 import {
   RocketOutlined,
   TeamOutlined,
@@ -9,9 +9,21 @@ import {
   SafetyCertificateOutlined,
   GlobalOutlined,
   ArrowRightOutlined,
+  CalendarOutlined,
+  EnvironmentOutlined,
+  ClockCircleOutlined,
+  DollarOutlined,
+  LaptopOutlined,
+  StarOutlined,
+  LeftOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 import { STACKS } from "../../constants/constant";
+import { coursesAPI } from "../../api/courses";
+import { eventsAPI } from "../../api/events";
+import { programsAPI } from "../../api/programs";
 import CourseCard from "../courses/CourseCard";
+import OutcomesTicker from "../OutcomesTicker";
 
 const stats = [
   { value: "5,000+", label: "Students Trained" },
@@ -53,31 +65,197 @@ const features = [
   },
 ];
 
-export default function Home() {
-  const trendingCourses = STACKS.filter((c) => c.isTrending).slice(0, 4);
+// Static fallback data for each slide type
+const FALLBACK_COURSE = STACKS.find((c) => c.isTrending) || STACKS[0];
+
+const FALLBACK_EVENT = {
+  title: "Full Stack Web Development Workshop",
+  slug: null,
+  start_date: "2026-04-15",
+  end_date: "2026-04-15",
+  location: "Algonex Campus, Bangalore",
+  event_type: "Workshop",
+  image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop",
+  capacity: 30,
+  spots_left: 8,
+  summary: "Hands-on workshop covering React, Node.js, and MongoDB with real-world projects.",
+};
+
+const FALLBACK_PROGRAM = {
+  title: "AI/ML Fellowship Program",
+  slug: "ai-ml-fellowship",
+  program_type: "fellowship",
+  image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&auto=format&fit=crop",
+  duration: "6 months",
+  stipend: "\u20b925,000/month",
+  location: "Bangalore",
+  is_remote: false,
+  application_deadline: "2026-05-15",
+  start_date: "2026-06-01",
+  is_featured: true,
+  registration_count: 42,
+  description: "A 6-month intensive fellowship in artificial intelligence and machine learning with hands-on projects, mentorship from industry experts, and a guaranteed stipend.",
+};
+
+// Shared slide background
+const SLIDE_BG = "linear-gradient(135deg, #0c1222 0%, #0a2540 50%, #0e3a5e 100%)";
+
+const slideGlow = {
+  position: "absolute",
+  top: -100,
+  right: -100,
+  width: 400,
+  height: 400,
+  background: "radial-gradient(circle, rgba(0,180,216,0.15) 0%, transparent 70%)",
+  borderRadius: "50%",
+  pointerEvents: "none",
+};
+
+/**
+ * Stacked image gallery: shows images as a stacked card deck.
+ * On hover, the stack cycles through images by sliding down.
+ * Props:
+ *   - images: array of { image, caption } or string URLs
+ *   - primaryImage: fallback single image URL (used if no media array)
+ *   - alt: alt text for images
+ *   - onHoverStart/onHoverEnd: callbacks to pause/resume parent carousel
+ */
+function StackedImageGallery({ images = [], primaryImage, alt = "", onHoverStart, onHoverEnd }) {
+  // Build image list: media array first, then fallback to primary image
+  const allImages = images.length > 0
+    ? images.map((m) => (typeof m === "string" ? m : m.image))
+    : primaryImage ? [primaryImage] : [];
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const intervalRef = useRef(null);
+
+  const stopCycling = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  const startCycling = useCallback(() => {
+    if (allImages.length <= 1) return;
+    stopCycling();
+    intervalRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % allImages.length);
+    }, 1500);
+  }, [allImages.length, stopCycling]);
+
+  useEffect(() => stopCycling, [stopCycling]);
+
+  const handleMouseEnter = () => {
+    onHoverStart?.();
+    startCycling();
+  };
+
+  const handleMouseLeave = () => {
+    stopCycling();
+    setActiveIndex(0);
+    onHoverEnd?.();
+  };
+
+  if (allImages.length === 0) return null;
+
+  // For single image, just render it normally
+  if (allImages.length === 1) {
+    return (
+      <div style={{ borderRadius: 16, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+        <img src={allImages[0]} alt={alt} style={{ width: "100%", height: 280, objectFit: "cover", display: "block" }} />
+      </div>
+    );
+  }
+
+  // Fanned images — each tilted at a different angle
+  const ROTATIONS = [0, 15, -5, 10, -12];
+  const visibleCount = Math.min(allImages.length, ROTATIONS.length);
 
   return (
+    <div
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        position: "relative",
+        height: 320,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {allImages.slice(0, visibleCount).map((src, i) => {
+        const isActive = i === activeIndex;
+        // Active card: no rotation, front and center
+        // Others: fanned out at their assigned angle
+        const rotation = isActive ? 0 : ROTATIONS[i];
+        const translateX = isActive ? 0 : (ROTATIONS[i] * 1.5);
+
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              width: "85%",
+              height: 260,
+              borderRadius: 16,
+              overflow: "hidden",
+              border: isActive ? "2px solid rgba(0,180,216,0.5)" : "1px solid rgba(255,255,255,0.15)",
+              transform: `rotate(${rotation}deg) translateX(${translateX}px) scale(${isActive ? 1 : 0.92})`,
+              opacity: isActive ? 1 : 0.7,
+              zIndex: isActive ? visibleCount + 1 : visibleCount - i,
+              transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+              boxShadow: isActive
+                ? "0 12px 40px rgba(0,0,0,0.4)"
+                : "0 4px 20px rgba(0,0,0,0.25)",
+              transformOrigin: "center bottom",
+            }}
+          >
+            <img
+              src={src}
+              alt={`${alt} ${i + 1}`}
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            />
+          </div>
+        );
+      })}
+      {/* Image counter dots */}
+      <div style={{
+        position: "absolute",
+        bottom: 4,
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: visibleCount + 2,
+        display: "flex",
+        gap: 5,
+        background: "rgba(0,0,0,0.4)",
+        borderRadius: 12,
+        padding: "4px 10px",
+        backdropFilter: "blur(4px)",
+      }}>
+        {allImages.slice(0, visibleCount).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              width: i === activeIndex ? 18 : 6,
+              height: 6,
+              borderRadius: 3,
+              background: i === activeIndex ? "#00B4D8" : "rgba(255,255,255,0.5)",
+              transition: "all 0.3s ease",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MainHeroSlide() {
+  return (
     <div>
-      {/* Hero */}
-      <section
-        style={{
-          background: "linear-gradient(135deg, #0c1222 0%, #0a2540 50%, #0e3a5e 100%)",
-          padding: "clamp(40px, 8vw, 80px) 24px",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            top: -100,
-            right: -100,
-            width: 400,
-            height: 400,
-            background: "radial-gradient(circle, rgba(0,180,216,0.15) 0%, transparent 70%)",
-            borderRadius: "50%",
-          }}
-        />
+      <section style={{ background: SLIDE_BG, padding: "clamp(40px, 8vw, 72px) 24px", position: "relative", overflow: "hidden" }}>
+        <div style={slideGlow} />
         <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
           <Row gutter={[48, 48]} align="middle">
             <Col xs={24} lg={14}>
@@ -96,27 +274,11 @@ export default function Home() {
               >
                 #1 Tech Training Institute in Bangalore
               </div>
-              <h1
-                style={{
-                  fontSize: "clamp(28px, 6vw, 48px)",
-                  fontWeight: 800,
-                  color: "white",
-                  lineHeight: 1.15,
-                  marginBottom: 20,
-                }}
-              >
+              <h1 style={{ fontSize: "clamp(28px, 6vw, 48px)", fontWeight: 800, color: "white", lineHeight: 1.15, marginBottom: 20 }}>
                 Build Your Tech Career{" "}
                 <span style={{ color: "#00B4D8" }}>From Zero to Hero</span>
               </h1>
-              <p
-                style={{
-                  fontSize: 18,
-                  color: "rgba(255,255,255,0.7)",
-                  lineHeight: 1.7,
-                  marginBottom: 32,
-                  maxWidth: 520,
-                }}
-              >
+              <p style={{ fontSize: 18, color: "rgba(255,255,255,0.7)", lineHeight: 1.7, marginBottom: 32, maxWidth: 520 }}>
                 Industry-designed courses with guaranteed internships, expert mentorship, and
                 placement support. Join 5,000+ students who launched their tech careers with Algonex.
               </p>
@@ -156,6 +318,295 @@ export default function Home() {
           </Row>
         </div>
       </section>
+    </div>
+  );
+}
+
+function CourseSlide({ course, onHoverStart, onHoverEnd }) {
+  const c = course || FALLBACK_COURSE;
+  return (
+    <div>
+      <section style={{ background: SLIDE_BG, padding: "clamp(40px, 8vw, 72px) 24px", position: "relative", overflow: "hidden" }}>
+        <div style={slideGlow} />
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <Row gutter={[48, 32]} align="middle">
+            <Col xs={24} lg={14}>
+              <Tag color="cyan" style={{ marginBottom: 16, fontSize: 13 }}>
+                <StarOutlined /> Trending Course
+              </Tag>
+              <h1 style={{ fontSize: "clamp(26px, 5vw, 44px)", fontWeight: 800, color: "white", lineHeight: 1.15, marginBottom: 16 }}>
+                {c.name}
+              </h1>
+              <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", lineHeight: 1.7, marginBottom: 20, maxWidth: 520 }}>
+                {(c.description || "").substring(0, 180)}{c.description?.length > 180 ? "..." : ""}
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, color: "rgba(255,255,255,0.7)", fontSize: 14, marginBottom: 24 }}>
+                <span><ClockCircleOutlined /> {c.duration || c.Duration}</span>
+                {c.price && <span><DollarOutlined /> {"\u20b9"}{Number(c.price).toLocaleString("en-IN")}{c.discount ? ` (${c.discount} off)` : ""}</span>}
+                {c.rating && <span><StarOutlined /> {c.rating}/5 ({c.reviews} reviews)</span>}
+                {c.students && <span><TeamOutlined /> {c.students?.toLocaleString()} students</span>}
+              </div>
+              {c.skills && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 24 }}>
+                  {c.skills.slice(0, 6).map((s) => (
+                    <Tag key={s} style={{ background: "rgba(0,180,216,0.15)", border: "1px solid rgba(0,180,216,0.3)", color: "#66E5FF" }}>{s}</Tag>
+                  ))}
+                  {c.skills.length > 6 && <Tag style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)", color: "rgba(255,255,255,0.6)" }}>+{c.skills.length - 6} more</Tag>}
+                </div>
+              )}
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <Link to={c.slug ? `/courses/${c.slug}` : `/stack/${c.id}`}>
+                  <Button type="primary" size="large" style={{ height: 50, fontSize: 16, borderRadius: 8 }}>
+                    View Course <ArrowRightOutlined />
+                  </Button>
+                </Link>
+                <Link to="/allcourses">
+                  <Button size="large" ghost style={{ height: 50, fontSize: 16, borderRadius: 8, color: "white", borderColor: "rgba(255,255,255,0.3)" }}>
+                    All Courses
+                  </Button>
+                </Link>
+              </div>
+            </Col>
+            <Col xs={24} lg={10}>
+              <StackedImageGallery
+                images={c.media || []}
+                primaryImage={c.image}
+                alt={c.name}
+                onHoverStart={onHoverStart}
+                onHoverEnd={onHoverEnd}
+              />
+            </Col>
+          </Row>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function EventSlide({ event, onHoverStart, onHoverEnd }) {
+  const e = event || FALLBACK_EVENT;
+  const startDate = e.start_date ? new Date(e.start_date) : null;
+  const spotsLeft = e.spots_left ?? (e.capacity - (e.registered || 0));
+  return (
+    <div>
+      <section style={{ background: SLIDE_BG, padding: "clamp(40px, 8vw, 72px) 24px", position: "relative", overflow: "hidden" }}>
+        <div style={slideGlow} />
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <Row gutter={[48, 32]} align="middle">
+            <Col xs={24} lg={14}>
+              <Tag color="magenta" style={{ marginBottom: 16, fontSize: 13 }}>
+                <CalendarOutlined /> Upcoming Event
+              </Tag>
+              <h1 style={{ fontSize: "clamp(26px, 5vw, 44px)", fontWeight: 800, color: "white", lineHeight: 1.15, marginBottom: 16 }}>
+                {e.title}
+              </h1>
+              <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", lineHeight: 1.7, marginBottom: 20, maxWidth: 520 }}>
+                {e.summary || (e.description || "").substring(0, 180)}
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, color: "rgba(255,255,255,0.7)", fontSize: 14, marginBottom: 24 }}>
+                {startDate && (
+                  <span><CalendarOutlined /> {startDate.toLocaleDateString("en-IN", { weekday: "short", month: "long", day: "numeric", year: "numeric" })}</span>
+                )}
+                <span><EnvironmentOutlined /> {e.location}</span>
+                {e.event_type && <span><CodeOutlined /> {e.event_type}</span>}
+                {e.capacity && (
+                  <span><TeamOutlined /> {spotsLeft != null ? `${spotsLeft} spots left` : `${e.capacity} capacity`}</span>
+                )}
+              </div>
+              {spotsLeft != null && spotsLeft > 0 && spotsLeft <= 10 && (
+                <Tag color="orange" style={{ marginBottom: 24, fontSize: 13, padding: "4px 12px" }}>
+                  Only {spotsLeft} spots remaining — register soon!
+                </Tag>
+              )}
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <Link to={e.slug ? `/events/${e.slug}` : "/events"}>
+                  <Button type="primary" size="large" style={{ height: 50, fontSize: 16, borderRadius: 8 }}>
+                    {e.slug ? "Register Now" : "View Events"} <ArrowRightOutlined />
+                  </Button>
+                </Link>
+                <Link to="/events">
+                  <Button size="large" ghost style={{ height: 50, fontSize: 16, borderRadius: 8, color: "white", borderColor: "rgba(255,255,255,0.3)" }}>
+                    All Events
+                  </Button>
+                </Link>
+              </div>
+            </Col>
+            <Col xs={24} lg={10}>
+              <StackedImageGallery
+                images={e.media || []}
+                primaryImage={e.image}
+                alt={e.title}
+                onHoverStart={onHoverStart}
+                onHoverEnd={onHoverEnd}
+              />
+            </Col>
+          </Row>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProgramSlide({ program, onHoverStart, onHoverEnd }) {
+  const p = program || FALLBACK_PROGRAM;
+  const deadline = p.application_deadline ? new Date(p.application_deadline) : null;
+  return (
+    <div>
+      <section style={{ background: SLIDE_BG, padding: "clamp(40px, 8vw, 72px) 24px", position: "relative", overflow: "hidden" }}>
+        <div style={slideGlow} />
+        <div style={{ maxWidth: 1200, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <Row gutter={[48, 32]} align="middle">
+            <Col xs={24} lg={14}>
+              <Tag color="purple" style={{ marginBottom: 16, fontSize: 13, textTransform: "capitalize" }}>
+                <RocketOutlined /> {p.program_type || "Program"}
+              </Tag>
+              <h1 style={{ fontSize: "clamp(26px, 5vw, 44px)", fontWeight: 800, color: "white", lineHeight: 1.15, marginBottom: 16 }}>
+                {p.title}
+              </h1>
+              <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", lineHeight: 1.7, marginBottom: 20, maxWidth: 520 }}>
+                {(p.description || "").substring(0, 180)}{p.description?.length > 180 ? "..." : ""}
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, color: "rgba(255,255,255,0.7)", fontSize: 14, marginBottom: 24 }}>
+                <span><ClockCircleOutlined /> {p.duration}</span>
+                {p.stipend && <span><DollarOutlined /> {p.stipend}</span>}
+                <span>
+                  {p.is_remote ? <><LaptopOutlined /> Remote</> : <><EnvironmentOutlined /> {p.location}</>}
+                </span>
+                {deadline && (
+                  <span><CalendarOutlined /> Deadline: {deadline.toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}</span>
+                )}
+                {p.registration_count > 0 && (
+                  <span><TeamOutlined /> {p.registration_count} registered</span>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <Link to={p.slug ? `/register?program=${p.slug}` : "/register"}>
+                  <Button type="primary" size="large" style={{ height: 50, fontSize: 16, borderRadius: 8 }}>
+                    Register Now <ArrowRightOutlined />
+                  </Button>
+                </Link>
+                <Link to={p.slug ? `/programs/${p.slug}` : "/programs"}>
+                  <Button size="large" ghost style={{ height: 50, fontSize: 16, borderRadius: 8, color: "white", borderColor: "rgba(255,255,255,0.3)" }}>
+                    View Details
+                  </Button>
+                </Link>
+              </div>
+            </Col>
+            <Col xs={24} lg={10}>
+              <StackedImageGallery
+                images={p.media || []}
+                primaryImage={p.image}
+                alt={p.title}
+                onHoverStart={onHoverStart}
+                onHoverEnd={onHoverEnd}
+              />
+            </Col>
+          </Row>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+// Arrow components for carousel navigation
+const ArrowButton = ({ direction, onClick }) => (
+  <div
+    onClick={onClick}
+    style={{
+      position: "absolute",
+      top: "50%",
+      transform: "translateY(-50%)",
+      [direction === "left" ? "left" : "right"]: 16,
+      zIndex: 10,
+      width: 40,
+      height: 40,
+      borderRadius: "50%",
+      background: "rgba(255,255,255,0.15)",
+      border: "1px solid rgba(255,255,255,0.2)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      color: "white",
+      fontSize: 16,
+      backdropFilter: "blur(4px)",
+      transition: "background 0.2s",
+    }}
+    onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.25)"; }}
+    onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; }}
+  >
+    {direction === "left" ? <LeftOutlined /> : <RightOutlined />}
+  </div>
+);
+
+export default function Home() {
+  const trendingCourses = STACKS.filter((c) => c.isTrending).slice(0, 4);
+  const carouselRef = useRef(null);
+
+  const pauseCarousel = useCallback(() => {
+    carouselRef.current?.innerSlider?.pause?.("paused");
+  }, []);
+
+  const resumeCarousel = useCallback(() => {
+    carouselRef.current?.innerSlider?.autoPlay?.("play");
+  }, []);
+
+  const [heroData, setHeroData] = useState({
+    course: FALLBACK_COURSE,
+    event: FALLBACK_EVENT,
+    program: FALLBACK_PROGRAM,
+  });
+
+  useEffect(() => {
+    // Fetch top items for each slide — fire all in parallel, fall back silently
+    coursesAPI.list()
+      .then((res) => {
+        const results = res.data?.data?.results || res.data?.results || [];
+        const trending = results.find((c) => c.is_trending) || results[0];
+        if (trending) setHeroData((prev) => ({ ...prev, course: trending }));
+      })
+      .catch(() => {});
+
+    eventsAPI.list()
+      .then((res) => {
+        const results = res.data?.data?.results || res.data?.results || [];
+        // Pick the nearest upcoming event (first in list, assuming ordered by start_date)
+        if (results.length > 0) setHeroData((prev) => ({ ...prev, event: results[0] }));
+      })
+      .catch(() => {});
+
+    programsAPI.list()
+      .then((res) => {
+        const results = res.data?.data?.results || res.data?.results || [];
+        // Pick featured or first accepting program
+        const featured = results.find((p) => p.is_featured) || results[0];
+        if (featured) setHeroData((prev) => ({ ...prev, program: featured }));
+      })
+      .catch(() => {});
+  }, []);
+
+  return (
+    <div>
+      {/* Hero Carousel */}
+      <div style={{ position: "relative" }}>
+        <Carousel
+          ref={carouselRef}
+          autoplay
+          autoplaySpeed={6000}
+          dots={{ className: "hero-carousel-dots" }}
+          effect="fade"
+        >
+          <MainHeroSlide />
+          <CourseSlide course={heroData.course} onHoverStart={pauseCarousel} onHoverEnd={resumeCarousel} />
+          <EventSlide event={heroData.event} onHoverStart={pauseCarousel} onHoverEnd={resumeCarousel} />
+          <ProgramSlide program={heroData.program} onHoverStart={pauseCarousel} onHoverEnd={resumeCarousel} />
+        </Carousel>
+        <ArrowButton direction="left" onClick={() => carouselRef.current?.prev()} />
+        <ArrowButton direction="right" onClick={() => carouselRef.current?.next()} />
+      </div>
+
+      {/* Outcomes Ticker */}
+      <OutcomesTicker />
 
       {/* Trending Courses */}
       <section style={{ background: "#f8fafc", padding: "64px 24px" }}>

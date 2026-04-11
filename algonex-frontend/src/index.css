@@ -117,3 +117,17 @@ button:focus-visible {
     right: auto !important;
   }
 }
+
+/* Outcomes ticker */
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+/* Mobile: vertical mini-feed instead of horizontal scroll */
+@media (max-width: 768px) {
+  .ticker-horizontal { display: none !important; }
+  .ticker-mobile { display: block !important; }
+}
+@media (min-width: 769px) {
+  .ticker-mobile { display: none !important; }
+}
