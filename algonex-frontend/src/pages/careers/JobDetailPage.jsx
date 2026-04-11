@@ -39,7 +39,11 @@ export default function JobDetailPage() {
       message.success("Application submitted!");
     } catch (err) {
       if (err.response) {
-        message.error(err.response?.data?.error?.message || "Application failed.");
+        const apiErr = err.response?.data?.error;
+        const fieldError = apiErr?.details
+          ? Object.values(apiErr.details).flat()[0]
+          : null;
+        message.error(fieldError || apiErr?.message || "Application failed.");
       }
     } finally {
       setApplyLoading(false);

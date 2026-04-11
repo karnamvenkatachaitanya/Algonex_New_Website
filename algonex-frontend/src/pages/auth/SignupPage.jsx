@@ -24,10 +24,14 @@ export default function SignupPage() {
       navigate("/");
     } catch (error) {
       const errors = error.response?.data;
+      const details = errors?.error?.details;
+      // Show the first specific field error from details (e.g. "This password is too common.")
+      const fieldError = details
+        ? Object.values(details).flat()[0]
+        : null;
       const msg =
+        fieldError ||
         errors?.error?.message ||
-        errors?.email?.[0] ||
-        errors?.password1?.[0] ||
         "Registration failed. Please try again.";
       message.error(msg);
     } finally {

@@ -130,6 +130,7 @@ REST_FRAMEWORK = {
         "user": "120/minute",
         "registration": "5/minute",
         "auth_check": "5/minute",
+        "dj_rest_auth": "30/minute",
     },
 }
 

@@ -20,9 +20,14 @@ export default function LoginPage() {
       message.success("Welcome back!");
       navigate(from, { replace: true });
     } catch (error) {
+      const err = error.response?.data?.error;
+      const fieldError = err?.details
+        ? Object.values(err.details).flat()[0]
+        : null;
       const msg =
-        error.response?.data?.error?.message ||
+        fieldError ||
         error.response?.data?.non_field_errors?.[0] ||
+        err?.message ||
         "Login failed. Please check your credentials.";
       message.error(msg);
     } finally {
