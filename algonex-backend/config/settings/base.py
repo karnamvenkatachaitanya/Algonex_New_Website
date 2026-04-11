@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "contactform",
     "signin",
     "programs",
+    "showcase",
 ]
 
 MIDDLEWARE = [
