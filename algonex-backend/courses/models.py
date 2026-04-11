@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from common.mixins import TimestampMixin, SlugMixin
@@ -46,6 +47,7 @@ class Course(TimestampMixin, SlugMixin, models.Model):
     is_trending = models.BooleanField(default=False, db_index=True)
     is_published = models.BooleanField(default=False, db_index=True)
     skills = models.ManyToManyField(Skill, blank=True, related_name="courses")
+    media = GenericRelation("common.Media")
 
     class Meta:
         ordering = ["-created_at"]
@@ -158,3 +160,28 @@ class Testimonial(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.course.name}"
+
+
+class StudentOutcome(TimestampMixin, models.Model):
+    """Published student achievement for the outcomes ticker."""
+
+    class AchievementType(models.TextChoices):
+        PLACED = "placed", "Placed"
+        PROMOTED = "promoted", "Promoted"
+        FREELANCING = "freelancing", "Freelancing"
+        PROJECT_LAUNCHED = "project_launched", "Project Launched"
+
+    student_name = models.CharField(max_length=100)
+    achievement_type = models.CharField(max_length=30, choices=AchievementType.choices)
+    company_name = models.CharField(max_length=100, blank=True)
+    role = models.CharField(max_length=100, blank=True)
+    package_range = models.CharField(max_length=50, blank=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="outcomes")
+    achieved_at = models.DateField()
+    is_published = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-achieved_at"]
+
+    def __str__(self):
+        return f"{self.student_name} - {self.get_achievement_type_display()} at {self.company_name}"
