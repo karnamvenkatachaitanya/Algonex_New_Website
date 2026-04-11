@@ -31,7 +31,7 @@ class StudentProject(TimestampMixin, SlugMixin, models.Model):
 
     title = models.CharField(max_length=200)
     description = models.TextField()
-    thumbnail = models.ImageField(upload_to="projects/thumbnails/")
+    thumbnail = models.ImageField(upload_to="projects/thumbnails/", blank=True)
     student_name = models.CharField(max_length=100)
     course = models.ForeignKey(
         "courses.Course", on_delete=models.CASCADE, related_name="student_projects"

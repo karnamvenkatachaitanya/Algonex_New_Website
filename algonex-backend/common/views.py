@@ -7,6 +7,73 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class CarouselView(APIView):
+    """
+    GET /api/v1/carousel/
+    Returns ordered list of active carousel slides with resolved item data.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from .models import CarouselSlide
+        from courses.models import Course
+        from events.models import Event
+        from programs.models import Program
+
+        slides = CarouselSlide.objects.filter(is_active=True)
+        result = []
+
+        for slide in slides:
+            entry = {"slide_type": slide.slide_type, "order": slide.order, "item": None}
+
+            if slide.slide_type == "hero":
+                entry["item"] = None  # Frontend renders default hero
+            elif slide.slide_type == "course" and slide.item_slug:
+                course = Course.objects.filter(slug=slide.item_slug, is_published=True).values(
+                    "name", "slug", "description", "image", "duration", "price", "discount", "is_trending"
+                ).first()
+                entry["item"] = course
+            elif slide.slide_type == "event" and slide.item_slug:
+                event = Event.objects.filter(slug=slide.item_slug, is_published=True).values(
+                    "title", "slug", "summary", "image", "event_type", "location", "start_date", "capacity"
+                ).first()
+                entry["item"] = event
+            elif slide.slide_type == "program" and slide.item_slug:
+                program = Program.objects.filter(slug=slide.item_slug, is_published=True).values(
+                    "title", "slug", "description", "image", "program_type", "duration", "stipend", "location", "is_remote", "application_deadline"
+                ).first()
+                entry["item"] = program
+
+            if slide.slide_type == "hero" or entry["item"]:
+                result.append(entry)
+
+        return Response({"status": "success", "data": result})
+
+
+class PlatformSettingsView(APIView):
+    """
+    GET /api/v1/settings/
+    Returns public platform settings (maintenance mode, feature toggles).
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from .models import PlatformSettings
+        settings = PlatformSettings.load()
+        return Response({
+            "status": "success",
+            "data": {
+                "maintenance_mode": settings.maintenance_mode,
+                "maintenance_message": settings.maintenance_message,
+                "course_enrollment_enabled": settings.course_enrollment_enabled,
+                "event_registration_enabled": settings.event_registration_enabled,
+                "program_registration_enabled": settings.program_registration_enabled,
+            },
+        })
+
+
 class ActiveBannerView(APIView):
     """
     GET /api/v1/banner/

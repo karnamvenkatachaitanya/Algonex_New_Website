@@ -1,6 +1,6 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from common.pagination import StandardPagination
 from .selectors import (
@@ -8,7 +8,8 @@ from .selectors import (
     get_published_projects, get_featured_projects, get_project_detail,
 )
 from .serializers import (
-    AlumniProfileSerializer, StudentProjectListSerializer, StudentProjectDetailSerializer,
+    AlumniProfileSerializer, StudentProjectListSerializer,
+    StudentProjectDetailSerializer, StudentProjectSubmitSerializer,
 )
 
 
@@ -38,17 +39,36 @@ class AlumniViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class StudentProjectViewSet(
-    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin, mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin, viewsets.GenericViewSet
 ):
-    """Public read-only endpoint for student projects."""
-    permission_classes = [AllowAny]
+    """Public list/detail, authenticated create for student projects."""
     pagination_class = ShowcasePagination
     lookup_field = "slug"
 
+    def get_permissions(self):
+        if self.action == "create":
+            return [IsAuthenticated()]
+        return [AllowAny()]
+
     def get_serializer_class(self):
+        if self.action == "create":
+            return StudentProjectSubmitSerializer
         if self.action == "retrieve":
             return StudentProjectDetailSerializer
         return StudentProjectListSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = StudentProjectSubmitSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        project = serializer.save()
+        from common.models import PlatformSettings
+        settings = PlatformSettings.load()
+        msg = "Project submitted and published!" if settings.auto_publish_student_projects else "Project submitted for review."
+        return Response(
+            {"status": "success", "data": {"message": msg, "slug": project.slug}},
+            status=status.HTTP_201_CREATED,
+        )
 
     def get_queryset(self):
         return get_published_projects(

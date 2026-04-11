@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from common.views import ActiveBannerView, SearchView, AdminStatsView
+from common.views import ActiveBannerView, SearchView, AdminStatsView, CarouselView, PlatformSettingsView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -16,6 +16,8 @@ urlpatterns = [
     path("api/v1/programs/", include("programs.urls")),
     path("api/v1/contact/", include("contactform.urls")),
     path("api/v1/register/", include("signin.urls")),
+    path("api/v1/carousel/", CarouselView.as_view(), name="carousel"),
+    path("api/v1/settings/", PlatformSettingsView.as_view(), name="platform-settings"),
     path("api/v1/banner/", ActiveBannerView.as_view(), name="active-banner"),
     path("api/v1/search/", SearchView.as_view(), name="global-search"),
     path("api/v1/admin/stats/", AdminStatsView.as_view(), name="admin-stats"),
