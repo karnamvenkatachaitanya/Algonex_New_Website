@@ -1,14 +1,15 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline
 from .models import CaseStudy, TechTag, Screenshot
 
 
-class ScreenshotInline(admin.TabularInline):
+class ScreenshotInline(TabularInline):
     model = Screenshot
     extra = 1
 
 
 @admin.register(CaseStudy)
-class CaseStudyAdmin(admin.ModelAdmin):
+class CaseStudyAdmin(ModelAdmin):
     list_display = ("title", "client_name", "industry", "is_featured", "is_published")
     list_filter = ("industry", "is_published", "is_featured")
     search_fields = ("title", "client_name")
@@ -17,6 +18,6 @@ class CaseStudyAdmin(admin.ModelAdmin):
 
 
 @admin.register(TechTag)
-class TechTagAdmin(admin.ModelAdmin):
+class TechTagAdmin(ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)

@@ -82,11 +82,11 @@ class StudentProjectViewSet(
                 {"status": "error", "error": {"code": "NOT_FOUND", "message": "Project not found."}},
                 status=404,
             )
-        serializer = StudentProjectDetailSerializer(project)
+        serializer = self.get_serializer(project)
         return Response({"status": "success", "data": serializer.data})
 
     @action(detail=False, methods=["get"])
     def featured(self, request):
         projects = get_featured_projects()
-        serializer = StudentProjectListSerializer(projects, many=True)
+        serializer = self.get_serializer(projects, many=True)
         return Response({"status": "success", "data": serializer.data})

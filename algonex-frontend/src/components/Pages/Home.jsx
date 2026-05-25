@@ -24,10 +24,14 @@ import { eventsAPI } from "../../api/events";
 import { programsAPI } from "../../api/programs";
 import CourseCard from "../courses/CourseCard";
 import OutcomesTicker from "../OutcomesTicker";
+import ProjectsSection from "../home/ProjectsSection";
+import ReviewsSection from "../home/ReviewsSection";
+import GallerySection from "../home/GallerySection";
+import FAQSection from "../home/FAQSection";
 
 const stats = [
   { value: "5,000+", label: "Students Trained" },
-  { value: "50+", label: "Industry Partners" },
+  { value: "50+", label: "Hiring Partners" },
   { value: "95%", label: "Placement Rate" },
   { value: "4.8/5", label: "Student Rating" },
 ];
@@ -40,13 +44,13 @@ const features = [
   },
   {
     icon: <TeamOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
-    title: "Expert Mentorship",
-    desc: "Learn from senior engineers at FAANG companies with 10+ years of experience.",
+    title: "Expert Trainers",
+    desc: "Learn from industry professionals with hands-on experience in real-world projects.",
   },
   {
     icon: <TrophyOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
-    title: "Guaranteed Internships",
-    desc: "Every student gets a hands-on internship with our partner companies.",
+    title: "Placement Support",
+    desc: "Resume building, mock interviews, and direct referrals to our hiring partners.",
   },
   {
     icon: <SafetyCertificateOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
@@ -60,8 +64,8 @@ const features = [
   },
   {
     icon: <GlobalOutlined style={{ fontSize: 28, color: "#00B4D8" }} />,
-    title: "Global Community",
-    desc: "Join a network of 5,000+ alumni working at top companies worldwide.",
+    title: "Growing Community",
+    desc: "Join 5,000+ trained professionals working at top companies across India.",
   },
 ];
 
@@ -634,6 +638,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Projects Showcase (NEW) */}
+      <ProjectsSection />
+
       {/* Why Algonex */}
       <section style={{ padding: "64px 24px", background: "white" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto" }}>
@@ -674,6 +681,15 @@ export default function Home() {
           </Row>
         </div>
       </section>
+
+      {/* Student Reviews (NEW) */}
+      <ReviewsSection />
+
+      {/* Algonex Gallery (NEW) */}
+      <GallerySection />
+
+      {/* FAQ Section (NEW) */}
+      <FAQSection />
 
       {/* Quiz CTA */}
       <section style={{ padding: "64px 24px", background: "#EBFBFF" }}>

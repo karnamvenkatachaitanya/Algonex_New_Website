@@ -32,4 +32,16 @@ export const authAPI = {
   confirmResetPassword(data) {
     return apiClient.post("/auth/password/reset/confirm/", data);
   },
+
+  checkEmail(email) {
+    return apiClient.post("/auth/check-email/", { email });
+  },
+
+  sendSetupEmail(email) {
+    return apiClient.post("/auth/send-setup-email/", { email });
+  },
+
+  setPassword(data) {
+    return apiClient.post("/auth/set-password/", data);
+  },
 };

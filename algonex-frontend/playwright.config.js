@@ -9,6 +9,7 @@ export default defineConfig({
     headless: true,
     screenshot: "only-on-failure",
     trace: "retain-on-failure",
+    video: "retain-on-failure",
   },
   webServer: process.env.CI
     ? undefined
@@ -19,8 +20,20 @@ export default defineConfig({
       },
   projects: [
     {
-      name: "chromium",
+      name: "setup",
+      testMatch: /global-setup\.js/,
+    },
+    {
+      name: "agent1-auth",
+      testDir: "./e2e/auth",
       use: { browserName: "chromium" },
+      dependencies: ["setup"],
+    },
+    {
+      name: "agent2-public",
+      testDir: "./e2e/public",
+      use: { browserName: "chromium" },
+      dependencies: ["setup"],
     },
   ],
 });

@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from .mixins import TimestampMixin
 
 
 class Media(models.Model):
@@ -116,3 +117,37 @@ class SiteBanner(models.Model):
         if self.is_active:
             SiteBanner.objects.filter(is_active=True).exclude(pk=self.pk).update(is_active=False)
         super().save(*args, **kwargs)
+
+
+class GeneralFAQ(TimestampMixin, models.Model):
+    """Site-wide general FAQs."""
+
+    question = models.CharField(max_length=500)
+    answer = models.TextField()
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["order", "created_at"]
+        verbose_name = "General FAQ"
+        verbose_name_plural = "General FAQs"
+
+    def __str__(self):
+        return self.question[:50]
+
+
+class GalleryImage(TimestampMixin, models.Model):
+    """Platform-wide image gallery."""
+
+    title = models.CharField(max_length=200, blank=True)
+    image = models.ImageField(upload_to="gallery/%Y/%m/")
+    caption = models.CharField(max_length=500, blank=True)
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    is_featured = models.BooleanField(default=False, help_text="Show on homepage gallery")
+
+    class Meta:
+        ordering = ["order", "-created_at"]
+
+    def __str__(self):
+        return self.title or f"Gallery Image {self.pk}"

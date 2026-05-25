@@ -14,19 +14,21 @@ Customize the Django admin to make it easy for admins to manage courses, events,
 
 **Package:** `django-unfold`
 
-**Custom AdminSite** in `common/admin_site.py`:
-- Subclass Unfold's `AdminSite`
-- Override `index()` to inject dashboard stats
-- Branding: `site_header = "Algonex Admin"`, `site_title = "Algonex"`, `index_title = "Dashboard"`
+**Dashboard callback** in `common/admin_site.py`:
+- A `dashboard_callback(request, context)` function that injects stats and recent activity into the admin index context
+- A custom `templates/admin/index.html` template that extends Unfold's base and renders stat cards, recent activity tables, and quick action links
+- Branding configured via UNFOLD settings: `SITE_TITLE`, `SITE_HEADER`
 
 **INSTALLED_APPS ordering** (critical): `"unfold"` must be placed **before** `"django.contrib.admin"` in INSTALLED_APPS for template overrides to work.
 
 **ModelAdmin base class**: All ModelAdmin classes must extend `unfold.admin.ModelAdmin` instead of `django.contrib.admin.ModelAdmin` for Unfold's styling features to work. **Exception:** `accounts.UserAdmin` currently extends `django.contrib.auth.admin.UserAdmin` — it must use `unfold.contrib.auth.admin.UserAdmin` instead, to preserve auth-specific fieldsets, add_user form, and password change functionality.
 
+**Approach note:** Unfold's modern settings-based approach (`UNFOLD` dict in settings.py) handles theming, sidebar navigation, and dashboard without requiring a custom `AdminSite` subclass or `site=` parameter on `@admin.register`. This is simpler and avoids re-registering every model. Standard `@admin.register(Model)` decorators work with Unfold's template overrides.
+
 **Unfold config** in `settings/base.py`:
 - `UNFOLD["DASHBOARD_CALLBACK"]` points to the dashboard function in `common/admin_site.py`
 - Organized sidebar navigation with Material icons:
-  - **Dashboard** (dashboard icon)
+  - **Dashboard** (dashboard icon) — link to `/admin/`
   - **Courses** — Courses, Enrollments, Skills, Student Outcomes
   - **Events** — Events, Registrations
   - **Users & Signups** — Users, Signin Profiles, Registration Profiles
@@ -34,9 +36,7 @@ Customize the Django admin to make it easy for admins to manage courses, events,
   - **Showcase** — Alumni Profiles, Student Projects
   - **Site Config** — Platform Settings, Carousel, Site Banner, Contact Submissions
 
-**URL wiring:** `config/urls.py` will use `AlgonexAdminSite` instead of `django.contrib.admin.site`.
-
-**Admin registration pattern:** All `@admin.register(Model)` decorators will use `@admin.register(Model, site=algonex_admin_site)` to register against the custom admin site. Every admin.py file in the project must be updated.
+**URL wiring:** No changes needed — Unfold overrides admin templates via INSTALLED_APPS ordering, using the standard `admin.site.urls`.
 
 ### 2. Dashboard
 
@@ -156,7 +156,8 @@ The `Media` model with `GenericForeignKey` and `MediaInline` (`GenericTabularInl
 
 ## Files Modified
 
-- `common/admin_site.py` — NEW: Custom AdminSite with dashboard_callback
+- `common/admin_site.py` — NEW: dashboard_callback function for admin index
+- `templates/admin/index.html` — NEW: Custom dashboard template extending Unfold
 - `common/admin.py` — Enhance MediaInline with image preview, update MediaAdmin, update base class
 - `courses/admin.py` — Enhance CourseAdmin, register CourseReview, update base classes
 - `events/admin.py` — Enhance EventAdmin, RegistrationAdmin, update base classes
@@ -167,7 +168,7 @@ The `Media` model with `GenericForeignKey` and `MediaInline` (`GenericTabularInl
 - `showcase/admin.py` — Update base classes for AlumniProfileAdmin, StudentProjectAdmin
 - `contactform/admin.py` — Update base class for ContactFormAdmin
 - `config/settings/base.py` — Add `"unfold"` before `"django.contrib.admin"` in INSTALLED_APPS, add UNFOLD config
-- `config/urls.py` — Wire custom AdminSite
+- `config/urls.py` — No changes needed (Unfold uses template overrides)
 - `programs/models.py` — Add `media = GenericRelation("common.Media")` field
 - `programs/admin.py` — Add MediaInline, update base class
 - `requirements.txt` — Add django-unfold

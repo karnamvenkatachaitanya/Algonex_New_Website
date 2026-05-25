@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils import timezone
 from common.mixins import TimestampMixin, SlugMixin
@@ -25,6 +26,7 @@ class Event(TimestampMixin, SlugMixin, models.Model):
     end_date = models.DateTimeField()
     capacity = models.PositiveIntegerField()
     is_published = models.BooleanField(default=False)
+    media = GenericRelation("common.Media")
 
     # SlugMixin uses `name` or `title` — we have `title`
 

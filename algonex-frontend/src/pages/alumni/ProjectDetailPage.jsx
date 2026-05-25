@@ -6,6 +6,8 @@ import {
   GithubOutlined,
   LinkOutlined,
 } from "@ant-design/icons";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { projectsAPI } from "../../api/alumni";
 
 export default function ProjectDetailPage() {
@@ -71,11 +73,11 @@ export default function ProjectDetailPage() {
           ))}
         </div>
 
-        <div style={{
+        <div className="md-content" style={{
           background: "white", borderRadius: 16, border: "1px solid #e8e8e8",
           padding: 32, marginBottom: 32, lineHeight: 1.8, color: "#555",
         }}>
-          {project.description}
+          <Markdown remarkPlugins={[remarkGfm]}>{project.description}</Markdown>
         </div>
 
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>

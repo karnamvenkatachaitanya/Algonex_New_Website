@@ -2,7 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from common.views import ActiveBannerView, SearchView, AdminStatsView, CarouselView, PlatformSettingsView
+from common.views import (
+    ActiveBannerView, SearchView, AdminStatsView, CarouselView,
+    PlatformSettingsView, GeneralFAQListView, GalleryImageListView
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -21,6 +24,9 @@ urlpatterns = [
     path("api/v1/banner/", ActiveBannerView.as_view(), name="active-banner"),
     path("api/v1/search/", SearchView.as_view(), name="global-search"),
     path("api/v1/admin/stats/", AdminStatsView.as_view(), name="admin-stats"),
+    path("api/v1/faqs/", GeneralFAQListView.as_view(), name="faqs"),
+    path("api/v1/gallery/", GalleryImageListView.as_view(), name="gallery"),
+    path("api/v1/buddy/", include("buddy.urls")),
 ]
 
 if settings.DEBUG:

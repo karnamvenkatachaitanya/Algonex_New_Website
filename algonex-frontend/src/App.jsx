@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import BuddyChatbot from './components/chat/BuddyChatbot';
 
 // Public pages
 import Home from './components/Pages/Home';
@@ -139,6 +140,8 @@ const App = () => {
             <Footer />
           </div>
         </AuthProvider>
+          {/* Buddy AI Chatbot — globally available on all pages */}
+          <BuddyChatbot />
       </Router>
       </AntApp>
     </ConfigProvider>

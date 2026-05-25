@@ -11,6 +11,8 @@ ADMINS = [("Algonex Admin", "contact@algonex.in"), ("Sai Kumar", "pappakasaikuma
 DEFAULT_FROM_EMAIL = "Algonex <noreply@algonex.in>"
 
 INSTALLED_APPS = [
+    "unfold",
+    "unfold.contrib.filters",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     "signin",
     "programs",
     "showcase",
+    "buddy",
 ]
 
 MIDDLEWARE = [
@@ -60,7 +63,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -86,8 +89,8 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = "static/"
-MEDIA_URL = "media/"
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -168,3 +171,90 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Frontend URL for password setup links
 FRONTEND_URL = "http://localhost:5173"
+
+# django-unfold admin theme
+UNFOLD = {
+    "SITE_TITLE": "Algonex",
+    "SITE_HEADER": "Algonex Admin",
+    "SITE_ICON": lambda request: None,
+    "DASHBOARD_CALLBACK": "common.admin_site.dashboard_callback",
+    "SIDEBAR": {
+        "show_search": True,
+        "navigation": [
+            {
+                "title": "Dashboard",
+                "icon": "dashboard",
+                "items": [
+                    {"title": "Dashboard", "link": "/admin/", "icon": "dashboard"},
+                ],
+            },
+            {
+                "title": "Courses",
+                "icon": "school",
+                "items": [
+                    {"title": "Courses", "link": "/admin/courses/course/", "icon": "menu_book"},
+                    {"title": "Enrollments", "link": "/admin/courses/enrollment/", "icon": "how_to_reg"},
+                    {"title": "Skills", "link": "/admin/courses/skill/", "icon": "psychology"},
+                    {"title": "Student Outcomes", "link": "/admin/courses/studentoutcome/", "icon": "emoji_events"},
+                    {"title": "Reviews", "link": "/admin/courses/coursereview/", "icon": "rate_review"},
+                ],
+            },
+            {
+                "title": "Events",
+                "icon": "event",
+                "items": [
+                    {"title": "Events", "link": "/admin/events/event/", "icon": "celebration"},
+                    {"title": "Registrations", "link": "/admin/events/registration/", "icon": "app_registration"},
+                ],
+            },
+            {
+                "title": "Users & Signups",
+                "icon": "people",
+                "items": [
+                    {"title": "Users", "link": "/admin/accounts/user/", "icon": "person"},
+                    {"title": "Signin Profiles", "link": "/admin/signin/signinprofile/", "icon": "login"},
+                    {"title": "Registration Profiles", "link": "/admin/signin/registrationprofile/", "icon": "assignment_ind"},
+                ],
+            },
+            {
+                "title": "Content",
+                "icon": "article",
+                "items": [
+                    {"title": "Programs", "link": "/admin/programs/program/", "icon": "work"},
+                    {"title": "Jobs", "link": "/admin/careers/job/", "icon": "business_center"},
+                    {"title": "Applications", "link": "/admin/careers/application/", "icon": "description"},
+                    {"title": "Case Studies", "link": "/admin/portfolio/casestudy/", "icon": "cases"},
+                    {"title": "Tech Tags", "link": "/admin/portfolio/techtag/", "icon": "label"},
+                    {"title": "Media", "link": "/admin/common/media/", "icon": "photo_library"},
+                ],
+            },
+            {
+                "title": "Showcase",
+                "icon": "star",
+                "items": [
+                    {"title": "Alumni Profiles", "link": "/admin/showcase/alumniprofile/", "icon": "school"},
+                    {"title": "Student Projects", "link": "/admin/showcase/studentproject/", "icon": "code"},
+                ],
+            },
+            {
+                "title": "Site Config",
+                "icon": "settings",
+                "items": [
+                    {"title": "Platform Settings", "link": "/admin/common/platformsettings/", "icon": "tune"},
+                    {"title": "Carousel", "link": "/admin/common/carouselslide/", "icon": "view_carousel"},
+                    {"title": "Site Banner", "link": "/admin/common/sitebanner/", "icon": "campaign"},
+                    {"title": "Contact Submissions", "link": "/admin/contactform/contactform/", "icon": "mail"},
+                ],
+            },
+        ],
+    },
+}
+
+# ---------------------------------------------------------------------------
+# Buddy AI Chatbot
+# ---------------------------------------------------------------------------
+# Switch providers by setting BUDDY_LLM_PROVIDER in environment or a
+# child settings file. No code changes needed.
+# Supported values: "gemini" | "openai" | "anthropic"
+BUDDY_LLM_PROVIDER = "gemini"          # default provider
+BUDDY_LLM_MODEL = "gemini-2.5-flash"  # override model if needed

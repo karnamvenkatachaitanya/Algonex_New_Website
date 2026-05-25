@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from common.serializers import MediaSerializer
 from .models import Event, Registration
 
 
@@ -7,13 +8,14 @@ class EventListSerializer(serializers.ModelSerializer):
     spots_left = serializers.IntegerField(read_only=True)
     confirmed_count = serializers.SerializerMethodField()
     status = serializers.CharField(read_only=True)
+    media = MediaSerializer(many=True, read_only=True)
 
     class Meta:
         model = Event
         fields = [
             "id", "title", "slug", "summary", "image", "event_type",
             "location", "start_date", "end_date", "capacity",
-            "spots_left", "confirmed_count", "status",
+            "spots_left", "confirmed_count", "status", "media",
         ]
 
     def get_confirmed_count(self, obj):
@@ -32,13 +34,15 @@ class EventDetailSerializer(serializers.ModelSerializer):
     def get_confirmed_count(self, obj):
         return obj.capacity - obj.spots_left
 
+    media = MediaSerializer(many=True, read_only=True)
+
     class Meta:
         model = Event
         fields = [
             "id", "title", "slug", "description", "image", "event_type",
             "location", "meeting_link", "start_date", "end_date",
             "capacity", "spots_left", "confirmed_count", "is_full", "status",
-            "is_published", "user_registration_status", "created_at",
+            "is_published", "user_registration_status", "media", "created_at",
         ]
 
     def get_user_registration_status(self, obj):

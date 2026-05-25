@@ -1,6 +1,8 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta
+from common.models import Media
 from events.models import Event
 
 
@@ -41,6 +43,11 @@ A **complete MERN application** from scratch in a single day — backend API, da
         "capacity": 30,
         "days_from_now": 12,
         "duration_hours": 6,
+        "media": [
+            {"image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop", "caption": "Workshop venue"},
+            {"image": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop", "caption": "Hands-on coding"},
+            {"image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop", "caption": "Group learning session"},
+        ],
     },
     {
         "title": "AI & Machine Learning Masterclass",
@@ -80,6 +87,11 @@ Join **Dr. Priya Nair**, Senior ML Engineer at Google, for an intensive mastercl
         "capacity": 100,
         "days_from_now": 19,
         "duration_hours": 3,
+        "media": [
+            {"image": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600&auto=format&fit=crop", "caption": "AI and robotics"},
+            {"image": "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&auto=format&fit=crop", "caption": "Machine learning models"},
+            {"image": "https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=600&auto=format&fit=crop", "caption": "Neural network visualization"},
+        ],
     },
     {
         "title": "Hackathon: Build for Impact",
@@ -130,6 +142,11 @@ Choose one of these tracks:
         "capacity": 50,
         "days_from_now": 30,
         "duration_hours": 48,
+        "media": [
+            {"image": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&auto=format&fit=crop", "caption": "Hackathon in progress"},
+            {"image": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&auto=format&fit=crop", "caption": "Team collaboration"},
+            {"image": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop", "caption": "Final presentations"},
+        ],
     },
     {
         "title": "Cloud Computing & DevOps Bootcamp",
@@ -172,6 +189,11 @@ kubectl apply -f deployment.yaml
         "capacity": 40,
         "days_from_now": 37,
         "duration_hours": 5,
+        "media": [
+            {"image": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&auto=format&fit=crop", "caption": "Cloud infrastructure"},
+            {"image": "https://images.unsplash.com/photo-1667372393119-3d4c48d07fc9?w=600&auto=format&fit=crop", "caption": "Container orchestration"},
+            {"image": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&auto=format&fit=crop", "caption": "Server room"},
+        ],
     },
     {
         "title": "Tech Career Fair 2026",
@@ -219,6 +241,11 @@ The biggest tech hiring event in Bangalore this quarter. **On-spot interviews** 
         "capacity": 200,
         "days_from_now": 45,
         "duration_hours": 8,
+        "media": [
+            {"image": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop", "caption": "Career fair networking"},
+            {"image": "https://images.unsplash.com/photo-1559223607-a43c990c692c?w=600&auto=format&fit=crop", "caption": "Company booths"},
+            {"image": "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=600&auto=format&fit=crop", "caption": "Interview sessions"},
+        ],
     },
 ]
 
@@ -227,11 +254,13 @@ class Command(BaseCommand):
     help = "Seed sample events for development"
 
     def handle(self, *args, **options):
+        event_ct = ContentType.objects.get_for_model(Event)
         created = 0
         updated = 0
         for data in EVENTS:
             days = data.pop("days_from_now")
             hours = data.pop("duration_hours")
+            media_data = data.pop("media", [])
             start = timezone.now() + timedelta(days=days)
             end = start + timedelta(hours=hours)
 
@@ -246,11 +275,30 @@ class Command(BaseCommand):
             )
             if was_created:
                 created += 1
+                # Add media gallery images
+                for i, m in enumerate(media_data):
+                    Media.objects.create(
+                        content_type=event_ct,
+                        object_id=event.pk,
+                        image=m["image"],
+                        caption=m.get("caption", ""),
+                        order=i,
+                    )
             else:
                 # Update existing events
                 event.summary = data.get("summary", "")
                 event.description = data["description"]
                 event.save(update_fields=["summary", "description"])
+                # Add media if none exists
+                if not Media.objects.filter(content_type=event_ct, object_id=event.pk).exists():
+                    for i, m in enumerate(media_data):
+                        Media.objects.create(
+                            content_type=event_ct,
+                            object_id=event.pk,
+                            image=m["image"],
+                            caption=m.get("caption", ""),
+                            order=i,
+                        )
                 updated += 1
 
         self.stdout.write(self.style.SUCCESS(f"Seeded {created} new, updated {updated} existing"))

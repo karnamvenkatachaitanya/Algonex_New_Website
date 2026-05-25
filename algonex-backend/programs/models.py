@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.contenttypes.fields import GenericRelation
 from common.mixins import TimestampMixin, SlugMixin
 
 
@@ -46,6 +47,9 @@ class Program(TimestampMixin, SlugMixin, models.Model):
     capacity = models.PositiveIntegerField()
     is_published = models.BooleanField(default=False, db_index=True)
     is_featured = models.BooleanField(default=False, db_index=True)
+
+    # Media
+    media = GenericRelation("common.Media")
 
     class Meta:
         ordering = ["-is_featured", "application_deadline"]

@@ -2,7 +2,12 @@
 Development settings — DEBUG on, console email, PostgreSQL.
 """
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from .base import *  # noqa: F401,F403
+
+# Load .env from the project root (algonex-backend/.env)
+load_dotenv(Path(__file__).resolve().parent.parent.parent / ".env")
 
 DEBUG = True
 SECRET_KEY = "django-insecure-dev-only-key-change-in-production"

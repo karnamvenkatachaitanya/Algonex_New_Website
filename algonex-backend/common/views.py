@@ -1,8 +1,11 @@
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import generics
 from django.db.models import Q, Count, Avg
 from django.contrib.auth import get_user_model
+from .models import GeneralFAQ, GalleryImage
+from .serializers import GeneralFAQSerializer, GalleryImageSerializer
 
 User = get_user_model()
 
@@ -210,3 +213,28 @@ class AdminStatsView(APIView):
                 "careers": careers_stats,
             },
         })
+
+
+class GeneralFAQListView(generics.ListAPIView):
+    """
+    GET /api/v1/faqs/
+    List active general FAQs.
+    """
+    serializer_class = GeneralFAQSerializer
+    permission_classes = [AllowAny]
+    queryset = GeneralFAQ.objects.filter(is_active=True)
+
+
+class GalleryImageListView(generics.ListAPIView):
+    """
+    GET /api/v1/gallery/
+    List active gallery images.
+    """
+    serializer_class = GalleryImageSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        qs = GalleryImage.objects.filter(is_active=True)
+        if self.request.query_params.get("featured") == "true":
+            qs = qs.filter(is_featured=True)
+        return qs

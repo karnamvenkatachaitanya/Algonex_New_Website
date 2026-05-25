@@ -1,15 +1,16 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin, TabularInline
 from .models import Job, Application
 
 
-class ApplicationInline(admin.TabularInline):
+class ApplicationInline(TabularInline):
     model = Application
     extra = 0
     readonly_fields = ("applied_at", "updated_at")
 
 
 @admin.register(Job)
-class JobAdmin(admin.ModelAdmin):
+class JobAdmin(ModelAdmin):
     list_display = ("title", "apply_mode", "department", "job_type", "location", "is_remote", "is_active", "company_name")
     list_filter = ("apply_mode", "department", "job_type", "is_active", "is_remote")
     search_fields = ("title", "description", "company_name")
@@ -37,7 +38,7 @@ class JobAdmin(admin.ModelAdmin):
 
 
 @admin.register(Application)
-class ApplicationAdmin(admin.ModelAdmin):
+class ApplicationAdmin(ModelAdmin):
     list_display = ("applicant", "job", "status", "applied_at")
     list_filter = ("status",)
     search_fields = ("applicant__email", "job__title")
