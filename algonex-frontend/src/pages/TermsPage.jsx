@@ -30,7 +30,7 @@ export default function TermsPage() {
           <p>Algonex provides educational services on an "as is" basis. We are not liable for career outcomes, placement results, or technical issues beyond our reasonable control.</p>
 
           <h2 style={{ fontSize: 20, fontWeight: 600 }}>8. Contact</h2>
-          <p>For questions about these terms, contact us at contact@algonex.in.</p>
+          <p>For questions about these terms, contact us at solutions@algonex.co.in.</p>
         </div>
       </Card>
     </div>

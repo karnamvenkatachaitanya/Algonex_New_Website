@@ -54,9 +54,9 @@ test.describe("Footer", () => {
 
   test("contact info: address, phone, email", async ({ page }) => {
     const footer = page.locator("footer");
-    await expect(footer.getByText("Marthahalli")).toBeVisible();
+    await expect(footer.getByText("Opposite to KLM, MTK Reddy Building, 2nd floor, Marathahalli Bridge, Bangalore-560037")).toBeVisible();
     await expect(footer.getByText("+91")).toBeVisible();
-    await expect(footer.getByText("contact@algonex.in")).toBeVisible();
+    await expect(footer.getByText("solutions@algonex.co.in")).toBeVisible();
   });
 
   test("copyright year is current", async ({ page }) => {

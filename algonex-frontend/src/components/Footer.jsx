@@ -21,7 +21,7 @@ const courseLinks = [
   { label: "Python Full Stack", to: "/courses/python-full-stack" },
   { label: "MERN Stack", to: "/courses/mern-stack" },
   { label: "Data Analytics", to: "/courses/data-analytics" },
-  { label: "Java Full Stack", to: "/courses/java-full-stack" },
+  { label: "Python Full Stack", to: "/courses/python-full-stack" },
 ];
 
 export default function Footer() {
@@ -38,14 +38,39 @@ export default function Footer() {
         >
           {/* Brand */}
           <div>
-            <h3 style={{ color: "white", fontSize: 20, fontWeight: 700, marginBottom: 12 }}>
-              <span style={{ color: "#00B4D8" }}>A</span>lgonex
-            </h3>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 16 }}>
+              <img
+                src="https://ik.imagekit.io/ipo22webapp/Picture1.png?updatedAt=1759509431158"
+                alt="Algonex"
+                style={{ height: 40 }}
+              />
+              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: '1.05', justifyContent: 'center' }}>
+                <span style={{
+                  fontSize: 20,
+                  fontWeight: 800,
+                  color: '#ffffff',
+                  letterSpacing: '1.2px',
+                  textTransform: 'uppercase',
+                  fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                }}>
+                  ALGONEX
+                </span>
+                <span style={{
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.7)',
+                  letterSpacing: '0.3px',
+                  fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+                }}>
+                  IT Solutions
+                </span>
+              </div>
+            </Link>
             <p style={{ fontSize: 14, lineHeight: 1.7, marginBottom: 16 }}>
               Training institute & software solutions company building the next generation of tech professionals in Bangalore.
             </p>
             <div style={{ display: "flex", gap: 12 }}>
-              <a href="https://linkedin.com/company/algonex" target="_blank" rel="noopener noreferrer"
+              <a href="https://www.linkedin.com/company/algonex-it-solutions/" target="_blank" rel="noopener noreferrer"
                 style={{ width: 36, height: 36, borderRadius: 8, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.7)", transition: "all 0.2s" }}
               >
                 <LinkedinOutlined />
@@ -93,15 +118,15 @@ export default function Footer() {
             <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 14 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <EnvironmentOutlined style={{ color: "#00B4D8" }} />
-                Marthahalli, Bangalore 560037
+                Opposite to KLM, MTK Reddy Building, 2nd floor, Marathahalli Bridge, Bangalore-560037
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <PhoneOutlined style={{ color: "#00B4D8" }} />
-                +91 80-4567-8900
+                +91 9959789424 , +91 8555955279 , +91 7995739967 ,9346630135
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <MailOutlined style={{ color: "#00B4D8" }} />
-                contact@algonex.in
+                EMAIL_ADDRESS , solutions@algonex.co.in
               </div>
             </div>
           </div>

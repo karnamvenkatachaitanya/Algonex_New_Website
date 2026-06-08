@@ -62,28 +62,28 @@ export const QUIZ_QUESTIONS = [
  */
 export const SCORING = {
   background: {
-    fresher:      { "python-full-stack": 3, "mern-stack": 2, "data-analyst": 2, "java-full-stack": 1 },
-    professional: { "python-full-stack": 2, "mern-stack": 2, "data-analyst": 3, "java-full-stack": 3 },
-    switcher:     { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 2, "java-full-stack": 1 },
-    student:      { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 2, "java-full-stack": 2 },
+    fresher: { "python-full-stack": 3, "mern-stack": 2, "data-analyst": 2 },
+    professional: { "python-full-stack": 2, "mern-stack": 2, "data-analyst": 3 },
+    switcher: { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 2 },
+    student: { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 2 },
   },
   experience: {
-    none:        { "python-full-stack": 3, "mern-stack": 2, "data-analyst": 3, "java-full-stack": 1 },
-    basics:      { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 2, "java-full-stack": 2 },
-    comfortable: { "python-full-stack": 2, "mern-stack": 3, "data-analyst": 2, "java-full-stack": 3 },
-    advanced:    { "python-full-stack": 1, "mern-stack": 2, "data-analyst": 3, "java-full-stack": 3 },
+    none: { "python-full-stack": 3, "mern-stack": 2, "data-analyst": 3 },
+    basics: { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 2 },
+    comfortable: { "python-full-stack": 2, "mern-stack": 3, "data-analyst": 2 },
+    advanced: { "python-full-stack": 1, "mern-stack": 2, "data-analyst": 3 },
   },
   interest: {
-    web:        { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 0, "java-full-stack": 2 },
-    data:       { "python-full-stack": 1, "mern-stack": 0, "data-analyst": 3, "java-full-stack": 1 },
-    enterprise: { "python-full-stack": 1, "mern-stack": 0, "data-analyst": 1, "java-full-stack": 3 },
-    unsure:     { "python-full-stack": 2, "mern-stack": 2, "data-analyst": 2, "java-full-stack": 2 },
+    web: { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 0 },
+    data: { "python-full-stack": 1, "mern-stack": 0, "data-analyst": 3 },
+    enterprise: { "python-full-stack": 1, "mern-stack": 0, "data-analyst": 1 },
+    unsure: { "python-full-stack": 2, "mern-stack": 2, "data-analyst": 2 },
   },
   goal: {
-    first_job: { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 2, "java-full-stack": 2 },
-    upskill:   { "python-full-stack": 2, "mern-stack": 2, "data-analyst": 3, "java-full-stack": 3 },
-    switch:    { "python-full-stack": 3, "mern-stack": 2, "data-analyst": 2, "java-full-stack": 1 },
-    freelance: { "python-full-stack": 2, "mern-stack": 3, "data-analyst": 2, "java-full-stack": 1 },
+    first_job: { "python-full-stack": 3, "mern-stack": 3, "data-analyst": 2 },
+    upskill: { "python-full-stack": 2, "mern-stack": 2, "data-analyst": 3 },
+    switch: { "python-full-stack": 3, "mern-stack": 2, "data-analyst": 2 },
+    freelance: { "python-full-stack": 2, "mern-stack": 3, "data-analyst": 2 },
   },
 };
 
@@ -112,13 +112,6 @@ export const COURSE_META = {
     duration: "8 weeks",
     price: 19999,
     highlights: ["Python + Pandas", "SQL + Power BI", "Machine Learning basics"],
-  },
-  "java-full-stack": {
-    name: "Java Full Stack Development",
-    tagline: "Enterprise-grade development skills",
-    duration: "14 weeks",
-    price: 29999,
-    highlights: ["Spring Boot", "Microservices", "Angular/React"],
   },
 };
 

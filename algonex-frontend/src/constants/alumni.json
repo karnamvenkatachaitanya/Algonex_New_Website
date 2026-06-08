@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "name": "M. Deepak Reddy",
+    "role": "Secretary",
+    "company": "Microsoft",
+    "package": "18.5 LPA",
+    "course": "Full Stack Web Development",
+    "linkedin": "https://linkedin.com",
+    "image": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&auto=format&fit=crop&q=80",
+    "quote": "Language Club fosters linguistic diversity & cultural exchange. As secretary, I facilitate events & activities for language enthusiasts. Let's break language barriers and build connections!"
+  },
+  {
+    "id": 2,
+    "name": "Ananya Sharma",
+    "role": "Data Scientist",
+    "company": "Amazon",
+    "package": "14.0 LPA",
+    "course": "AI/ML Fellowship Program",
+    "linkedin": "https://linkedin.com",
+    "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop&q=80",
+    "quote": "The comprehensive AI/ML curriculum gave me the core neural network foundation that helped me excel in Amazon's technical review rounds. The 1-on-1 PhD mentor syncs were a game changer!"
+  },
+  {
+    "id": 3,
+    "name": "Rohan Gupta",
+    "role": "Cloud Engineer",
+    "company": "AWS",
+    "package": "12.0 LPA",
+    "course": "Cloud & DevOps Training",
+    "linkedin": "https://linkedin.com",
+    "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
+    "quote": "Deploying production-grade Kubernetes pipelines during my training taught me real DevOps practices. My AWS interviewers were highly impressed by my portfolio projects!"
+  },
+  {
+    "id": 4,
+    "name": "Kiran Kumar",
+    "role": "Systems Engineer",
+    "company": "Goldman Sachs",
+    "package": "16.5 LPA",
+    "course": "Full Stack Web Development",
+    "linkedin": "https://linkedin.com",
+    "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80",
+    "quote": "Algonex's mock tech interview modules perfectly simulated Goldman's coding assessment environments, making the actual interviews very structured and stress-free."
+  },
+  {
+    "id": 5,
+    "name": "Priya Patel",
+    "role": "UI/UX Designer",
+    "company": "Adobe",
+    "package": "9.5 LPA",
+    "course": "UI/UX Design Program",
+    "linkedin": "https://linkedin.com",
+    "image": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80",
+    "quote": "Designing active platform dashboards during my internship helped me build a premium design portfolio. The code-to-design agility taught by mentors was incredible!"
+  },
+  {
+    "id": 6,
+    "name": "Neha Reddy",
+    "role": "ML Research Fellow",
+    "company": "Google",
+    "package": "7.5 LPA",
+    "course": "AI/ML Fellowship Program",
+    "linkedin": "https://linkedin.com",
+    "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80",
+    "quote": "Publishing my research paper at an international ML conference with my Algonex advisor was a lifelong goal. It paved the way for my R&D offer at Google!"
+  }
+]

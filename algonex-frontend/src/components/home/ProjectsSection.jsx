@@ -3,6 +3,7 @@ import { Row, Col, Card, Tag, Button, Empty, Skeleton } from 'antd';
 import { GithubOutlined, LinkOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { projectsAPI } from '../../api/alumni';
+import { getImageUrl } from '../../utils/image';
 import { Link } from 'react-router-dom';
 
 const ProjectsSection = () => {
@@ -81,7 +82,7 @@ const ProjectsSection = () => {
                                             <div className="relative h-48 overflow-hidden group">
                                                 <img 
                                                     alt={project.title} 
-                                                    src={project.thumbnail || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop'} 
+                                                    src={getImageUrl(project.thumbnail)} 
                                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent opacity-60" />

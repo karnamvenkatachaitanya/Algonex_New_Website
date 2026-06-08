@@ -7,8 +7,8 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Admin notifications
-ADMINS = [("Algonex Admin", "contact@algonex.in"), ("Sai Kumar", "pappakasaikumar@gmail.com")]
-DEFAULT_FROM_EMAIL = "Algonex <noreply@algonex.in>"
+ADMINS = [("Algonex Admin", "solutions@algonex.co.in"), ("Sai Kumar", "pappakasaikumar@gmail.com")]
+DEFAULT_FROM_EMAIL = "Algonex <solutions@algonex.co.in>"
 
 INSTALLED_APPS = [
     "unfold",

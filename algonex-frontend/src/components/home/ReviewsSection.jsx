@@ -57,7 +57,7 @@ const ReviewsSection = () => {
                             Success Stories
                         </Tag>
                         <h2 className="text-2xl md:text-[32px] font-bold text-slate-900 mb-2">
-                            What Our <span className="text-[#00B4D8]">Trainees</span> Say
+                            శిక్షణ పొందినవాళ్ళు <span className="text-[#00B4D8]">ఏమంటున్నారంటే...</span>
                         </h2>
                         <p className="text-base text-slate-600 max-w-2xl mx-auto">
                             Thousands of trained professionals now work at top tech companies.

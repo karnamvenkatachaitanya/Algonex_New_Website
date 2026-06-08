@@ -9,6 +9,7 @@ import {
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { projectsAPI } from "../../api/alumni";
+import { getImageUrl } from "../../utils/image";
 
 export default function ProjectDetailPage() {
   const { slug } = useParams();
@@ -54,7 +55,7 @@ export default function ProjectDetailPage() {
 
         {project.thumbnail && (
           <div style={{ borderRadius: 16, overflow: "hidden", marginBottom: 32 }}>
-            <img src={project.thumbnail} alt={project.title} style={{ width: "100%", maxHeight: 400, objectFit: "cover" }} />
+            <img src={getImageUrl(project.thumbnail)} alt={project.title} style={{ width: "100%", maxHeight: 400, objectFit: "cover" }} />
           </div>
         )}
 

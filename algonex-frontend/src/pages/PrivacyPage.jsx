@@ -21,10 +21,10 @@ export default function PrivacyPage() {
           <p>We use essential cookies for authentication (JWT tokens stored in localStorage). We do not use third-party tracking cookies.</p>
 
           <h2 style={{ fontSize: 20, fontWeight: 600 }}>5. Your Rights</h2>
-          <p>You can access, update, or delete your profile information at any time through your account settings. To request complete data deletion, contact us at contact@algonex.in.</p>
+          <p>You can access, update, or delete your profile information at any time through your account settings. To request complete data deletion, contact us at solutions@algonex.co.in.</p>
 
           <h2 style={{ fontSize: 20, fontWeight: 600 }}>6. Contact</h2>
-          <p>For privacy-related questions, email us at contact@algonex.in or visit our office at Marthahalli, Bangalore, Karnataka 560037.</p>
+          <p>For privacy-related questions, email us at solutions@algonex.co.in or visit our office at Opposite to KLM, MTK Reddy Building, 2nd floor, Marathahalli Bridge, Bangalore-560037.</p>
         </div>
       </Card>
     </div>

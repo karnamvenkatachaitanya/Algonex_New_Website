@@ -1,13 +1,12 @@
-import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ConfigProvider, App as AntApp } from 'antd';
-import apiClient from './api/client';
 import { theme } from './theme/theme';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/common/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import BuddyChatbot from './components/chat/BuddyChatbot';
+import AnnouncementBanner from './components/AnnouncementBanner';
 
 // Public pages
 import Home from './components/Pages/Home';
@@ -34,6 +33,9 @@ import OAuthCallbackPage from './pages/auth/OAuthCallbackPage';
 // Programs
 import ProgramListPage from './pages/programs/ProgramListPage';
 import ProgramDetailPage from './pages/programs/ProgramDetailPage';
+import TrainingPage from './pages/programs/TrainingPage';
+import InternshipPage from './pages/programs/InternshipPage';
+import FellowshipPage from './pages/programs/FellowshipPage';
 
 // Protected pages
 import MyCoursesPage from './pages/courses/MyCoursesPage';
@@ -48,101 +50,71 @@ import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
-const FALLBACK_BANNER = {
-  text: "Boost Your Professional Growth with Our Certified Training Courses - Flat 20% Off Course Fee",
-  bg_color: "#00D4FF",
-  text_color: "#000000",
-  link: "",
-};
-
 const App = () => {
-  const [banner, setBanner] = useState(FALLBACK_BANNER);
-
-  useEffect(() => {
-    apiClient.get("/banner/")
-      .then((res) => {
-        const data = res.data?.data;
-        if (data) setBanner(data);
-      })
-      .catch(() => {});
-  }, []);
-
   return (
     <ConfigProvider theme={theme.antd}>
       <AntApp>
-      <Router>
-        <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            {banner && (
-              <div style={{
-                background: banner.bg_color,
-                color: banner.text_color,
-                textAlign: "center",
-                padding: "10px 24px",
-                fontWeight: 600,
-                fontSize: 14,
-              }}>
-                {banner.link ? (
-                  <a href={banner.link} style={{ color: banner.text_color, textDecoration: "none" }}>
-                    {banner.text}
-                  </a>
-                ) : banner.text}
+        <Router>
+          <AuthProvider>
+            <div className="flex flex-col min-h-screen">
+              <AnnouncementBanner />
+
+              <Navbar />
+              <div style={{ flex: 1 }}>
+                <ErrorBoundary>
+                  <Routes>
+                    {/* Public */}
+                    <Route path="/" element={<Home />} />
+                    <Route path="/courses" element={<CourseListPage />} />
+                    <Route path="/allcourses" element={<CourseListPage />} />
+                    <Route path="/courses/:slug" element={<CourseDetailPage />} />
+                    <Route path="/stack/:id" element={<CourseDetailPage />} />
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/events/:slug" element={<EventDetailPage />} />
+                    <Route path="/aboutus" element={<AboutUs />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/careers" element={<JobListPage />} />
+                    <Route path="/careers/:slug" element={<JobDetailPage />} />
+                    <Route path="/products" element={<CaseStudyListPage />} />
+                    <Route path="/products/:slug" element={<CaseStudyDetailPage />} />
+                    <Route path="/programs" element={<ProgramListPage />} />
+                    <Route path="/programs/:slug" element={<ProgramDetailPage />} />
+                    <Route path="/training" element={<TrainingPage />} />
+                    <Route path="/internship" element={<InternshipPage />} />
+                    <Route path="/fellowship" element={<FellowshipPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/quiz" element={<SkillQuiz />} />
+                    <Route path="/alumni" element={<AlumniPage />} />
+                    <Route path="/alumni/projects/:slug" element={<ProjectDetailPage />} />
+
+                    {/* Legal */}
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+
+                    {/* Auth */}
+                    <Route path="/signin" element={<LoginPage />} />
+                    <Route path="/signup" element={<SignupPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/set-password" element={<SetPasswordPage />} />
+                    <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+
+                    {/* Protected */}
+                    <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                    <Route path="/my-courses" element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
+                    <Route path="/my-events" element={<ProtectedRoute><MyEventsPage /></ProtectedRoute>} />
+                    <Route path="/my-applications" element={<ProtectedRoute><MyApplicationsPage /></ProtectedRoute>} />
+
+                    {/* 404 */}
+                    <Route path="*" element={<NotFoundPage />} />
+                  </Routes>
+                </ErrorBoundary>
               </div>
-            )}
-
-            <Navbar />
-            <div style={{ flex: 1 }}>
-              <ErrorBoundary>
-              <Routes>
-                {/* Public */}
-                <Route path="/" element={<Home />} />
-                <Route path="/courses" element={<CourseListPage />} />
-                <Route path="/allcourses" element={<CourseListPage />} />
-                <Route path="/courses/:slug" element={<CourseDetailPage />} />
-                <Route path="/stack/:id" element={<CourseDetailPage />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/events/:slug" element={<EventDetailPage />} />
-                <Route path="/aboutus" element={<AboutUs />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/careers" element={<JobListPage />} />
-                <Route path="/careers/:slug" element={<JobDetailPage />} />
-                <Route path="/products" element={<CaseStudyListPage />} />
-                <Route path="/products/:slug" element={<CaseStudyDetailPage />} />
-                <Route path="/programs" element={<ProgramListPage />} />
-                <Route path="/programs/:slug" element={<ProgramDetailPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/quiz" element={<SkillQuiz />} />
-                <Route path="/alumni" element={<AlumniPage />} />
-                <Route path="/alumni/projects/:slug" element={<ProjectDetailPage />} />
-
-                {/* Legal */}
-                <Route path="/privacy" element={<PrivacyPage />} />
-                <Route path="/terms" element={<TermsPage />} />
-
-                {/* Auth */}
-                <Route path="/signin" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/set-password" element={<SetPasswordPage />} />
-                <Route path="/auth/callback" element={<OAuthCallbackPage />} />
-
-                {/* Protected */}
-                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-                <Route path="/my-courses" element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
-                <Route path="/my-events" element={<ProtectedRoute><MyEventsPage /></ProtectedRoute>} />
-                <Route path="/my-applications" element={<ProtectedRoute><MyApplicationsPage /></ProtectedRoute>} />
-
-                {/* 404 */}
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-              </ErrorBoundary>
+              <Footer />
             </div>
-            <Footer />
-          </div>
-        </AuthProvider>
+          </AuthProvider>
           {/* Buddy AI Chatbot — globally available on all pages */}
           <BuddyChatbot />
-      </Router>
+        </Router>
       </AntApp>
     </ConfigProvider>
   );

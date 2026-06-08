@@ -13,19 +13,19 @@ const contactInfo = [
   {
     icon: <MailOutlined style={{ fontSize: 24, color: "#00B4D8" }} />,
     title: "Email Us",
-    detail: "contact@algonex.in",
+    detail: "solutions@algonex.co.in",
     sub: "We respond within 24 hours",
   },
   {
     icon: <PhoneOutlined style={{ fontSize: 24, color: "#00B4D8" }} />,
     title: "Call Us",
-    detail: "+91 80-4567-8900",
+    detail: "+91 9959789424 , +91 8555955279 , +91 7995739967 ,9346630135",
     sub: "Mon-Sat, 9 AM - 8 PM",
   },
   {
     icon: <EnvironmentOutlined style={{ fontSize: 24, color: "#00B4D8" }} />,
     title: "Visit Us",
-    detail: "Marthahalli, Bangalore",
+    detail: "Opposite to KLM, MTK Reddy Building, 2nd floor, Marathahalli Bridge, Bangalore-560037",
     sub: "Karnataka 560037",
   },
   {

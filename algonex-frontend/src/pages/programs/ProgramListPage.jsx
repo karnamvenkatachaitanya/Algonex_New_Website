@@ -12,6 +12,7 @@ import {
   LaptopOutlined,
 } from "@ant-design/icons";
 import { programsAPI } from "../../api/programs";
+import { getImageUrl } from "../../utils/image";
 
 const FALLBACK_PROGRAMS = [
   {
@@ -215,7 +216,7 @@ export default function ProgramListPage() {
                       <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
                         <img
                           alt={program.title}
-                          src={program.image}
+                          src={getImageUrl(program.image)}
                           style={{ width: "100%", height: "100%", objectFit: "cover" }}
                         />
                         <Tag

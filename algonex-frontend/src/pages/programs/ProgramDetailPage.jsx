@@ -15,6 +15,7 @@ import {
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { programsAPI } from "../../api/programs";
+import { getImageUrl } from "../../utils/image";
 
 const TYPE_COLORS = { fellowship: "purple", internship: "blue" };
 
@@ -59,9 +60,9 @@ export default function ProgramDetailPage() {
       <div
         style={{
           background: program.banner
-            ? `linear-gradient(135deg, rgba(0,180,216,0.85), rgba(8,145,178,0.9)), url(${program.banner}) center/cover`
+            ? `linear-gradient(135deg, rgba(0,180,216,0.85), rgba(8,145,178,0.9)), url(${getImageUrl(program.banner)}) center/cover`
             : program.image
-              ? `linear-gradient(135deg, rgba(0,180,216,0.85), rgba(8,145,178,0.9)), url(${program.image}) center/cover`
+              ? `linear-gradient(135deg, rgba(0,180,216,0.85), rgba(8,145,178,0.9)), url(${getImageUrl(program.image)}) center/cover`
               : "linear-gradient(135deg, #00B4D8, #0891b2)",
           padding: "48px 24px",
           color: "white",

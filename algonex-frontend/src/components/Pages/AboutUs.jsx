@@ -33,7 +33,7 @@ const milestones = [
   { year: "2020", title: "Founded", desc: "Started with 3 courses and 20 students in a co-working space in Bangalore." },
   { year: "2021", title: "First 500 Students", desc: "Expanded to 8 courses, launched online programs during the pandemic." },
   { year: "2022", title: "Corporate Partnerships", desc: "Partnered with 15+ companies for placement and internship programs." },
-  { year: "2023", title: "Campus Launch", desc: "Opened our dedicated campus in Marthahalli with state-of-the-art labs." },
+  { year: "2023", title: "Campus Launch", desc: "Opened our dedicated campus in Marthahalli, Bangalore with state-of-the-art labs." },
   { year: "2024", title: "3,000 Alumni", desc: "Reached 3,000 graduates with 95% placement rate across top tech companies." },
   { year: "2025", title: "Software Solutions", desc: "Launched Algonex Solutions — building products alongside training talent." },
   { year: "2026", title: "5,000+ & Growing", desc: "Expanding nationally with new programs in AI, Cloud, and DevOps." },

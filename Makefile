@@ -30,6 +30,7 @@ seed: ## Seed database with sample data
 	docker compose exec backend python manage.py seed_events
 	docker compose exec backend python manage.py seed_programs
 	docker compose exec backend python manage.py seed_showcase
+	docker compose exec backend python manage.py seed_careers
 
 createsuperuser: ## Create Django admin superuser
 	docker compose exec backend python manage.py createsuperuser

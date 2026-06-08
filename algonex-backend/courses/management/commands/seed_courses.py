@@ -86,32 +86,7 @@ SEED_COURSES = [
             {"image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop", "caption": "Analytics and charts"},
             {"image": "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=600&auto=format&fit=crop", "caption": "Working with data"},
         ],
-    },
-    {
-        "name": "Java Full Stack",
-        "description": "Master Java for enterprise full-stack development with Spring Boot and Angular.",
-        "image": "https://images.unsplash.com/photo-1515879218367-8466d910auj7?w=600&auto=format&fit=crop",
-        "level": "intermediate",
-        "prior_knowledge": "Basic programming knowledge",
-        "duration": "20 days",
-        "price": "2000.00",
-        "discount": 20,
-        "is_trending": True,
-        "skills": ["Java", "Spring Boot", "Angular", "MySQL", "REST APIs", "Microservices"],
-        "modules": [
-            {"title": "Module 1: Java Fundamentals", "description": "Core Java concepts", "topics": [
-                "OOP", "Collections", "Streams", "Exception Handling",
-            ]},
-            {"title": "Module 2: Spring Boot", "description": "Backend with Spring", "topics": [
-                "Spring MVC", "JPA/Hibernate", "Security", "REST APIs",
-            ]},
-        ],
-        "media": [
-            {"image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&auto=format&fit=crop", "caption": "Enterprise development"},
-            {"image": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop", "caption": "Team collaboration"},
-            {"image": "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=600&auto=format&fit=crop", "caption": "Classroom training session"},
-        ],
-    },
+  },
 ]
 
 

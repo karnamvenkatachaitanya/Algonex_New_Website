@@ -6,6 +6,7 @@ import {
   LinkedinOutlined,
 } from "@ant-design/icons";
 import { alumniAPI, projectsAPI } from "../../api/alumni";
+import { getImageUrl } from "../../utils/image";
 
 // --- Mock data for when backend APIs aren't ready ---
 const MOCK_ALUMNI = [
@@ -41,7 +42,7 @@ function AlumniCard({ alumni, onClick }) {
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 20, fontWeight: 700, color: "#00B4D8", flexShrink: 0,
         }}>
-          {alumni.avatar ? <img src={alumni.avatar} alt={alumni.name} style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} /> : initials}
+          {alumni.avatar ? <img src={getImageUrl(alumni.avatar)} alt={alumni.name} style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} /> : initials}
         </div>
         <div>
           <div style={{ fontWeight: 600, fontSize: 16, color: "#2c3e50" }}>{alumni.name}</div>
@@ -84,7 +85,7 @@ function ProjectCard({ project }) {
         display: "flex", alignItems: "center", justifyContent: "center",
         color: "#ccc", fontSize: 48,
       }}>
-        {project.thumbnail ? <img src={project.thumbnail} alt={project.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : "\u{1F4BB}"}
+        {project.thumbnail ? <img src={getImageUrl(project.thumbnail)} alt={project.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : "\u{1F4BB}"}
       </div>
       <div style={{ padding: 20 }}>
         <h4 style={{ fontSize: 16, fontWeight: 600, color: "#2c3e50", marginBottom: 8 }}>{project.title}</h4>
@@ -214,7 +215,7 @@ export default function AlumniPage() {
               display: "flex", alignItems: "center", justifyContent: "center",
               margin: "0 auto 16px", fontSize: 28, fontWeight: 700, color: "#00B4D8",
             }}>
-              {selected.avatar ? <img src={selected.avatar} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} /> : selected.name.split(" ").map((n) => n[0]).join("")}
+              {selected.avatar ? <img src={getImageUrl(selected.avatar)} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} /> : selected.name.split(" ").map((n) => n[0]).join("")}
             </div>
             <h3 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>{selected.name}</h3>
             <p style={{ color: "#666", marginBottom: 4 }}>{selected.current_role}</p>
