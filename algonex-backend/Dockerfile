@@ -22,6 +22,11 @@ RUN DJANGO_SETTINGS_MODULE=config.settings.production \
     DJANGO_SECRET_KEY=build-time-secret \
     python manage.py collectstatic --noinput 2>/dev/null || true
 
+# Run as non-root user
+RUN adduser --disabled-password --no-create-home appuser && \
+    chown -R appuser:appuser /app
+USER appuser
+
 EXPOSE 8000
 
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "1", "--timeout", "120"]

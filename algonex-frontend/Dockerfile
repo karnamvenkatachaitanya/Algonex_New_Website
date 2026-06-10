@@ -13,8 +13,8 @@ ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build
 
-# Stage 2: Serve with nginx
-FROM nginx:alpine
+# Stage 2 (default): Serve with nginx — used by dev/local setup
+FROM nginx:alpine AS dev
 
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -22,3 +22,11 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
+
+# Stage 3: Production build-only — used by docker-compose.prod.yml
+FROM alpine:3.19 AS prod
+
+COPY --from=build /app/dist /app/dist
+
+# This container exits after start — its only job is to populate the volume
+CMD ["echo", "Frontend build complete"]
