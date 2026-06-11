@@ -1,25 +1,35 @@
-{$DOMAIN:localhost} {
-    # API and admin to Django
+algonex.co.in, www.algonex.co.in {
+    tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
+
+    # API and admin routes → Django backend
     handle /api/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Forwarded-Proto {scheme}
+        }
     }
 
     handle /admin/* {
-        reverse_proxy backend:8000
+        reverse_proxy backend:8000 {
+            header_up X-Forwarded-Proto {scheme}
+        }
     }
 
-    # Django static files
+    # Django static files (admin CSS/JS) — served directly by Caddy
     handle /static/* {
-        reverse_proxy backend:8000
+        root * /srv
+        file_server
     }
 
-    # Media files
+    # Media files (uploads) — served directly by Caddy
     handle /media/* {
-        reverse_proxy backend:8000
+        root * /srv
+        file_server
     }
 
-    # Everything else -> React SPA
+    # React SPA — serve static files, fallback to index.html
     handle {
-        reverse_proxy frontend:80
+        root * /srv/frontend
+        try_files {path} /index.html
+        file_server
     }
 }
