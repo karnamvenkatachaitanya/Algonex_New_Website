@@ -2,13 +2,13 @@ algonex.co.in, www.algonex.co.in {
     tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 
     # API and admin routes → Django backend
-    handle /api/* {
+    handle /api /api/* {
         reverse_proxy backend:8000 {
             header_up X-Forwarded-Proto {scheme}
         }
     }
 
-    handle /admin/* {
+    handle /admin /admin/* {
         reverse_proxy backend:8000 {
             header_up X-Forwarded-Proto {scheme}
         }
