@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from common.serializers import MediaSerializer
-from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial, CourseReview, StudentOutcome
+from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial, CourseReview, StudentOutcome, Certificate
 
 
 class SkillSerializer(serializers.ModelSerializer):
@@ -177,4 +177,21 @@ class StudentOutcomeSerializer(serializers.ModelSerializer):
         fields = [
             "id", "student_name", "achievement_type", "company_name",
             "role", "package_range", "course", "achieved_at",
+        ]
+
+
+class CertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certificate
+        fields = [
+            "certificate_id",
+            "intern_id",
+            "student_name",
+            "certificate_type",
+            "title",
+            "description",
+            "worked_tools",
+            "badge_text",
+            "is_verified",
+            "issue_date",
         ]

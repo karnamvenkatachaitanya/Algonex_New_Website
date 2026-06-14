@@ -1,7 +1,7 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from common.admin import MediaInline
-from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial, StudentOutcome, CourseReview
+from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial, StudentOutcome, CourseReview, Certificate
 
 
 class ModuleInline(TabularInline):
@@ -74,3 +74,11 @@ class CourseReviewAdmin(ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+
+@admin.register(Certificate)
+class CertificateAdmin(ModelAdmin):
+    list_display = ("certificate_id", "student_name", "certificate_type", "title", "is_verified", "issue_date")
+    list_filter = ("certificate_type", "is_verified", "issue_date")
+    search_fields = ("certificate_id", "student_name", "title", "intern_id")
+    list_editable = ("is_verified",)

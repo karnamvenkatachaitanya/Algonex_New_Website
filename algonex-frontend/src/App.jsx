@@ -49,6 +49,7 @@ import ProjectDetailPage from './pages/alumni/ProjectDetailPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import CertificateVerification from './pages/CertificateVerification';
 
 const App = () => {
   return (
@@ -86,6 +87,7 @@ const App = () => {
                     <Route path="/quiz" element={<SkillQuiz />} />
                     <Route path="/alumni" element={<AlumniPage />} />
                     <Route path="/alumni/projects/:slug" element={<ProjectDetailPage />} />
+                    <Route path="/verify/Certificate/ID=:id" element={<CertificateVerification />} />
 
                     {/* Legal */}
                     <Route path="/privacy" element={<PrivacyPage />} />

@@ -7,7 +7,7 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
 from django.shortcuts import get_object_or_404
 
-from .models import Course, Module, Topic, Enrollment, CourseFAQ
+from .models import Course, Module, Topic, Enrollment, CourseFAQ, Certificate
 from .serializers import (
     CourseListSerializer,
     CourseDetailSerializer,
@@ -25,7 +25,7 @@ from .permissions import IsInstructorOwner
 from .filters import CourseFilter
 from .services import create_course, update_course, enroll_student, drop_enrollment, submit_review
 from .selectors import get_published_courses, get_course_detail, get_student_enrollments, get_published_outcomes
-from .serializers import StudentOutcomeSerializer
+from .serializers import StudentOutcomeSerializer, CertificateSerializer
 from common.pagination import StandardPagination
 from common.permissions import IsAdmin
 
@@ -227,3 +227,18 @@ class StudentOutcomeViewSet(ListModelMixin, GenericViewSet):
     def get_queryset(self):
         course_slug = self.request.query_params.get("course")
         return get_published_outcomes(course_slug=course_slug)
+
+
+class CertificateViewSet(ModelViewSet):
+    """
+    Public: retrieve single certificate by ID.
+    Admin: create, list, update, partial_update, delete.
+    """
+    queryset = Certificate.objects.all()
+    serializer_class = CertificateSerializer
+    lookup_field = "certificate_id"
+
+    def get_permissions(self):
+        if self.action in ("retrieve",):
+            return [AllowAny()]
+        return [IsAdmin()]

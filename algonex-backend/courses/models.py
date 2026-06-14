@@ -185,3 +185,27 @@ class StudentOutcome(TimestampMixin, models.Model):
 
     def __str__(self):
         return f"{self.student_name} - {self.get_achievement_type_display()} at {self.company_name}"
+
+
+class Certificate(TimestampMixin, models.Model):
+    """Certificate issued to a student for course/internship completion."""
+
+    certificate_id = models.CharField(max_length=50, unique=True, primary_key=True)
+    intern_id = models.CharField(max_length=50, blank=True, null=True)
+    student_name = models.CharField(max_length=150)
+    certificate_type = models.CharField(max_length=100, default="Certification Of Internship")
+    title = models.CharField(max_length=200, help_text="e.g. SQL AI SPARK Team Fellow")
+    description = models.TextField()
+    worked_tools = models.CharField(
+        max_length=255,
+        help_text="Comma-separated tools, e.g., Google Ads, Google Analytics",
+    )
+    badge_text = models.CharField(max_length=100, default="EXCELLENCE of SPARK")
+    is_verified = models.BooleanField(default=True)
+    issue_date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-issue_date"]
+
+    def __str__(self):
+        return f"{self.student_name} — {self.certificate_id}"

@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Avatar, Dropdown, Button, Drawer } from 'antd';
 import { UserOutlined, LogoutOutlined, MenuOutlined } from '@ant-design/icons';
 import { useAuth } from '../hooks/useAuth';
+import algonexLogo from '../Public/algonex_logo.png';
 
 const navLinks = [
   { to: '/', label: 'Home' },
@@ -86,7 +87,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
           <img
-            src="https://ik.imagekit.io/ipo22webapp/Picture1.png?updatedAt=1759509431158"
+            src={algonexLogo}
             alt="Algonex"
             style={{ height: 40 }}
           />
@@ -213,7 +214,7 @@ const Navbar = () => {
           title={
             <Link to="/" onClick={() => setDrawerOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
               <img
-                src="https://ik.imagekit.io/ipo22webapp/Picture1.png?updatedAt=1759509431158"
+                src={algonexLogo}
                 alt="Algonex"
                 style={{ height: 34 }}
               />

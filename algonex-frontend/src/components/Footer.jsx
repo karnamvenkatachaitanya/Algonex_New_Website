@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import algonexLogo from "../Public/algonex_logo.png";
 import {
   MailOutlined,
   PhoneOutlined,
@@ -40,7 +41,7 @@ export default function Footer() {
           <div>
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 16 }}>
               <img
-                src="https://ik.imagekit.io/ipo22webapp/Picture1.png?updatedAt=1759509431158"
+                src={algonexLogo}
                 alt="Algonex"
                 style={{ height: 40 }}
               />
