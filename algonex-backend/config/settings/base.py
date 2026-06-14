@@ -197,6 +197,7 @@ UNFOLD = {
                     {"title": "Skills", "link": "/admin/courses/skill/", "icon": "psychology"},
                     {"title": "Student Outcomes", "link": "/admin/courses/studentoutcome/", "icon": "emoji_events"},
                     {"title": "Reviews", "link": "/admin/courses/coursereview/", "icon": "rate_review"},
+                    {"title": "Certificates", "link": "/admin/courses/certificate/", "icon": "workspace_premium"},
                 ],
             },
             {
