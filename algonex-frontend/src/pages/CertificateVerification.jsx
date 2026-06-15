@@ -52,8 +52,8 @@ const CertificateVerification = () => {
         useCORS: true,
         letterRendering: true,
         logging: false,
-        width: 1123,
-        height: 794,
+        scrollX: 0,
+        scrollY: 0,
         windowWidth: 1200
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
