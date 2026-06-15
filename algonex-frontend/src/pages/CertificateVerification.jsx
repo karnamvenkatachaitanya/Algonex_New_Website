@@ -43,12 +43,26 @@ const CertificateVerification = () => {
     const element = certificateRef.current;
     if (!element) return;
 
-    // Find the outer scroll container and cache scroll position to prevent html2canvas offset clipping
-    const outerContainer = document.querySelector('.cert-container-outer');
-    const originalScrollLeft = outerContainer ? outerContainer.scrollLeft : 0;
-    if (outerContainer) {
-      outerContainer.scrollLeft = 0;
-    }
+    // Create a clone of the certificate element
+    const clone = element.cloneNode(true);
+
+    // Style the clone to ensure it renders at exactly 1123x794 px off-screen
+    // and is completely unaffected by page scroll or viewport resizing
+    clone.style.position = 'absolute';
+    clone.style.left = '-9999px';
+    clone.style.top = '0';
+    clone.style.width = '1123px';
+    clone.style.height = '794px';
+    clone.style.margin = '0';
+    clone.style.padding = '40px 50px';
+    clone.style.boxSizing = 'border-box';
+    clone.style.backgroundColor = '#ffffff';
+    clone.style.boxShadow = 'none';
+    clone.style.borderRadius = '0';
+    clone.style.overflow = 'hidden';
+
+    // Append the clone to document body so it renders and gains styling
+    document.body.appendChild(clone);
 
     const opt = {
       margin: 0,
@@ -59,28 +73,25 @@ const CertificateVerification = () => {
         useCORS: true,
         letterRendering: true,
         logging: false,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 1200
+        windowWidth: 1123
       },
-      jsPDF: { unit: 'in', format: [11.6979, 8.35], orientation: 'landscape' },
-      pagebreak: { mode: 'avoid-all' }
+      jsPDF: { unit: 'in', format: [11.6979, 8.2708], orientation: 'landscape' }
     };
 
-    const restoreScroll = () => {
-      if (outerContainer) {
-        outerContainer.scrollLeft = originalScrollLeft;
+    const cleanUp = () => {
+      if (document.body.contains(clone)) {
+        document.body.removeChild(clone);
       }
     };
 
     // Dynamically load html2pdf.js if not already present
     if (window.html2pdf) {
-      window.html2pdf().set(opt).from(element).save().then(restoreScroll).catch(restoreScroll);
+      window.html2pdf().set(opt).from(clone).save().then(cleanUp).catch(cleanUp);
     } else {
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
       script.onload = () => {
-        window.html2pdf().set(opt).from(element).save().then(restoreScroll).catch(restoreScroll);
+        window.html2pdf().set(opt).from(clone).save().then(cleanUp).catch(cleanUp);
       };
       document.body.appendChild(script);
     }
