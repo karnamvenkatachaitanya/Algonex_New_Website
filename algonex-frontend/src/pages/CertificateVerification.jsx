@@ -43,27 +43,6 @@ const CertificateVerification = () => {
     const element = certificateRef.current;
     if (!element) return;
 
-    // Create a clone of the certificate element
-    const clone = element.cloneNode(true);
-
-    // Style the clone to ensure it renders at exactly 1123x794 px off-screen
-    // and is completely unaffected by page scroll or viewport resizing
-    clone.style.position = 'absolute';
-    clone.style.left = '-9999px';
-    clone.style.top = '0';
-    clone.style.width = '1123px';
-    clone.style.height = '794px';
-    clone.style.margin = '0';
-    clone.style.padding = '40px 50px';
-    clone.style.boxSizing = 'border-box';
-    clone.style.backgroundColor = '#ffffff';
-    clone.style.boxShadow = 'none';
-    clone.style.borderRadius = '0';
-    clone.style.overflow = 'hidden';
-
-    // Append the clone to document body so it renders and gains styling
-    document.body.appendChild(clone);
-
     const opt = {
       margin: 0,
       filename: `Algonex_Certificate_${certificate.certificate_id}.pdf`,
@@ -73,25 +52,51 @@ const CertificateVerification = () => {
         useCORS: true,
         letterRendering: true,
         logging: false,
-        windowWidth: 1123
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 1123, // Lock virtual viewport width to match the canvas
+        onclone: (clonedDoc) => {
+          // Reset scroll offsets in the virtual document context
+          clonedDoc.documentElement.scrollLeft = 0;
+          clonedDoc.documentElement.scrollTop = 0;
+          clonedDoc.body.scrollLeft = 0;
+          clonedDoc.body.scrollTop = 0;
+
+          // Target the certificate canvas in the cloned DOM
+          const clonedArea = clonedDoc.getElementById('certificate-print-area');
+          if (clonedArea) {
+            clonedArea.style.boxShadow = 'none';
+            clonedArea.style.borderRadius = '0';
+            // Force exactly 793px height (slightly under A4 page ratio to guarantee single-page rendering)
+            clonedArea.style.height = '793px';
+            clonedArea.style.width = '1123px';
+            clonedArea.style.position = 'relative';
+            clonedArea.style.left = '0';
+            clonedArea.style.top = '0';
+          }
+
+          // Strip layout and width constraints on the outer scrollable container in the clone
+          const clonedOuter = clonedDoc.querySelector('.cert-container-outer');
+          if (clonedOuter) {
+            clonedOuter.style.maxWidth = 'none';
+            clonedOuter.style.width = '1123px';
+            clonedOuter.style.overflow = 'visible';
+            clonedOuter.style.margin = '0';
+            clonedOuter.style.padding = '0';
+          }
+        }
       },
       jsPDF: { unit: 'in', format: [11.6979, 8.2708], orientation: 'landscape' }
     };
 
-    const cleanUp = () => {
-      if (document.body.contains(clone)) {
-        document.body.removeChild(clone);
-      }
-    };
-
     // Dynamically load html2pdf.js if not already present
     if (window.html2pdf) {
-      window.html2pdf().set(opt).from(clone).save().then(cleanUp).catch(cleanUp);
+      window.html2pdf().set(opt).from(element).save();
     } else {
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
       script.onload = () => {
-        window.html2pdf().set(opt).from(clone).save().then(cleanUp).catch(cleanUp);
+        window.html2pdf().set(opt).from(element).save();
       };
       document.body.appendChild(script);
     }
