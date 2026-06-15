@@ -87,7 +87,7 @@ const App = () => {
                     <Route path="/quiz" element={<SkillQuiz />} />
                     <Route path="/alumni" element={<AlumniPage />} />
                     <Route path="/alumni/projects/:slug" element={<ProjectDetailPage />} />
-                    <Route path="/verify/Certificate/ID=:id" element={<CertificateVerification />} />
+                    <Route path="/verify/Certificate/:id" element={<CertificateVerification />} />
 
                     {/* Legal */}
                     <Route path="/privacy" element={<PrivacyPage />} />

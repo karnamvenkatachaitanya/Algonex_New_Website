@@ -1,0 +1,41 @@
+/* ===== Sidebar scroll fix ===== */
+#nav-sidebar-inner,
+nav#nav-sidebar-inner {
+    height: 100vh !important;
+    max-height: 100vh !important;
+}
+
+#nav-sidebar-apps,
+[id="nav-sidebar-apps"] {
+    height: 0 !important;
+    flex-grow: 1 !important;
+    overflow-y: auto !important;
+}
+
+#nav-sidebar-apps .simplebar-content-wrapper,
+[id="nav-sidebar-apps"] .simplebar-content-wrapper {
+    overflow-y: auto !important;
+    max-height: 100% !important;
+}
+
+#nav-sidebar-apps .simplebar-content,
+[id="nav-sidebar-apps"] .simplebar-content {
+    padding-bottom: 40px !important;
+}
+
+/* ===== Show sidebar at lg (1024px) instead of xl (1280px) ===== */
+/* Unfold hides the sidebar wrapper below 1280px with "hidden".
+   Force it visible and relative at 1024px so it takes flex space
+   and pushes #main to the right instead of overlapping it. */
+@media (min-width: 1024px) {
+    #page > div.relative.z-60 {
+        width: 288px !important;
+        min-width: 288px !important;
+        flex-shrink: 0 !important;
+    }
+    #page > div.relative.z-60 > div {
+        display: block !important;
+        position: relative !important;
+        width: 288px !important;
+    }
+}

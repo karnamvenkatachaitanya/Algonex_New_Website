@@ -78,7 +78,18 @@ class CourseReviewAdmin(ModelAdmin):
 
 @admin.register(Certificate)
 class CertificateAdmin(ModelAdmin):
-    list_display = ("certificate_id", "student_name", "certificate_type", "title", "is_verified", "issue_date")
+    list_display = ("certificate_id", "student_name", "certificate_type", "title", "is_verified", "issue_date", "view_certificate_link")
     list_filter = ("certificate_type", "is_verified", "issue_date")
     search_fields = ("certificate_id", "student_name", "title", "intern_id")
     list_editable = ("is_verified",)
+
+    def view_certificate_link(self, obj):
+        from django.utils.html import format_html
+        from django.conf import settings
+        frontend_url = getattr(settings, "FRONTEND_URL", "http://localhost:5173")
+        url = f"{frontend_url}/verify/Certificate/ID={obj.certificate_id}"
+        return format_html(
+            '<a href="{}" target="_blank" style="color: #1677ff; font-weight: bold; text-decoration: underline;">View/Download</a>',
+            url
+        )
+    view_certificate_link.short_description = "Download/View"

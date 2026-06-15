@@ -4,7 +4,7 @@
 {% block content %}
 <div class="unfold-dashboard">
     <!-- Quick Actions -->
-    <div class="mb-8 flex gap-4">
+    <div class="mb-8 flex gap-4 flex-wrap">
         {% for link in quick_links %}
             <a href="{{ link.url }}" class="bg-primary-600 text-white px-4 py-2 rounded shadow hover:bg-primary-700 flex items-center gap-2">
                 <span class="material-symbols-outlined">{{ link.icon }}</span>
@@ -24,26 +24,26 @@
         {% endfor %}
     </div>
 
-    <!-- Recent Activity Tables -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Recent Activity Tables — stacked vertically for full-width visibility -->
+    <div class="flex flex-col gap-8">
         <!-- Recent Registrations -->
         <div class="bg-white dark:bg-gray-800 rounded shadow border border-gray-200 dark:border-gray-700">
             <h3 class="p-4 border-b border-gray-200 dark:border-gray-700 font-bold dark:text-white">Recent Event Registrations</h3>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
+                <table class="w-full text-sm text-left" style="min-width: 500px;">
                     <thead class="bg-gray-50 dark:bg-gray-700/50">
                         <tr>
-                            <th class="p-4">User</th>
-                            <th class="p-4">Event</th>
-                            <th class="p-4">Date</th>
+                            <th class="p-4 whitespace-nowrap">User</th>
+                            <th class="p-4 whitespace-nowrap">Event</th>
+                            <th class="p-4 whitespace-nowrap">Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for reg in recent_registrations %}
                         <tr class="border-b dark:border-gray-700">
-                            <td class="p-4 dark:text-gray-300">{{ reg.user.email }}</td>
-                            <td class="p-4 dark:text-gray-300">{{ reg.event.title }}</td>
-                            <td class="p-4 dark:text-gray-300">{{ reg.registered_at|date:"M d, Y" }}</td>
+                            <td class="p-4 dark:text-gray-300 whitespace-nowrap">{{ reg.user.email }}</td>
+                            <td class="p-4 dark:text-gray-300 whitespace-nowrap">{{ reg.event.title }}</td>
+                            <td class="p-4 dark:text-gray-300 whitespace-nowrap">{{ reg.registered_at|date:"M d, Y" }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -55,20 +55,20 @@
         <div class="bg-white dark:bg-gray-800 rounded shadow border border-gray-200 dark:border-gray-700">
             <h3 class="p-4 border-b border-gray-200 dark:border-gray-700 font-bold dark:text-white">Recent Enrollments</h3>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
+                <table class="w-full text-sm text-left" style="min-width: 500px;">
                     <thead class="bg-gray-50 dark:bg-gray-700/50">
                         <tr>
-                            <th class="p-4">Student</th>
-                            <th class="p-4">Course</th>
-                            <th class="p-4">Date</th>
+                            <th class="p-4 whitespace-nowrap">Student</th>
+                            <th class="p-4 whitespace-nowrap">Course</th>
+                            <th class="p-4 whitespace-nowrap">Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for enrollment in recent_enrollments %}
                         <tr class="border-b dark:border-gray-700">
-                            <td class="p-4 dark:text-gray-300">{{ enrollment.student.email }}</td>
-                            <td class="p-4 dark:text-gray-300">{{ enrollment.course.name }}</td>
-                            <td class="p-4 dark:text-gray-300">{{ enrollment.enrolled_at|date:"M d, Y" }}</td>
+                            <td class="p-4 dark:text-gray-300 whitespace-nowrap">{{ enrollment.student.email }}</td>
+                            <td class="p-4 dark:text-gray-300 whitespace-nowrap">{{ enrollment.course.name }}</td>
+                            <td class="p-4 dark:text-gray-300 whitespace-nowrap">{{ enrollment.enrolled_at|date:"M d, Y" }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

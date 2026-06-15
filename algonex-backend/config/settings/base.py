@@ -178,6 +178,9 @@ UNFOLD = {
     "SITE_HEADER": "Algonex Admin",
     "SITE_ICON": lambda request: None,
     "DASHBOARD_CALLBACK": "common.admin_site.dashboard_callback",
+    "STYLES": [
+        lambda request: "/static/css/custom_admin.css",
+    ],
     "SIDEBAR": {
         "show_search": True,
         "navigation": [

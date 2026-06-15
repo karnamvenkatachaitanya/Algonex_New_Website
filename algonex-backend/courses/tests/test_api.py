@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
-from courses.models import Course, Module, Topic, Skill, Enrollment
+from courses.models import Course, Module, Topic, Skill, Enrollment, Certificate
 
 User = get_user_model()
 
@@ -151,3 +151,31 @@ class TestModuleAPI(CourseAPITestMixin, TestCase):
             format="json",
         )
         self.assertEqual(response.status_code, 403)
+
+
+class TestCertificateAPI(CourseAPITestMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        self.cert = Certificate.objects.create(
+            certificate_id="ALG26FCPF04296",
+            intern_id="ALG26DIGAM0303",
+            student_name="Vignesh.R",
+            certificate_type="Certification Of Internship",
+            title="SQL AI SPARK Team Fellow",
+            description="Has successfully completed a Digital Marketing Certification program...",
+            worked_tools="Google Ads, Google Analytics, SEO tools",
+            badge_text="SPARK",
+            is_verified=True
+        )
+
+    def test_retrieve_certificate_publicly(self):
+        response = self.client.get("/api/v1/certificates/ALG26FCPF04296/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["student_name"], "Vignesh.R")
+        self.assertEqual(response.data["intern_id"], "ALG26DIGAM0303")
+        self.assertEqual(response.data["title"], "SQL AI SPARK Team Fellow")
+
+    def test_retrieve_nonexistent_certificate_404(self):
+        response = self.client.get("/api/v1/certificates/NONEXISTENT/")
+        self.assertEqual(response.status_code, 404)
+
