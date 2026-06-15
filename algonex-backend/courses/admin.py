@@ -86,8 +86,11 @@ class CertificateAdmin(ModelAdmin):
     def view_certificate_link(self, obj):
         from django.utils.html import format_html
         from django.conf import settings
-        frontend_url = getattr(settings, "FRONTEND_URL", "http://localhost:5173")
-        url = f"{frontend_url}/verify/Certificate/ID={obj.certificate_id}"
+        if settings.DEBUG:
+            frontend_url = getattr(settings, "FRONTEND_URL", "http://localhost:5173")
+            url = f"{frontend_url}/verify/Certificate/ID={obj.certificate_id}"
+        else:
+            url = f"/verify/Certificate/ID={obj.certificate_id}"
         return format_html(
             '<a href="{}" target="_blank" style="color: #1677ff; font-weight: bold; text-decoration: underline;">View/Download</a>',
             url
