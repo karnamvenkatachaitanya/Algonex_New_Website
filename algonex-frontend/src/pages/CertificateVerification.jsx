@@ -43,6 +43,13 @@ const CertificateVerification = () => {
     const element = certificateRef.current;
     if (!element) return;
 
+    // Find the outer scroll container and cache scroll position to prevent html2canvas offset clipping
+    const outerContainer = document.querySelector('.cert-container-outer');
+    const originalScrollLeft = outerContainer ? outerContainer.scrollLeft : 0;
+    if (outerContainer) {
+      outerContainer.scrollLeft = 0;
+    }
+
     const opt = {
       margin: 0,
       filename: `Algonex_Certificate_${certificate.certificate_id}.pdf`,
@@ -56,17 +63,24 @@ const CertificateVerification = () => {
         scrollY: 0,
         windowWidth: 1200
       },
-      jsPDF: { unit: 'in', format: [11.6979, 8.2708], orientation: 'landscape' }
+      jsPDF: { unit: 'in', format: [11.6979, 8.35], orientation: 'landscape' },
+      pagebreak: { mode: 'avoid-all' }
+    };
+
+    const restoreScroll = () => {
+      if (outerContainer) {
+        outerContainer.scrollLeft = originalScrollLeft;
+      }
     };
 
     // Dynamically load html2pdf.js if not already present
     if (window.html2pdf) {
-      window.html2pdf().set(opt).from(element).save();
+      window.html2pdf().set(opt).from(element).save().then(restoreScroll).catch(restoreScroll);
     } else {
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
       script.onload = () => {
-        window.html2pdf().set(opt).from(element).save();
+        window.html2pdf().set(opt).from(element).save().then(restoreScroll).catch(restoreScroll);
       };
       document.body.appendChild(script);
     }
