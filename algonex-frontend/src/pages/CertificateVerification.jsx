@@ -56,7 +56,7 @@ const CertificateVerification = () => {
         scrollY: 0,
         windowWidth: 1200
       },
-      jsPDF: { unit: 'pt', format: [1123, 794], orientation: 'landscape' }
+      jsPDF: { unit: 'in', format: [11.6979, 8.2708], orientation: 'landscape' }
     };
 
     // Dynamically load html2pdf.js if not already present
