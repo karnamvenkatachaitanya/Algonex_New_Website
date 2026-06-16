@@ -56,6 +56,12 @@ const CertificateVerification = () => {
         scrollY: 0,
         windowWidth: 1123, // Lock virtual viewport width to match the canvas
         onclone: (clonedDoc) => {
+          // Copy all style sheets and link tags from active document into cloned document head
+          const styles = document.querySelectorAll('style, link[rel="stylesheet"]');
+          styles.forEach(style => {
+            clonedDoc.head.appendChild(style.cloneNode(true));
+          });
+
           // Reset scroll offsets in the virtual document context
           clonedDoc.documentElement.scrollLeft = 0;
           clonedDoc.documentElement.scrollTop = 0;
@@ -78,6 +84,8 @@ const CertificateVerification = () => {
           // Strip layout and width constraints on the outer scrollable container in the clone
           const clonedOuter = clonedDoc.querySelector('.cert-container-outer');
           if (clonedOuter) {
+            clonedOuter.scrollLeft = 0;
+            clonedOuter.scrollTop = 0;
             clonedOuter.style.maxWidth = 'none';
             clonedOuter.style.width = '1123px';
             clonedOuter.style.overflow = 'visible';
@@ -167,131 +175,7 @@ const CertificateVerification = () => {
       padding: '40px 20px',
       fontFamily: '"Outfit", "Inter", sans-serif'
     }}>
-      {/* Styles for Google Fonts and PDF Print Customization */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
-        
-        .verify-card {
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-          border-radius: 12px;
-          border: 1px solid #e1e8ed;
-          background-color: #ffffff;
-        }
 
-        .cert-container-outer {
-          max-width: 1100px;
-          margin: 40px auto 0 auto;
-          overflow-x: auto;
-          padding-bottom: 20px;
-        }
-
-        /* Certificate Core Layout (1123px x 794px is exact A4 landscape ratio) */
-        .cert-canvas {
-          width: 1123px;
-          height: 794px;
-          position: relative;
-          background-color: #ffffff;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-          border-radius: 4px;
-          box-sizing: border-box;
-          padding: 40px 50px;
-          overflow: hidden;
-          flex-shrink: 0;
-        }
-
-        /* Abstract waves background shapes to mimic mockup */
-        .cert-wave-bg-1 {
-          position: absolute;
-          width: 800px;
-          height: 800px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(224,247,250,0.6) 0%, rgba(224,247,250,0.1) 70%);
-          bottom: -400px;
-          left: -300px;
-          z-index: 1;
-        }
-
-        .cert-wave-bg-2 {
-          position: absolute;
-          width: 700px;
-          height: 700px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(227,242,253,0.5) 0%, rgba(227,242,253,0.1) 70%);
-          top: -300px;
-          right: -250px;
-          z-index: 1;
-        }
-
-        /* Wavy overlay gradient */
-        .cert-gradient-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, rgba(224,242,241,0.2) 0%, rgba(240,244,248,0.2) 100%);
-          z-index: 2;
-        }
-
-        /* Corner Decorative Polygon Triangles */
-        .corner-triangle {
-          position: absolute;
-          width: 0;
-          height: 0;
-          z-index: 3;
-        }
-
-        /* Top-Left Corners */
-        .corner-tl-yellow {
-          top: 0;
-          left: 0;
-          border-top: 60px solid #fbc02d;
-          border-right: 60px solid transparent;
-        }
-        .corner-tl-pink {
-          top: 0;
-          left: 0;
-          border-top: 45px solid #e91e63;
-          border-right: 45px solid transparent;
-        }
-
-        /* Bottom-Left Corners */
-        .corner-bl-pink {
-          bottom: 0;
-          left: 0;
-          border-bottom: 60px solid #e91e63;
-          border-right: 60px solid transparent;
-        }
-
-        /* Bottom-Right Corners */
-        .corner-br-pink {
-          bottom: 0;
-          right: 0;
-          border-bottom: 60px solid #e91e63;
-          border-left: 60px solid transparent;
-        }
-        .corner-br-yellow {
-          bottom: 0;
-          right: 30px;
-          border-bottom: 45px solid #fbc02d;
-          border-left: 45px solid transparent;
-        }
-
-        /* Fonts styling */
-        .font-sans-bold {
-          font-family: 'Outfit', sans-serif;
-          font-weight: 800;
-        }
-
-        .font-serif {
-          font-family: 'Playfair Display', serif;
-        }
-
-        .font-cursive {
-          font-family: 'Great Vibes', cursive;
-        }
-      `}} />
 
       {/* Verification Summary Portal Header */}
       <div style={{ maxWidth: 1123, margin: '0 auto' }}>
@@ -347,6 +231,131 @@ const CertificateVerification = () => {
             position: 'relative'
           }}
         >
+          {/* Styles for Google Fonts and PDF Print Customization */}
+          <style dangerouslySetInnerHTML={{
+            __html: `
+            @import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+            
+            .verify-card {
+              box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+              border-radius: 12px;
+              border: 1px solid #e1e8ed;
+              background-color: #ffffff;
+            }
+
+            .cert-container-outer {
+              max-width: 1100px;
+              margin: 40px auto 0 auto;
+              overflow-x: auto;
+              padding-bottom: 20px;
+            }
+
+            /* Certificate Core Layout (1123px x 794px is exact A4 landscape ratio) */
+            .cert-canvas {
+              width: 1123px;
+              height: 794px;
+              position: relative;
+              background-color: #ffffff;
+              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+              border-radius: 4px;
+              box-sizing: border-box;
+              padding: 40px 50px;
+              overflow: hidden;
+              flex-shrink: 0;
+            }
+
+            /* Abstract waves background shapes to mimic mockup */
+            .cert-wave-bg-1 {
+              position: absolute;
+              width: 800px;
+              height: 800px;
+              border-radius: 50%;
+              background: radial-gradient(circle, rgba(224,247,250,0.6) 0%, rgba(224,247,250,0.1) 70%);
+              bottom: -400px;
+              left: -300px;
+              z-index: 1;
+            }
+
+            .cert-wave-bg-2 {
+              position: absolute;
+              width: 700px;
+              height: 700px;
+              border-radius: 50%;
+              background: radial-gradient(circle, rgba(227,242,253,0.5) 0%, rgba(227,242,253,0.1) 70%);
+              top: -300px;
+              right: -250px;
+              z-index: 1;
+            }
+
+            /* Wavy overlay gradient */
+            .cert-gradient-overlay {
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: linear-gradient(135deg, rgba(224,242,241,0.2) 0%, rgba(240,244,248,0.2) 100%);
+              z-index: 2;
+            }
+
+            /* Corner Decorative Polygon Triangles */
+            .corner-triangle {
+              position: absolute;
+              width: 0;
+              height: 0;
+              z-index: 3;
+            }
+
+            /* Top-Left Corners */
+            .corner-tl-yellow {
+              top: 0;
+              left: 0;
+              border-top: 60px solid #fbc02d;
+              border-right: 60px solid transparent;
+            }
+            .corner-tl-pink {
+              top: 0;
+              left: 0;
+              border-top: 45px solid #e91e63;
+              border-right: 45px solid transparent;
+            }
+
+            /* Bottom-Left Corners */
+            .corner-bl-pink {
+              bottom: 0;
+              left: 0;
+              border-bottom: 60px solid #e91e63;
+              border-right: 60px solid transparent;
+            }
+
+            /* Bottom-Right Corners */
+            .corner-br-pink {
+              bottom: 0;
+              right: 0;
+              border-bottom: 60px solid #e91e63;
+              border-left: 60px solid transparent;
+            }
+            .corner-br-yellow {
+              bottom: 0;
+              right: 30px;
+              border-bottom: 45px solid #fbc02d;
+              border-left: 45px solid transparent;
+            }
+
+            /* Fonts styling */
+            .font-sans-bold {
+              font-family: 'Outfit', sans-serif;
+              font-weight: 800;
+            }
+
+            .font-serif {
+              font-family: 'Playfair Display', serif;
+            }
+
+            .font-cursive {
+              font-family: 'Great Vibes', cursive;
+            }
+          `}} />
           {/* Vector SVG Background Waves and Geometric Corner Ornaments */}
           <svg
             width="1123"
