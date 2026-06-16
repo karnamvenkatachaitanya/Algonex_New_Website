@@ -50,6 +50,7 @@ const Navbar = () => {
       { key: 'training', label: <Link to="/training" style={{ padding: '4px 8px', display: 'block', fontSize: 13, color: '#333' }}>Training</Link> },
       { key: 'internship', label: <Link to="/internship" style={{ padding: '4px 8px', display: 'block', fontSize: 13, color: '#333' }}>Internship</Link> },
       { key: 'fellowship', label: <Link to="/fellowship" style={{ padding: '4px 8px', display: 'block', fontSize: 13, color: '#333' }}>Fellowship</Link> },
+      { key: 'certificate', label: <Link to="/certificate" style={{ padding: '4px 8px', display: 'block', fontSize: 13, color: '#333' }}>Certificate</Link> },
       { type: 'divider' },
       { key: 'all-courses', label: <Link to="/allcourses" style={{ padding: '4px 8px', display: 'block', fontSize: 13, color: '#00B4D8', fontWeight: 600 }}>All Courses</Link> },
     ],
@@ -120,7 +121,7 @@ const Navbar = () => {
         }} className="desktop-nav">
           {navLinks.map((link) => {
             if (link.label === 'Courses') {
-              const isCoursesActive = isActive('/training') || isActive('/internship') || isActive('/fellowship') || isActive('/allcourses');
+              const isCoursesActive = isActive('/training') || isActive('/internship') || isActive('/fellowship') || isActive('/certificate') || isActive('/allcourses');
               return (
                 <li key={link.to}>
                   <Dropdown menu={coursesDropdownItems} placement="bottomLeft" arrow>
@@ -250,7 +251,7 @@ const Navbar = () => {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {navLinks.map((link) => {
               if (link.label === 'Courses') {
-                const isCoursesActive = isActive('/training') || isActive('/internship') || isActive('/fellowship') || isActive('/allcourses');
+                const isCoursesActive = isActive('/training') || isActive('/internship') || isActive('/fellowship') || isActive('/certificate') || isActive('/allcourses');
                 return (
                   <div key={link.to} style={{ borderBottom: '1px solid #f5f5f5' }}>
                     <div
@@ -280,6 +281,9 @@ const Navbar = () => {
                         </Link>
                         <Link to="/fellowship" onClick={() => setDrawerOpen(false)} style={{ ...drawerLinkStyle('/fellowship'), paddingLeft: 40, borderBottom: '1px solid #f9f9f9', fontSize: 15 }}>
                           Fellowship
+                        </Link>
+                        <Link to="/certificate" onClick={() => setDrawerOpen(false)} style={{ ...drawerLinkStyle('/certificate'), paddingLeft: 40, borderBottom: '1px solid #f9f9f9', fontSize: 15 }}>
+                          Certificate
                         </Link>
                         <Link to="/allcourses" onClick={() => setDrawerOpen(false)} style={{ ...drawerLinkStyle('/allcourses'), paddingLeft: 40, borderBottom: 'none', fontSize: 15, color: '#00B4D8' }}>
                           All Courses

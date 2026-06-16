@@ -50,6 +50,7 @@ import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import CertificateVerification from './pages/CertificateVerification';
+import CertificateSearchPage from './pages/CertificateSearchPage';
 
 const App = () => {
   return (
@@ -87,6 +88,7 @@ const App = () => {
                     <Route path="/quiz" element={<SkillQuiz />} />
                     <Route path="/alumni" element={<AlumniPage />} />
                     <Route path="/alumni/projects/:slug" element={<ProjectDetailPage />} />
+                    <Route path="/certificate" element={<CertificateSearchPage />} />
                     <Route path="/verify/Certificate/:id" element={<CertificateVerification />} />
 
                     {/* Legal */}
