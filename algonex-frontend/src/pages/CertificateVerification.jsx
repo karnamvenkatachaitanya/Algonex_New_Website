@@ -120,10 +120,10 @@ const CertificateVerification = () => {
           title="Certificate Verification Failed"
           subTitle={
             <div style={{ fontSize: 16, marginTop: 12 }}>
-              <p>The Certificate ID <strong>{id}</strong> could not be verified.</p>
+              <p>The Trainee ID <strong>{id}</strong> could not be verified.</p>
               <p style={{ color: '#ff4d4f', fontWeight: 'bold' }}>Reason: {error || 'No matching record found.'}</p>
               <p style={{ fontSize: 14, color: '#888', marginTop: 12 }}>
-                If you believe this is an error, please contact Algonex support with your Certificate ID.
+                If you believe this is an error, please contact Algonex support with your Trainee ID.
               </p>
             </div>
           }
@@ -635,7 +635,7 @@ const CertificateVerification = () => {
                   Founder, CEO of ALGONEX
                 </div>
                 <div style={{ fontSize: 12, color: '#555', marginTop: 6, fontWeight: 600 }}>
-                  Certificate ID: <span className="font-sans-bold" style={{ color: '#000' }}>{certificate.certificate_id}</span>
+                  Trainee ID: <span className="font-sans-bold" style={{ color: '#000' }}>{certificate.certificate_id}</span>
                 </div>
               </div>
 
