@@ -1,0 +1,103 @@
+import FormField from './FormField';
+
+const TrainingDetails = ({ formData, errors, onChange, shake }) => {
+  return (
+    <section className={`form-card glass-card${shake ? ' shake' : ''}`}>
+      <div className="card-header">
+        <div className="header-icon">
+          <i className="fa-solid fa-rocket"></i>
+        </div>
+        <h2>Section B: Training Details</h2>
+      </div>
+
+      <div className="form-grid">
+        <FormField
+          id="courseSelected"
+          name="courseSelected"
+          label="Course Selected"
+          type="select"
+          icon="fa-solid fa-laptop-code"
+          value={formData.courseSelected}
+          onChange={onChange}
+          error={errors.courseSelected}
+          required
+          options={[
+            { value: '', label: 'Select Course', disabled: true },
+            { value: 'Python Full Stack with Ai', label: 'Python Full Stack with AI' },
+            { value: 'Python with AI', label: 'Python with AI' },
+            { value: 'Data Science With AI', label: 'Data Science with AI' },
+            { value: 'Data Analytics With AI', label: 'Data Analytics with AI' },
+            { value: 'Machine Learning With AI', label: 'Machine Learning with AI' },
+            { value: 'Others', label: 'Others' },
+          ]}
+        />
+
+        {formData.courseSelected === 'Others' && (
+          <FormField
+            id="otherCourse"
+            name="otherCourse"
+            label="Specify Course Name"
+            icon="fa-solid fa-pen-clip"
+            value={formData.otherCourse || ''}
+            onChange={onChange}
+            error={errors.otherCourse}
+            required
+            placeholder="e.g. Cyber Security"
+          />
+        )}
+
+        <FormField
+          id="batchType"
+          name="batchType"
+          label="Batch Type"
+          type="select"
+          icon="fa-solid fa-people-group"
+          value={formData.batchType}
+          onChange={onChange}
+          error={errors.batchType}
+          required
+          options={[
+            { value: '', label: 'Select Batch Type', disabled: true },
+            { value: 'Training', label: 'Training' },
+            { value: 'Internship', label: 'Internship' },
+            { value: 'Fellowship', label: 'Fellowship' },
+          ]}
+        />
+
+        <FormField
+          id="joiningDate"
+          name="joiningDate"
+          label="Joining Date"
+          type="date"
+          icon="fa-solid fa-calendar-check"
+          value={formData.joiningDate}
+          onChange={onChange}
+          error={errors.joiningDate}
+          required
+        />
+
+        <FormField
+          id="totalFee"
+          name="totalFee"
+          label="Total Course Fee (₹)"
+          type="number"
+          min="0"
+          icon="fa-solid fa-indian-rupee-sign"
+          value={formData.totalFee}
+          onChange={onChange}
+          error={errors.totalFee}
+          required
+          placeholder="e.g. 20000"
+          onKeyDown={(e) => {
+            if (e.key === '-' || e.key === 'e' || e.key === 'E' || e.key === '+') {
+              e.preventDefault();
+            }
+          }}
+          onWheel={(e) => e.target.blur()}
+        />
+      </div>
+    </section>
+  );
+};
+
+export default TrainingDetails;

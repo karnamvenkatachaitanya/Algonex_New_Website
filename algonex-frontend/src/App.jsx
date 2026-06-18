@@ -24,7 +24,7 @@ import CaseStudyDetailPage from './pages/portfolio/CaseStudyDetailPage';
 // Auth pages
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
-import RegisterPage from './pages/auth/RegisterPage';
+import RegisterPage from './pages/auth/registration-form/App';
 import SetPasswordPage from './pages/auth/SetPasswordPage';
 import ProfilePage from './pages/auth/ProfilePage';
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
