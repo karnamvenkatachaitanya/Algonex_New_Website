@@ -15,14 +15,7 @@ services:
       - db
     restart: unless-stopped
 
-  frontend:
-    build:
-      context: ./algonex-frontend
-      args:
-        VITE_API_URL: /api/v1
-    expose:
-      - "80"
-    restart: unless-stopped
+
 
 
 
