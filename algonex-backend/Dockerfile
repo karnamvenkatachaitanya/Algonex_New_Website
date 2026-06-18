@@ -22,10 +22,10 @@ RUN DJANGO_SETTINGS_MODULE=config.settings.production \
     DJANGO_SECRET_KEY=build-time-secret \
     python manage.py collectstatic --noinput 2>/dev/null || true
 
-# Run as non-root user
-RUN adduser --disabled-password --no-create-home appuser && \
-    chown -R appuser:appuser /app
-USER appuser
+# Run as root user to ensure we have write permissions to mounted docker volumes
+# RUN adduser --disabled-password --no-create-home appuser && \
+#     chown -R appuser:appuser /app
+# USER appuser
 
 EXPOSE 8000
 

@@ -26,7 +26,7 @@ CMD ["nginx", "-g", "daemon off;"]
 # Stage 3: Production build-only — used by docker-compose.prod.yml
 FROM alpine:3.19 AS prod
 
-COPY --from=build /app/dist /app/dist
+COPY --from=build /app/dist /app/dist-built
 
-# This container exits after start — its only job is to populate the volume
-CMD ["echo", "Frontend build complete"]
+# Copy the built files to the mounted volume at startup so it always stays up-to-date
+CMD ["sh", "-c", "cp -rf /app/dist-built/. /app/dist/ && echo 'Frontend build complete'"]
