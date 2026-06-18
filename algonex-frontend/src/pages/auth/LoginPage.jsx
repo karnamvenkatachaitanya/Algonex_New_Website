@@ -101,7 +101,7 @@ export default function LoginPage() {
           <Link to="/forgot-password" style={{ fontSize: 13, color: "#888" }}>Forgot password?</Link>
         </div>
         <div style={{ textAlign: "center", marginTop: 8 }}>
-          Don't have an account? <Link to="/signup">Sign up</Link>
+          Don't have an account? <Link to="/register">Register</Link>
         </div>
       </Card>
     </div>

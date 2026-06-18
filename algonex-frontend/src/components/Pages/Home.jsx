@@ -719,7 +719,7 @@ export default function Home() {
             Join thousands of students who transformed their careers. First consultation is free.
           </p>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <Link to="/signup">
+            <Link to="/register">
               <Button size="large" style={{ height: 48, fontSize: 16, borderRadius: 8, background: "white", color: "#00B4D8", fontWeight: 600, border: "none" }}>
                 Get Started Free
               </Button>

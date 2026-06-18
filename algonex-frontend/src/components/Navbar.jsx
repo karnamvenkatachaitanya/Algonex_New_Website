@@ -192,8 +192,8 @@ const Navbar = () => {
                 <Link to="/signin">
                   <Button style={{ borderRadius: 8 }}>Sign In</Button>
                 </Link>
-                <Link to="/signup">
-                  <Button type="primary" style={{ borderRadius: 8 }}>Sign Up</Button>
+                <Link to="/register">
+                  <Button type="primary" style={{ borderRadius: 8 }}>Register</Button>
                 </Link>
               </div>
             )}
@@ -324,8 +324,8 @@ const Navbar = () => {
                 <Link to="/signin" onClick={() => setDrawerOpen(false)}>
                   <Button block size="large" style={{ borderRadius: 8 }}>Sign In</Button>
                 </Link>
-                <Link to="/signup" onClick={() => setDrawerOpen(false)}>
-                  <Button type="primary" block size="large" style={{ borderRadius: 8 }}>Sign Up</Button>
+                <Link to="/register" onClick={() => setDrawerOpen(false)}>
+                  <Button type="primary" block size="large" style={{ borderRadius: 8 }}>Register</Button>
                 </Link>
               </div>
             )}
