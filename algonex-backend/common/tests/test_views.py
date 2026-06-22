@@ -86,3 +86,76 @@ class TestAdminStatsAPI(TestCase):
         self.login_as(self.student)
         response = self.client.get("/api/v1/admin/stats/")
         self.assertEqual(response.status_code, 403)
+
+
+class TestSendEnrollmentEmail(TestCase):
+    def setUp(self):
+        from django.test import Client
+        self.client = Client()
+        self.staff_user = User.objects.create_user(
+            email="staff@test.com", password="pass123", is_staff=True
+        )
+        self.normal_user = User.objects.create_user(
+            email="user@test.com", password="pass123", is_staff=False
+        )
+
+    def test_requires_staff_user(self):
+        # Unauthenticated request
+        response = self.client.post("/admin/send-enrollment-email/", {
+            "to": ["test@example.com"], "subject": "Test", "body": "Hello", "mode": "individual"
+        }, content_type="application/json")
+        self.assertEqual(response.status_code, 302) # Redirect to login
+
+        # Authenticated as non-staff
+        self.client.login(email="user@test.com", password="pass123")
+        response = self.client.post("/admin/send-enrollment-email/", {
+            "to": ["test@example.com"], "subject": "Test", "body": "Hello", "mode": "individual"
+        }, content_type="application/json")
+        self.assertEqual(response.status_code, 302) # Redirect to login
+
+    def test_send_email_success_individual(self):
+        from django.core import mail
+        self.client.login(email="staff@test.com", password="pass123")
+        response = self.client.post("/admin/send-enrollment-email/", {
+            "to": ["test1@example.com", "test2@example.com"],
+            "subject": "Test Subj",
+            "body": "Test Body",
+            "mode": "individual"
+        }, content_type="application/json")
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["sent"], 2)
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[0].subject, "Test Subj")
+        self.assertEqual(mail.outbox[0].to, ["test1@example.com"])
+        self.assertEqual(mail.outbox[1].to, ["test2@example.com"])
+
+    def test_send_email_success_bcc(self):
+        from django.core import mail
+        self.client.login(email="staff@test.com", password="pass123")
+        response = self.client.post("/admin/send-enrollment-email/", {
+            "to": ["test1@example.com", "test2@example.com"],
+            "subject": "Test Subj BCC",
+            "body": "Test Body HTML",
+            "mode": "bcc"
+        }, content_type="application/json")
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["success"])
+        self.assertEqual(data["sent"], 2)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "Test Subj BCC")
+        self.assertEqual(mail.outbox[0].bcc, ["test1@example.com", "test2@example.com"])
+
+    def test_missing_fields_fails(self):
+        self.client.login(email="staff@test.com", password="pass123")
+        response = self.client.post("/admin/send-enrollment-email/", {
+            "to": [],
+            "subject": "Test",
+            "body": ""
+        }, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+

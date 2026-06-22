@@ -238,3 +238,199 @@ class GalleryImageListView(generics.ListAPIView):
         if self.request.query_params.get("featured") == "true":
             qs = qs.filter(is_featured=True)
         return qs
+
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMessage
+import json
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def build_html(body):
+    trimmed = body.strip()
+    is_full_template = (
+        trimmed.startswith("<div style=") or 
+        "border:" in trimmed or 
+        "background-color:" in trimmed
+    )
+    
+    if is_full_template:
+        return f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {{
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f3f4f6;
+    }}
+    .container {{
+      max-width: 600px;
+      margin: 0 auto;
+    }}
+  </style>
+</head>
+<body>
+  <div class="container">
+    {body}
+  </div>
+</body>
+</html>"""
+
+    return f"""
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {{
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f3f4f6;
+    }}
+    .wrapper {{
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }}
+    .header {{
+      background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+      padding: 32px 24px;
+      text-align: center;
+    }}
+    .header h1 {{
+      color: #ffffff;
+      margin: 0;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }}
+    .content {{
+      padding: 40px 32px;
+      color: #1f2937;
+      line-height: 1.8;
+      font-size: 15px;
+    }}
+    .footer {{
+      background-color: #f9fafb;
+      padding: 24px 32px;
+      text-align: center;
+      border-top: 1px solid #f3f4f6;
+    }}
+    .footer p {{
+      color: #9ca3af;
+      font-size: 12px;
+      margin: 0 0 4px 0;
+      font-weight: 500;
+    }}
+    .footer span {{
+      color: #d1d5db;
+      font-size: 11px;
+    }}
+    .content a {{
+      color: #2563EB;
+      text-decoration: underline;
+    }}
+    .content img {{
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 12px 0;
+    }}
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1>Algonex</h1>
+    </div>
+    <div class="content">
+      {body}
+    </div>
+    <div class="footer">
+      <p>Sent from Algonex Admin Panel</p>
+      <span>If you did not expect this communication, please ignore this email.</span>
+    </div>
+  </div>
+</body>
+</html>"""
+
+
+@csrf_exempt
+@staff_member_required
+def send_enrollment_email_view(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "Method not allowed"}, status=405)
+        
+    try:
+        data = json.loads(request.body)
+        recipients = data.get("to", [])
+        subject = data.get("subject", "")
+        body = data.get("body", "")
+        mode = data.get("mode", "individual")
+        
+        if not recipients or not subject or not body:
+            return JsonResponse({"error": "Missing required fields"}, status=400)
+            
+        html_content = build_html(body)
+        
+        from django.conf import settings
+        from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "Algonex <solutions@algonex.co.in>")
+        
+        sent_count = 0
+        failed_count = 0
+        
+        if mode == "bcc":
+            try:
+                msg = EmailMessage(
+                    subject=subject,
+                    body=html_content,
+                    from_email=from_email,
+                    to=[from_email],
+                    bcc=recipients
+                )
+                msg.content_subtype = "html"
+                msg.send()
+                sent_count = len(recipients)
+            except Exception as e:
+                logger.exception("BCC email sending failed")
+                return JsonResponse({"error": f"Failed to send BCC email: {str(e)}"}, status=500)
+        else:
+            for recipient in recipients:
+                try:
+                    msg = EmailMessage(
+                        subject=subject,
+                        body=html_content,
+                        from_email=from_email,
+                        to=[recipient]
+                    )
+                    msg.content_subtype = "html"
+                    msg.send()
+                    sent_count += 1
+                except Exception as e:
+                    logger.error(f"Failed to send email to {recipient}: {str(e)}")
+                    failed_count += 1
+                    
+        return JsonResponse({
+            "success": sent_count > 0,
+            "sent": sent_count,
+            "failed": failed_count
+        })
+        
+    except Exception as e:
+        logger.exception("API Error in send_enrollment_email_view")
+        return JsonResponse({"error": str(e)}, status=500)

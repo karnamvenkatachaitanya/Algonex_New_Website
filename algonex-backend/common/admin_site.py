@@ -37,6 +37,17 @@ def dashboard_callback(request, context):
     )
     recent_contacts = ContactForm.objects.order_by("-submitted_at")[:5]
 
+    import json
+    enrollments_data = []
+    for e in Enrollment.objects.select_related("student", "course"):
+        student_name = f"{e.student.first_name} {e.student.last_name}".strip() or e.student.username
+        enrollments_data.append({
+            "email": e.student.email,
+            "status": e.status,
+            "course_slug": e.course.slug,
+            "student_name": student_name
+        })
+
     context.update(
         {
             "stats": [
@@ -52,7 +63,9 @@ def dashboard_callback(request, context):
                 {"title": "Add New Course", "url": "/admin/courses/course/add/", "icon": "add_circle"},
                 {"title": "Add New Event", "url": "/admin/events/event/add/", "icon": "add_circle"},
                 {"title": "Add New Program", "url": "/admin/programs/program/add/", "icon": "add_circle"},
-            ]
+            ],
+            "courses": Course.objects.all(),
+            "enrollments_json": json.dumps(enrollments_data),
         }
     )
     return context

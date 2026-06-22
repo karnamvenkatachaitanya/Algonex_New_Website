@@ -4,10 +4,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from common.views import (
     ActiveBannerView, SearchView, AdminStatsView, CarouselView,
-    PlatformSettingsView, GeneralFAQListView, GalleryImageListView
+    PlatformSettingsView, GeneralFAQListView, GalleryImageListView,
+    send_enrollment_email_view
 )
 
 urlpatterns = [
+    path("admin/send-enrollment-email/", send_enrollment_email_view, name="admin_send_enrollment_email"),
     path("admin/", admin.site.urls),
     # API v1
     path("api/v1/auth/", include("accounts.urls")),
