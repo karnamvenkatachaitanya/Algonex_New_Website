@@ -3,6 +3,8 @@ from .models import Program
 
 
 class ProgramListSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source="name")
+    program_type = serializers.CharField(source="course_type")
     is_accepting = serializers.BooleanField(read_only=True)
     registration_count = serializers.IntegerField(read_only=True)
 
@@ -17,6 +19,8 @@ class ProgramListSerializer(serializers.ModelSerializer):
 
 
 class ProgramDetailSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source="name")
+    program_type = serializers.CharField(source="course_type")
     is_accepting = serializers.BooleanField(read_only=True)
     registration_count = serializers.IntegerField(read_only=True)
     spots_left = serializers.IntegerField(read_only=True)
@@ -35,6 +39,9 @@ class ProgramDetailSerializer(serializers.ModelSerializer):
 
 
 class ProgramCreateUpdateSerializer(serializers.ModelSerializer):
+    title = serializers.CharField(source="name")
+    program_type = serializers.CharField(source="course_type")
+
     class Meta:
         model = Program
         fields = [

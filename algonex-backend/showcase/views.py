@@ -62,9 +62,9 @@ class StudentProjectViewSet(
         serializer = StudentProjectSubmitSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         project = serializer.save()
-        from common.models import PlatformSettings
-        settings = PlatformSettings.load()
-        msg = "Project submitted and published!" if settings.auto_publish_student_projects else "Project submitted for review."
+        from common.models import SiteConfig
+        config = SiteConfig.load()
+        msg = "Project submitted and published!" if config.auto_publish_student_projects else "Project submitted for review."
         return Response(
             {"status": "success", "data": {"message": msg, "slug": project.slug}},
             status=status.HTTP_201_CREATED,

@@ -8,11 +8,18 @@ User = get_user_model()
 
 
 def _create_program(**kwargs):
+    # Map convenience aliases to actual model fields if callers pass them
+    if "title" in kwargs:
+        kwargs.setdefault("name", kwargs.pop("title"))
+    if "program_type" in kwargs:
+        kwargs.setdefault("course_type", kwargs.pop("program_type"))
+
     defaults = {
-        "title": "Test Program",
+        "name": "Test Program",
         "description": "Desc",
-        "program_type": "fellowship",
+        "course_type": "fellowship",
         "duration": "3 months",
+        "price": 0,
         "location": "Hyderabad",
         "eligibility_criteria": "Open",
         "application_deadline": date.today() + timedelta(days=30),
@@ -30,8 +37,8 @@ class TestProgramListView(TestCase):
         self.client = APIClient()
 
     def test_list_returns_published_only(self):
-        _create_program(title="Published")
-        _create_program(title="Draft", is_published=False)
+        _create_program(name="Published")
+        _create_program(name="Draft", is_published=False)
         response = self.client.get("/api/v1/programs/")
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -41,8 +48,8 @@ class TestProgramListView(TestCase):
         self.assertEqual(results[0]["title"], "Published")
 
     def test_filter_by_type(self):
-        _create_program(title="Fellowship", program_type="fellowship")
-        _create_program(title="Internship", program_type="internship")
+        _create_program(name="Fellowship", course_type="fellowship")
+        _create_program(name="Internship", course_type="internship")
         response = self.client.get("/api/v1/programs/?program_type=internship")
         results = response.json()["data"]["results"]
         self.assertEqual(len(results), 1)
@@ -54,13 +61,13 @@ class TestProgramDetailView(TestCase):
         self.client = APIClient()
 
     def test_retrieve_published(self):
-        program = _create_program(title="Detail Test")
+        program = _create_program(name="Detail Test")
         response = self.client.get(f"/api/v1/programs/{program.slug}/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"]["title"], "Detail Test")
 
     def test_retrieve_unpublished_returns_404(self):
-        program = _create_program(title="Draft", is_published=False)
+        program = _create_program(name="Draft", is_published=False)
         response = self.client.get(f"/api/v1/programs/{program.slug}/")
         self.assertEqual(response.status_code, 404)
 

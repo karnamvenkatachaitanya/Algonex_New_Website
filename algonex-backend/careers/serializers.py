@@ -8,7 +8,7 @@ class JobListSerializer(serializers.ModelSerializer):
         fields = [
             "id", "title", "slug", "department", "job_type", "location",
             "is_remote", "salary_min", "salary_max", "deadline", "created_at",
-            "apply_mode", "company_name", "company_logo", "tags",
+            "apply_mode", "company_name", "company_logo", "tags", "tags_text",
         ]
 
 
@@ -20,7 +20,7 @@ class JobDetailSerializer(serializers.ModelSerializer):
             "is_remote", "description", "requirements",
             "salary_min", "salary_max", "deadline", "created_at",
             "apply_mode", "external_link", "company_name", "company_logo",
-            "eligibility_criteria", "tags",
+            "eligibility_criteria", "tags", "tags_text",
         ]
 
 
@@ -32,7 +32,7 @@ class JobCreateUpdateSerializer(serializers.ModelSerializer):
             "description", "requirements", "salary_min", "salary_max",
             "is_active", "deadline",
             "apply_mode", "external_link", "company_name", "company_logo",
-            "eligibility_criteria", "tags",
+            "eligibility_criteria", "tags", "tags_text",
         ]
 
     def validate(self, data):

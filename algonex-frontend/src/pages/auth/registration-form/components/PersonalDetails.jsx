@@ -57,6 +57,20 @@ const PersonalDetails = ({
         />
 
         <FormField
+          id="password"
+          name="password"
+          label="Password"
+          type="password"
+          icon="fa-solid fa-lock"
+          value={formData.password}
+          onChange={onChange}
+          error={errors.password}
+          required
+          placeholder="Set a password (min 8 chars)"
+          autoComplete="new-password"
+        />
+
+        <FormField
           id="phone"
           name="phone"
           label="Phone Number"

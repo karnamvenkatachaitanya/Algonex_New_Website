@@ -153,3 +153,76 @@ class SetPasswordView(APIView):
         user.save()
 
         return Response({"status": "success", "data": {"message": "Password set successfully."}})
+
+import random
+from django.utils import timezone
+from datetime import timedelta
+from .models import PasswordResetOTP
+
+class RequestPasswordResetOTPView(APIView):
+    permission_classes = [AllowAny]
+    throttle_scope = "auth_check"
+
+    def post(self, request):
+        from .serializers import RequestPasswordResetOTPSerializer
+        serializer = RequestPasswordResetOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data["email"]
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"status": "success", "data": {"message": "If an account exists, an OTP has been sent."}})
+
+        # Invalidate existing OTPs
+        PasswordResetOTP.objects.filter(user=user, is_used=False).update(is_used=True)
+
+        # Generate new OTP
+        otp_code = str(random.randint(100000, 999999))
+        PasswordResetOTP.objects.create(
+            user=user,
+            otp_code=otp_code,
+            expires_at=timezone.now() + timedelta(minutes=10)
+        )
+
+        send_mail(
+            subject="Your Algonex Password Reset OTP",
+            message=f"Hi {user.first_name},\n\nYour OTP to reset your password is: {otp_code}\n\nIt expires in 10 minutes.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+        return Response({"status": "success", "data": {"message": "If an account exists, an OTP has been sent."}})
+
+
+class VerifyPasswordResetOTPView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        from .serializers import VerifyPasswordResetOTPSerializer
+        serializer = VerifyPasswordResetOTPSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data["email"]
+        otp = serializer.validated_data["otp"]
+        new_password = serializer.validated_data["new_password"]
+
+        try:
+            user = User.objects.get(email=email)
+            otp_record = PasswordResetOTP.objects.filter(
+                user=user, otp_code=otp, is_used=False, expires_at__gt=timezone.now()
+            ).latest('created_at')
+        except (User.DoesNotExist, PasswordResetOTP.DoesNotExist):
+            return Response(
+                {"status": "error", "error": {"code": "INVALID_OTP", "message": "Invalid or expired OTP."}},
+                status=http_status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Mark used and reset password
+        otp_record.is_used = True
+        otp_record.save()
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({"status": "success", "data": {"message": "Password reset successfully."}})

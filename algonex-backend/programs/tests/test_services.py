@@ -10,9 +10,9 @@ User = get_user_model()
 class TestCreateProgram(TestCase):
     def test_creates_program(self):
         program = create_program(
-            title="AI Fellowship",
+            name="AI Fellowship",
             description="Learn AI",
-            program_type="fellowship",
+            course_type="fellowship",
             duration="3 months",
             location="Remote",
             eligibility_criteria="B.Tech students",
@@ -26,9 +26,9 @@ class TestCreateProgram(TestCase):
 
     def test_is_published_forced_false(self):
         program = create_program(
-            title="Fellowship",
+            name="Fellowship",
             description="Test",
-            program_type="fellowship",
+            course_type="fellowship",
             duration="3 months",
             location="Online",
             eligibility_criteria="Open",
@@ -44,10 +44,11 @@ class TestCreateProgram(TestCase):
 class TestUpdateProgram(TestCase):
     def setUp(self):
         self.program = Program.objects.create(
-            title="Original",
+            name="Original",
             description="Test",
-            program_type="internship",
+            course_type="internship",
             duration="6 weeks",
+            price=0,
             location="Hyderabad",
             eligibility_criteria="Open",
             application_deadline=date.today() + timedelta(days=30),
@@ -57,7 +58,7 @@ class TestUpdateProgram(TestCase):
         )
 
     def test_updates_fields(self):
-        updated = update_program(program=self.program, title="Updated Title")
+        updated = update_program(program=self.program, name="Updated Title")
         self.assertEqual(updated.title, "Updated Title")
 
     def test_publish_program(self):

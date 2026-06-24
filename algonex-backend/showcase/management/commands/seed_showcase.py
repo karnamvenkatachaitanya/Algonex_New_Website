@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from courses.models import Course, Skill
+from courses.models import Course, Tag
 from showcase.models import AlumniProfile, StudentProject
 
 
@@ -12,7 +12,7 @@ class Command(BaseCommand):
             self.stderr.write("No published courses found. Run seed_courses first.")
             return
 
-        skills = {s.name: s for s in Skill.objects.all()}
+        skills = {s.name: s for s in Tag.objects.all()}
 
         # --- Alumni Profiles ---
         alumni_data = [

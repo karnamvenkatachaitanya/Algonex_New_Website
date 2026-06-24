@@ -5,10 +5,13 @@ from django.conf.urls.static import static
 from common.views import (
     ActiveBannerView, SearchView, AdminStatsView, CarouselView,
     PlatformSettingsView, GeneralFAQListView, GalleryImageListView,
-    send_enrollment_email_view
+    send_enrollment_email_view, admin_communication_view
 )
+from signin.views import PaymentSummaryView, SubmitPaymentView
+
 
 urlpatterns = [
+    path("admin/courses/communication/", admin_communication_view, name="admin_courses_communication"),
     path("admin/send-enrollment-email/", send_enrollment_email_view, name="admin_send_enrollment_email"),
     path("admin/", admin.site.urls),
     # API v1
@@ -21,6 +24,9 @@ urlpatterns = [
     path("api/v1/programs/", include("programs.urls")),
     path("api/v1/contact/", include("contactform.urls")),
     path("api/v1/register/", include("signin.urls")),
+    path("api/v1/payments/summary/", PaymentSummaryView.as_view(), name="payment-summary"),
+    path("api/v1/payments/pay/", SubmitPaymentView.as_view(), name="payment-pay"),
+    path("api/v1/signin/submit-payment/", SubmitPaymentView.as_view(), name="payment-submit-alt"),
     path("api/v1/carousel/", CarouselView.as_view(), name="carousel"),
     path("api/v1/settings/", PlatformSettingsView.as_view(), name="platform-settings"),
     path("api/v1/banner/", ActiveBannerView.as_view(), name="active-banner"),

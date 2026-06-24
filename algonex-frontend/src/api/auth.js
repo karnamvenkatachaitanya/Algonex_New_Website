@@ -44,4 +44,12 @@ export const authAPI = {
   setPassword(data) {
     return apiClient.post("/auth/set-password/", data);
   },
+
+  requestPasswordResetOTP(email) {
+    return apiClient.post("/auth/password-reset-otp/request/", { email });
+  },
+
+  verifyPasswordResetOTP(data) {
+    return apiClient.post("/auth/password-reset-otp/verify/", data);
+  },
 };

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Media, GeneralFAQ, GalleryImage
+from .models import Media
 
 
 class SmartImageField(serializers.ImageField):
@@ -21,17 +21,3 @@ class MediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Media
         fields = ["id", "image", "caption", "order"]
-
-
-class GeneralFAQSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GeneralFAQ
-        fields = ["id", "question", "answer", "order"]
-
-
-class GalleryImageSerializer(serializers.ModelSerializer):
-    image = SmartImageField()
-
-    class Meta:
-        model = GalleryImage
-        fields = ["id", "title", "image", "caption", "order", "is_featured"]

@@ -5,9 +5,9 @@ from programs.models import Program
 
 PROGRAMS = [
     {
-        "title": "AI/ML Research Fellowship",
+        "name": "AI/ML Research Fellowship",
         "description": "## About\n\nA 3-month intensive fellowship focused on applied AI/ML research...",
-        "program_type": "fellowship",
+        "course_type": "fellowship",
         "duration": "3 months",
         "stipend": "₹25,000/month",
         "location": "Hyderabad",
@@ -20,9 +20,9 @@ PROGRAMS = [
         "is_featured": True,
     },
     {
-        "title": "Full-Stack Development Internship",
+        "name": "Full-Stack Development Internship",
         "description": "## About\n\nA 6-week hands-on internship building real-world web applications...",
-        "program_type": "internship",
+        "course_type": "internship",
         "duration": "6 weeks",
         "stipend": "₹15,000/month",
         "location": "Remote",
@@ -35,9 +35,9 @@ PROGRAMS = [
         "is_featured": True,
     },
     {
-        "title": "Cloud & DevOps Fellowship",
+        "name": "Cloud & DevOps Fellowship",
         "description": "## About\n\nLearn cloud infrastructure, CI/CD, and DevOps practices...",
-        "program_type": "fellowship",
+        "course_type": "fellowship",
         "duration": "4 months",
         "stipend": "₹20,000/month",
         "location": "Hyderabad",
@@ -50,9 +50,9 @@ PROGRAMS = [
         "is_featured": False,
     },
     {
-        "title": "Data Analytics Internship",
+        "name": "Data Analytics Internship",
         "description": "## About\n\nPractical data analytics internship covering SQL, Python, and visualization...",
-        "program_type": "internship",
+        "course_type": "internship",
         "duration": "8 weeks",
         "stipend": "₹10,000/month",
         "location": "Remote",
@@ -76,11 +76,11 @@ class Command(BaseCommand):
             data["start_date"] = date.today() + timedelta(days=60)
             data["end_date"] = date.today() + timedelta(days=60 + 90)
 
-            if not Program.objects.filter(title=data["title"]).exists():
+            if not Program.objects.filter(name=data["name"]).exists():
                 Program.objects.create(**data)
                 created += 1
-                self.stdout.write(f"  Created: {data['title']}")
+                self.stdout.write(f"  Created: {data['name']}")
             else:
-                self.stdout.write(f"  Skipped (exists): {data['title']}")
+                self.stdout.write(f"  Skipped (exists): {data['name']}")
 
         self.stdout.write(self.style.SUCCESS(f"\nDone. Created {created} programs."))

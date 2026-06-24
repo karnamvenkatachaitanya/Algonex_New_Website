@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
 from common.models import Media
-from courses.models import Course, Module, Topic, Skill, CourseFAQ, Testimonial, StudentOutcome
+from courses.models import Course, Tag, StudentOutcome
 
 User = get_user_model()
 
@@ -138,21 +138,30 @@ class Command(BaseCommand):
 
             # Add skills
             for skill_name in skills_data:
-                skill, _ = Skill.objects.get_or_create(name=skill_name)
+                skill, _ = Tag.objects.get_or_create(name=skill_name, defaults={"category": "skill"})
                 course.skills.add(skill)
 
-            # Add modules and topics
+            # Add modules and topics to curriculum JSON list
+            curriculum_list = []
             for i, mod_data in enumerate(modules_data):
                 topics_data = mod_data.pop("topics")
-                module = Module.objects.create(
-                    course=course, title=mod_data["title"],
-                    description=mod_data["description"], order=i + 1,
-                )
+                topics_list = []
                 for j, topic_title in enumerate(topics_data):
-                    Topic.objects.create(
-                        module=module, title=topic_title,
-                        description=f"Learn about {topic_title}", order=j + 1,
-                    )
+                    topics_list.append({
+                        "id": j + 1,
+                        "title": topic_title,
+                        "description": f"Learn about {topic_title}",
+                        "order": j + 1,
+                    })
+                curriculum_list.append({
+                    "id": i + 1,
+                    "title": mod_data["title"],
+                    "description": mod_data.get("description", ""),
+                    "order": i + 1,
+                    "topics": topics_list,
+                })
+            course.curriculum = curriculum_list
+            course.save()
 
             # Add media gallery images
             for i, m in enumerate(media_data):

@@ -74,27 +74,16 @@ export default function LoginPage() {
             size="large"
             onClick={() => {
               const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-              if (!clientId) { message.warning("Google OAuth is not configured yet."); return; }
+              if (!clientId) { message.warning("Google Auth is not configured. Please add VITE_GOOGLE_CLIENT_ID to your .env file."); return; }
               const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
               window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=email%20profile&state=google`;
             }}
           >
             Continue with Google
           </Button>
-          <Button
-            icon={<GithubOutlined />}
-            block
-            size="large"
-            style={{ background: "#24292e", color: "white" }}
-            onClick={() => {
-              const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-              if (!clientId) { message.warning("GitHub OAuth is not configured yet."); return; }
-              const redirectUri = encodeURIComponent(window.location.origin + "/auth/callback");
-              window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&scope=user:email&state=github`;
-            }}
-          >
-            Continue with GitHub
-          </Button>
+          <div style={{ fontSize: 12, color: "#888", textAlign: "center", marginTop: 4 }}>
+            Note: Google Auth requires configuring VITE_GOOGLE_CLIENT_ID in your .env file.
+          </div>
         </div>
 
         <div style={{ textAlign: "center", marginTop: 16 }}>

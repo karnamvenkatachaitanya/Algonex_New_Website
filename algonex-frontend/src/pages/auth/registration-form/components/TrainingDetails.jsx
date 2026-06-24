@@ -1,6 +1,6 @@
 import FormField from './FormField';
 
-const TrainingDetails = ({ formData, errors, onChange, shake }) => {
+const TrainingDetails = ({ formData, errors, onChange, shake, courseOptions }) => {
   return (
     <section className={`form-card glass-card${shake ? ' shake' : ''}`}>
       <div className="card-header">
@@ -21,13 +21,8 @@ const TrainingDetails = ({ formData, errors, onChange, shake }) => {
           onChange={onChange}
           error={errors.courseSelected}
           required
-          options={[
+          options={courseOptions || [
             { value: '', label: 'Select Course', disabled: true },
-            { value: 'Python Full Stack with Ai', label: 'Python Full Stack with AI' },
-            { value: 'Python with AI', label: 'Python with AI' },
-            { value: 'Data Science With AI', label: 'Data Science with AI' },
-            { value: 'Data Analytics With AI', label: 'Data Analytics with AI' },
-            { value: 'Machine Learning With AI', label: 'Machine Learning with AI' },
             { value: 'Others', label: 'Others' },
           ]}
         />

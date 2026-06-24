@@ -5,11 +5,18 @@ from programs.selectors import get_published_programs, get_program_detail
 
 
 def _create_program(**kwargs):
+    # Map convenience aliases to actual model fields if callers pass them
+    if "title" in kwargs:
+        kwargs.setdefault("name", kwargs.pop("title"))
+    if "program_type" in kwargs:
+        kwargs.setdefault("course_type", kwargs.pop("program_type"))
+
     defaults = {
-        "title": "Test Program",
+        "name": "Test Program",
         "description": "Desc",
-        "program_type": "fellowship",
+        "course_type": "fellowship",
         "duration": "3 months",
+        "price": 0,
         "location": "Hyderabad",
         "eligibility_criteria": "Open",
         "application_deadline": date.today() + timedelta(days=30),
@@ -24,26 +31,26 @@ def _create_program(**kwargs):
 
 class TestGetPublishedPrograms(TestCase):
     def test_returns_only_published(self):
-        _create_program(title="Published", is_published=True)
-        _create_program(title="Draft", is_published=False)
+        _create_program(name="Published", is_published=True)
+        _create_program(name="Draft", is_published=False)
         programs = get_published_programs()
         self.assertEqual(programs.count(), 1)
         self.assertEqual(programs.first().title, "Published")
 
     def test_has_registration_count_annotation(self):
-        _create_program(title="P1")
+        _create_program(name="P1")
         programs = get_published_programs()
         self.assertTrue(hasattr(programs.first(), "registration_count"))
 
 
 class TestGetProgramDetail(TestCase):
     def test_returns_published_program(self):
-        program = _create_program(title="Detail Test")
+        program = _create_program(name="Detail Test")
         result = get_program_detail(slug=program.slug)
         self.assertEqual(result.title, "Detail Test")
 
     def test_returns_none_for_unpublished(self):
-        program = _create_program(title="Draft", is_published=False)
+        program = _create_program(name="Draft", is_published=False)
         result = get_program_detail(slug=program.slug)
         self.assertIsNone(result)
 

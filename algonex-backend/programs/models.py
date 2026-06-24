@@ -1,75 +1,66 @@
-from django.db import models
-from django.utils import timezone
-from django.contrib.contenttypes.fields import GenericRelation
-from common.mixins import TimestampMixin, SlugMixin
+from courses.models import Course
 
 
-class Program(TimestampMixin, SlugMixin, models.Model):
-    """A fellowship or internship program listing."""
+class ProgramManager(Course._default_manager.__class__):
+    """Default manager for Program proxy – auto-filters to fellowship/internship."""
 
-    TYPE_CHOICES = [
-        ("fellowship", "Fellowship"),
-        ("internship", "Internship"),
-    ]
+    def get_queryset(self):
+        return super().get_queryset().filter(course_type__in=["fellowship", "internship"])
 
-    DEGREE_CHOICES = [
-        ("diploma", "Diploma"),
-        ("bachelors", "Bachelors"),
-        ("masters", "Masters"),
-        ("phd", "PhD"),
-        ("other", "Other"),
-    ]
 
-    # Basic
-    title = models.CharField(max_length=255)
-    description = models.TextField(help_text="Supports Markdown")
-    image = models.ImageField(upload_to="programs/images/", blank=True, null=True)
-    banner = models.ImageField(upload_to="programs/banners/", blank=True, null=True)
-    program_type = models.CharField(max_length=20, choices=TYPE_CHOICES, db_index=True)
+class Program(Course):
+    """Proxy model that provides a Programs-specific view of the Course table."""
 
-    # Details
-    duration = models.CharField(max_length=50, help_text="e.g. '3 months', '6 weeks'")
-    stipend = models.CharField(max_length=100, blank=True, help_text="e.g. '₹15,000/month'")
-    location = models.CharField(max_length=255)
-    is_remote = models.BooleanField(default=False)
-
-    # Eligibility
-    eligibility_criteria = models.TextField(help_text="Markdown description of eligibility")
-    min_degree_level = models.CharField(max_length=20, choices=DEGREE_CHOICES, blank=True)
-    eligible_branches = models.TextField(blank=True, help_text="Comma-separated branch names")
-
-    # Dates
-    application_deadline = models.DateField()
-    start_date = models.DateField()
-    end_date = models.DateField()
-
-    # Capacity & Status
-    capacity = models.PositiveIntegerField()
-    is_published = models.BooleanField(default=False, db_index=True)
-    is_featured = models.BooleanField(default=False, db_index=True)
-
-    # Media
-    media = GenericRelation("common.Media")
+    objects = ProgramManager()
 
     class Meta:
-        ordering = ["-is_featured", "application_deadline"]
+        proxy = True
+        ordering = ["-is_featured", "-created_at"]
+        verbose_name = "Program"
+        verbose_name_plural = "Programs"
+
+    # ── Convenience aliases so callers can use program.title / program.program_type ──
+    @property
+    def title(self):
+        return self.name
+
+    @title.setter
+    def title(self, value):
+        self.name = value
+
+    @property
+    def program_type(self):
+        return self.course_type
+
+    @program_type.setter
+    def program_type(self, value):
+        self.course_type = value
 
     def __str__(self):
-        return f"{self.title} ({self.get_program_type_display()})"
+        return f"{self.name} ({self.get_course_type_display()})"
 
-    @property
-    def is_accepting(self):
-        return self.application_deadline >= timezone.now().date()
-
-    @property
-    def registration_count(self):
-        # When annotation is present, Django sets this via __dict__; fall back to DB query.
-        return self.__dict__.get("_registration_count", self.registration_profiles.count())
-
-    @registration_count.setter
-    def registration_count(self, value):
-        self.__dict__["_registration_count"] = value
-
-    @property
-    def spots_left(self):
-        return max(0, self.capacity - self.registration_count)
+    def save(self, *args, **kwargs):
+        # Ensure new programs get a zero price if not explicitly provided
+        if self.price is None:
+            self.price = 0
+        # Auto-assign a default instructor if none provided (required FK on Course)
+        if self.instructor_id is None:
+            from django.contrib.auth import get_user_model
+            from django.utils.crypto import get_random_string
+            User = get_user_model()
+            instructor = (
+                User.objects.filter(role='instructor').first()
+                or User.objects.filter(is_superuser=True).first()
+                or User.objects.first()
+            )
+            if instructor is None:
+                # Create a system user as last resort
+                instructor = User.objects.create_user(
+                    email="system@algonex.in",
+                    password=get_random_string(12),
+                    first_name="System",
+                    last_name="Admin",
+                    role="admin",
+                )
+            self.instructor = instructor
+        super().save(*args, **kwargs)

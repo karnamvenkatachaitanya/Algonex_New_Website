@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from .mixins import TimestampMixin
 
 
 class Media(models.Model):
@@ -27,8 +26,8 @@ class Media(models.Model):
         return f"Media #{self.pk} for {self.content_type} #{self.object_id}"
 
 
-class PlatformSettings(models.Model):
-    """Singleton site-wide settings managed via Django admin. Exactly one row should exist."""
+class SiteConfig(models.Model):
+    """Consolidated site configuration singleton replacing PlatformSettings, CarouselSlide, SiteBanner, and GalleryImage."""
 
     # Feature toggles
     maintenance_mode = models.BooleanField(default=False, help_text="Show maintenance page to all visitors")
@@ -38,116 +37,39 @@ class PlatformSettings(models.Model):
     event_registration_enabled = models.BooleanField(default=True, help_text="Allow users to register for events")
     program_registration_enabled = models.BooleanField(default=True, help_text="Allow users to register for programs")
 
-    # Showcase
-    auto_publish_student_projects = models.BooleanField(default=True, help_text="Auto-publish student-submitted projects (False = admin approval required)")
+    # Showcase settings
+    auto_publish_student_projects = models.BooleanField(default=True, help_text="Auto-publish student-submitted projects")
 
     # Search
     search_results_per_category = models.PositiveIntegerField(default=5, help_text="Max results per category in global search")
 
+    # Promotional Banner Settings
+    banner_text = models.CharField(max_length=500, blank=True)
+    banner_link = models.URLField(blank=True, help_text="Optional link when banner is clicked")
+    banner_bg_color = models.CharField(max_length=7, default="#00D4FF", help_text="Hex color, e.g. #00D4FF")
+    banner_text_color = models.CharField(max_length=7, default="#000000")
+    banner_is_active = models.BooleanField(default=False)
+
+    # Carousel slides stored as a JSON list:
+    # [{"slide_type": "hero", "item_slug": "", "order": 0, "is_active": true}]
+    carousel_slides = models.JSONField(default=list, blank=True)
+
+    # Gallery images stored as a JSON list:
+    # [{"title": "", "image_url": "", "caption": "", "order": 0, "is_active": true, "is_featured": true}]
+    gallery_images = models.JSONField(default=list, blank=True)
+
     class Meta:
-        verbose_name = "Platform Settings"
-        verbose_name_plural = "Platform Settings"
+        verbose_name = "Site Configuration"
+        verbose_name_plural = "Site Configurations"
 
     def __str__(self):
-        return "Platform Settings"
+        return "Site Configuration"
 
     def save(self, *args, **kwargs):
-        # Enforce singleton: always use pk=1
         self.pk = 1
         super().save(*args, **kwargs)
 
     @classmethod
     def load(cls):
-        """Load the singleton settings instance, creating defaults if needed."""
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
-
-
-class CarouselSlide(models.Model):
-    """Admin-managed homepage carousel slide with ordering."""
-
-    SLIDE_TYPES = [
-        ("hero", "Hero (default branding)"),
-        ("course", "Course"),
-        ("event", "Event"),
-        ("program", "Program"),
-    ]
-
-    slide_type = models.CharField(max_length=20, choices=SLIDE_TYPES)
-    item_slug = models.SlugField(blank=True, help_text="Slug of the course/event/program. Leave blank for hero slides.")
-    order = models.PositiveIntegerField(default=0, help_text="Lower number = shown first")
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["order"]
-        constraints = [
-            models.UniqueConstraint(fields=["order"], name="unique_carousel_order"),
-            models.UniqueConstraint(
-                fields=["slide_type", "item_slug"],
-                condition=~models.Q(item_slug=""),
-                name="unique_carousel_item",
-            ),
-        ]
-
-    def __str__(self):
-        if self.slide_type == "hero":
-            return f"[{self.order}] Hero Slide"
-        return f"[{self.order}] {self.get_slide_type_display()}: {self.item_slug}"
-
-
-class SiteBanner(models.Model):
-    """A promotional banner shown at the top of the site. Only one can be active at a time."""
-
-    text = models.CharField(max_length=500)
-    link = models.URLField(blank=True, help_text="Optional link when banner is clicked")
-    bg_color = models.CharField(max_length=7, default="#00D4FF", help_text="Hex color, e.g. #00D4FF")
-    text_color = models.CharField(max_length=7, default="#000000")
-    is_active = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["-updated_at"]
-
-    def __str__(self):
-        return f"{'[ACTIVE] ' if self.is_active else ''}{self.text[:60]}"
-
-    def save(self, *args, **kwargs):
-        # Only one banner can be active at a time
-        if self.is_active:
-            SiteBanner.objects.filter(is_active=True).exclude(pk=self.pk).update(is_active=False)
-        super().save(*args, **kwargs)
-
-
-class GeneralFAQ(TimestampMixin, models.Model):
-    """Site-wide general FAQs."""
-
-    question = models.CharField(max_length=500)
-    answer = models.TextField()
-    order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ["order", "created_at"]
-        verbose_name = "General FAQ"
-        verbose_name_plural = "General FAQs"
-
-    def __str__(self):
-        return self.question[:50]
-
-
-class GalleryImage(TimestampMixin, models.Model):
-    """Platform-wide image gallery."""
-
-    title = models.CharField(max_length=200, blank=True)
-    image = models.ImageField(upload_to="gallery/%Y/%m/")
-    caption = models.CharField(max_length=500, blank=True)
-    order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-    is_featured = models.BooleanField(default=False, help_text="Show on homepage gallery")
-
-    class Meta:
-        ordering = ["order", "-created_at"]
-
-    def __str__(self):
-        return self.title or f"Gallery Image {self.pk}"

@@ -1,3 +1,4 @@
+from import_export.admin import ImportExportModelAdmin
 from django.contrib import admin
 from unfold.admin import ModelAdmin, TabularInline
 from .models import Job, Application
@@ -10,7 +11,7 @@ class ApplicationInline(TabularInline):
 
 
 @admin.register(Job)
-class JobAdmin(ModelAdmin):
+class JobAdmin(ImportExportModelAdmin, ModelAdmin):
     list_display = ("title", "apply_mode", "department", "job_type", "location", "is_remote", "is_active", "company_name")
     list_filter = ("apply_mode", "department", "job_type", "is_active", "is_remote")
     search_fields = ("title", "description", "company_name")
@@ -38,7 +39,7 @@ class JobAdmin(ModelAdmin):
 
 
 @admin.register(Application)
-class ApplicationAdmin(ModelAdmin):
+class ApplicationAdmin(ImportExportModelAdmin, ModelAdmin):
     list_display = ("applicant", "job", "status", "applied_at")
     list_filter = ("status",)
     search_fields = ("applicant__email", "job__title")

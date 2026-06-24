@@ -1,8 +1,8 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from accounts.models import User
-from courses.models import Course, Skill
-from showcase.models import AlumniProfile, StudentProject
+from courses.models import Course, Tag, StudentOutcome
+from showcase.models import StudentProject
 
 
 class TestAlumniAPI(TestCase):
@@ -15,16 +15,18 @@ class TestAlumniAPI(TestCase):
             instructor=self.instructor, name="Python Full Stack",
             description="Learn Python", duration="12 weeks", price=24999, is_published=True,
         )
-        self.published = AlumniProfile.objects.create(
-            name="Priya M.", course=self.course, batch_year=2025,
-            current_company="TCS", current_role="Backend Developer",
+        self.published = StudentOutcome.objects.create(
+            student_name="Priya M.", course=self.course, batch_year=2025,
+            company_name="TCS", role="Backend Developer",
             linkedin_url="https://linkedin.com/in/priya",
             short_quote="Changed my career", package_range="6-8 LPA",
+            achievement_type="placed",
             is_featured=True, is_published=True,
         )
-        self.unpublished = AlumniProfile.objects.create(
-            name="Hidden", course=self.course, batch_year=2025,
-            current_company="Secret", current_role="Dev",
+        self.unpublished = StudentOutcome.objects.create(
+            student_name="Hidden", course=self.course, batch_year=2025,
+            company_name="Secret", role="Dev",
+            achievement_type="placed",
             is_published=False,
         )
 
@@ -82,7 +84,7 @@ class TestStudentProjectAPI(TestCase):
             instructor=self.instructor, name="MERN Stack",
             description="Learn MERN", duration="10 weeks", price=22999, is_published=True,
         )
-        self.skill = Skill.objects.create(name="React")
+        self.skill = Tag.objects.create(name="React")
         self.published = StudentProject.objects.create(
             title="E-commerce App", description="A full-stack e-commerce platform",
             thumbnail="projects/thumbnails/ecom.jpg", student_name="Kiran V.",

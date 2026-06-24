@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
-from courses.models import Course, Module, Topic, Skill, Enrollment, Certificate
+from courses.models import Course, Tag, Enrollment, Certificate
 
 User = get_user_model()
 
@@ -29,10 +29,10 @@ class CourseAPITestMixin:
             description="Test desc", duration="10 days",
             price="999.00", is_published=True, slug="test-course",
         )
-        skill = Skill.objects.create(name="Python")
+        skill = Tag.objects.create(name="Python")
         self.course.skills.add(skill)
-        module = Module.objects.create(course=self.course, title="Module 1", order=1)
-        Topic.objects.create(module=module, title="Topic 1", order=1)
+        self.course.curriculum = [{"title": "Module 1", "topics": [{"title": "Topic 1"}]}]
+        self.course.save()
 
     def login_as(self, user):
         response = self.client.post("/api/v1/auth/login/", {
@@ -133,26 +133,6 @@ class TestEnrollmentAPI(CourseAPITestMixin, TestCase):
         self.assertIn(response.status_code, [401, 403])
 
 
-class TestModuleAPI(CourseAPITestMixin, TestCase):
-    def test_instructor_can_add_module(self):
-        self.login_as(self.instructor)
-        response = self.client.post(
-            "/api/v1/courses/test-course/modules/",
-            {"title": "New Module", "description": "Desc", "order": 2},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 201)
-
-    def test_student_cannot_add_module(self):
-        self.login_as(self.student)
-        response = self.client.post(
-            "/api/v1/courses/test-course/modules/",
-            {"title": "Fail Module", "description": "Desc", "order": 2},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 403)
-
-
 class TestCertificateAPI(CourseAPITestMixin, TestCase):
     def setUp(self):
         super().setUp()
@@ -163,7 +143,7 @@ class TestCertificateAPI(CourseAPITestMixin, TestCase):
             certificate_type="Certification Of Internship",
             title="SQL AI SPARK Team Fellow",
             description="Has successfully completed a Digital Marketing Certification program...",
-            worked_tools="Google Ads, Google Analytics, SEO tools",
+            worked_tools_text="Google Ads, Google Analytics, SEO tools",
             badge_text="SPARK",
             is_verified=True
         )

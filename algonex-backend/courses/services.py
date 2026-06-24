@@ -1,6 +1,6 @@
 from django.db import IntegrityError, transaction
 from django.utils.text import slugify
-from .models import Course, Enrollment, CourseReview
+from .models import Course, Enrollment, Feedback
 from .exceptions import CourseNotPublished, AlreadyEnrolled, CourseNotReady, NotEnrolled, AlreadyReviewed
 
 
@@ -63,19 +63,19 @@ def submit_review(*, student, course, rating, text=""):
     ).exists():
         raise NotEnrolled()
 
-    if CourseReview.objects.filter(student=student, course=course).exists():
+    if Feedback.objects.filter(student=student, course=course).exists():
         raise AlreadyReviewed()
 
-    return CourseReview.objects.create(
+    return Feedback.objects.create(
         student=student, course=course, rating=rating, text=text
     )
 
 
 def _validate_publish_ready(course):
-    """Verify course has at least one module with at least one topic."""
-    modules = course.modules.all()
-    if not modules.exists():
+    """Verify course has at least one module with at least one topic in curriculum JSON."""
+    if not isinstance(course.curriculum, list) or len(course.curriculum) == 0:
         raise CourseNotReady()
-    for module in modules:
-        if not module.topics.exists():
+    for module in course.curriculum:
+        topics = module.get("topics", [])
+        if not isinstance(topics, list) or len(topics) == 0:
             raise CourseNotReady()

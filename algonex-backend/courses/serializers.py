@@ -1,38 +1,57 @@
 from rest_framework import serializers
 from common.serializers import MediaSerializer
-from .models import Course, Module, Topic, Skill, Enrollment, CourseFAQ, Testimonial, CourseReview, StudentOutcome, Certificate
+from .models import Course, Tag, Enrollment, FAQ, Feedback, StudentOutcome, Certificate
 
 
-class SkillSerializer(serializers.ModelSerializer):
+class TagSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Skill
-        fields = ["id", "name"]
+        model = Tag
+        fields = ["id", "name", "category"]
 
 
-class TopicSerializer(serializers.ModelSerializer):
+SkillSerializer = TagSerializer
+
+
+
+
+
+class FAQSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Topic
-        fields = ["id", "title", "description", "order"]
-
-
-class ModuleSerializer(serializers.ModelSerializer):
-    topics = TopicSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Module
-        fields = ["id", "title", "description", "order", "topics"]
-
-
-class CourseFAQSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseFAQ
+        model = FAQ
         fields = ["id", "question", "answer", "order"]
 
 
-class TestimonialSerializer(serializers.ModelSerializer):
+CourseFAQSerializer = FAQSerializer
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+
     class Meta:
-        model = Testimonial
-        fields = ["id", "name", "role", "image", "rating", "text"]
+        model = Feedback
+        fields = ["id", "student_name", "name", "role", "image", "rating", "text", "created_at"]
+
+    def get_student_name(self, obj):
+        if obj.student:
+            return f"{obj.student.first_name} {obj.student.last_name}".strip() or "Anonymous"
+        return obj.name or "Anonymous"
+
+
+CourseReviewSerializer = FeedbackSerializer
+
+
+class CourseReviewSubmitSerializer(serializers.Serializer):
+    rating = serializers.IntegerField(min_value=1, max_value=5)
+    text = serializers.CharField(required=False, allow_blank=True, default="")
+
+
+class FAQCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FAQ
+        fields = ["question", "answer", "order"]
+
+
+CourseFAQCreateSerializer = FAQCreateSerializer
 
 
 class InstructorSerializer(serializers.Serializer):
@@ -42,28 +61,6 @@ class InstructorSerializer(serializers.Serializer):
 
     def get_name(self, obj):
         return f"{obj.first_name} {obj.last_name}".strip() or obj.email
-
-
-class CourseReviewSerializer(serializers.ModelSerializer):
-    student_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = CourseReview
-        fields = ["id", "student_name", "rating", "text", "created_at"]
-
-    def get_student_name(self, obj):
-        return f"{obj.student.first_name} {obj.student.last_name}".strip() or "Anonymous"
-
-
-class CourseReviewSubmitSerializer(serializers.Serializer):
-    rating = serializers.IntegerField(min_value=1, max_value=5)
-    text = serializers.CharField(required=False, allow_blank=True, default="")
-
-
-class CourseFAQCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseFAQ
-        fields = ["question", "answer", "order"]
 
 
 class CourseListSerializer(serializers.ModelSerializer):
@@ -89,10 +86,10 @@ class CourseDetailSerializer(serializers.ModelSerializer):
     """Serializer for course detail view — full data."""
     instructor = InstructorSerializer(read_only=True)
     skills = SkillSerializer(many=True, read_only=True)
-    modules = ModuleSerializer(many=True, read_only=True)
-    faqs = CourseFAQSerializer(many=True, read_only=True)
-    testimonials = TestimonialSerializer(many=True, read_only=True)
-    reviews = CourseReviewSerializer(many=True, read_only=True)
+    modules = serializers.SerializerMethodField()
+    faqs = FAQSerializer(many=True, read_only=True)
+    testimonials = serializers.SerializerMethodField()
+    reviews = serializers.SerializerMethodField()
     media = MediaSerializer(many=True, read_only=True)
     student_count = serializers.IntegerField(read_only=True)
     average_rating = serializers.FloatField(read_only=True)
@@ -110,6 +107,9 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             "created_at", "updated_at",
         ]
 
+    def get_modules(self, obj):
+        return obj.curriculum
+
     def get_is_enrolled(self, obj):
         request = self.context.get("request")
         if request and request.user.is_authenticated:
@@ -118,11 +118,19 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             ).exists()
         return False
 
+    def get_testimonials(self, obj):
+        feedbacks = obj.feedbacks.filter(student__isnull=True, is_approved=True)
+        return FeedbackSerializer(feedbacks, many=True).data
+
+    def get_reviews(self, obj):
+        feedbacks = obj.feedbacks.filter(student__isnull=False, is_approved=True)
+        return FeedbackSerializer(feedbacks, many=True).data
+
 
 class CourseCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating courses (instructor input)."""
     skills = serializers.SlugRelatedField(
-        many=True, slug_field="name", queryset=Skill.objects.all(), required=False
+        many=True, slug_field="name", queryset=Tag.objects.all(), required=False
     )
 
     class Meta:
@@ -131,19 +139,14 @@ class CourseCreateUpdateSerializer(serializers.ModelSerializer):
             "name", "description", "image", "banner", "level",
             "prior_knowledge", "duration", "price", "discount",
             "is_trending", "is_published", "skills",
+            "course_type", "curriculum", "stipend", "location",
+            "is_remote", "eligibility_criteria", "min_degree_level",
+            "eligible_branches", "application_deadline", "start_date",
+            "end_date", "capacity", "is_featured",
         ]
 
 
-class ModuleCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Module
-        fields = ["title", "description", "order"]
 
-
-class TopicCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Topic
-        fields = ["title", "description", "order"]
 
 
 class EnrollmentCourseSerializer(serializers.ModelSerializer):
@@ -181,6 +184,8 @@ class StudentOutcomeSerializer(serializers.ModelSerializer):
 
 
 class CertificateSerializer(serializers.ModelSerializer):
+    worked_tools = serializers.CharField(source="worked_tools_text", read_only=True)
+
     class Meta:
         model = Certificate
         fields = [

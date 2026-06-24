@@ -1,7 +1,6 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import GoogleLoginView, GitHubLoginView, CheckEmailView, SendSetupEmailView, SetPasswordView
-
+from .views import GoogleLoginView, GitHubLoginView, CheckEmailView, SendSetupEmailView, SetPasswordView, RequestPasswordResetOTPView, VerifyPasswordResetOTPView
 urlpatterns = [
     # dj-rest-auth endpoints (login, logout, user, password)
     path("", include("dj_rest_auth.urls")),
@@ -16,4 +15,7 @@ urlpatterns = [
     path("check-email/", CheckEmailView.as_view(), name="check_email"),
     path("send-setup-email/", SendSetupEmailView.as_view(), name="send_setup_email"),
     path("set-password/", SetPasswordView.as_view(), name="set_password"),
+    # OTP password reset flow
+    path("password-reset-otp/request/", RequestPasswordResetOTPView.as_view(), name="password_reset_otp_request"),
+    path("password-reset-otp/verify/", VerifyPasswordResetOTPView.as_view(), name="password_reset_otp_verify"),
 ]

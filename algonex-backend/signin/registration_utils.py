@@ -408,9 +408,29 @@ def create_invoice(
     draw.text((40, note_y + 120), "Authorized Signatory", fill=(100, 110, 130, 255), font=font_body)
     draw.text((40, note_y + 135), "Algonex IT Solutions Private Limited", fill=(12, 6, 28, 255), font=font_body_bold)
     
-    draw.ellipse([card_width - 120, note_y + 95, card_width - 50, note_y + 165], outline=(124, 58, 237, 60), width=2)
-    font_seal = get_system_font(8, bold=True)
-    draw.text((card_width - 108, note_y + 125), "ALGONEX IT", fill=(124, 58, 237, 80), font=font_seal)
+    # Algonex Stamp Image
+    stamp_path = os.path.join(os.path.dirname(__file__), "static", "Algonex Stamp.png")
+    if os.path.exists(stamp_path):
+        try:
+            stamp_img = Image.open(stamp_path).convert("RGBA")
+            stamp_size = (120, 120)
+            try:
+                resample_filter = Image.Resampling.LANCZOS
+            except AttributeError:
+                resample_filter = Image.ANTIALIAS
+            stamp_img = stamp_img.resize(stamp_size, resample_filter)
+            overlay.paste(stamp_img, (card_width - 160, note_y + 80), mask=stamp_img)
+        except Exception as e:
+            logger.warning(f"Could not load or paste stamp image: {e}")
+            # Fallback to drawn seal if image loading fails
+            draw.ellipse([card_width - 120, note_y + 95, card_width - 50, note_y + 165], outline=(124, 58, 237, 60), width=2)
+            font_seal = get_system_font(8, bold=True)
+            draw.text((card_width - 108, note_y + 125), "ALGONEX IT", fill=(124, 58, 237, 80), font=font_seal)
+    else:
+        # Fallback to drawn seal if file not found
+        draw.ellipse([card_width - 120, note_y + 95, card_width - 50, note_y + 165], outline=(124, 58, 237, 60), width=2)
+        font_seal = get_system_font(8, bold=True)
+        draw.text((card_width - 108, note_y + 125), "ALGONEX IT", fill=(124, 58, 237, 80), font=font_seal)
     
     font_disclaimer = get_system_font(10, bold=False)
     disclaimer = "This is a computer-generated document and requires no physical signature."
@@ -434,7 +454,9 @@ def send_confirmation_email(
     course: str,
     batch_type: str,
     joining_date: str,
-    card_path: str
+    card_path: str,
+    password: str = None,
+    invoice_path: str = None
 ) -> bool:
     """Sends a rich HTML email with the digital ID card attached using Django's core mail system."""
     try:
@@ -564,6 +586,7 @@ def send_confirmation_email(
                         <div class="highlight-box">
                             <strong>Unique Student ID:</strong> <span style="font-size: 18px; color: #a855f7; font-weight: bold; font-family: monospace;">{student_id}</span><br>
                             <strong>Registration Status:</strong> <span class="status-badge">ACTIVE</span>
+                            {f"<br><br><strong>Application Credentials:</strong><br>Email: <span style='color: #06b6d4; font-family: monospace;'>{to_email}</span><br>Password: <span style='color: #06b6d4; font-family: monospace;'>{password}</span>" if password else ""}
                         </div>
                         
                         <p>Our verification team will review your payment transaction ID and student details within the next 24 hours. Upon verification, you will receive your official onboarding link and course access credentials.</p>
@@ -584,7 +607,7 @@ def send_confirmation_email(
                             </tr>
                         </table>
                         
-                        <p>We have generated your digital Student ID Card and attached it directly to this email for your reference.</p>
+                        <p>We have generated your digital Student ID Card and Fee Invoice and attached them directly to this email for your reference.</p>
                         
                         <div style="text-align: center; margin: 30px 0;">
                             <a href="https://algonex.co.in/" class="btn">Explore Algonex Portal</a>
@@ -613,6 +636,11 @@ def send_confirmation_email(
         if card_path and os.path.exists(card_path):
             with open(card_path, 'rb') as f:
                 email.attach(os.path.basename(card_path), f.read(), 'image/png')
+                
+        # Attach the Invoice
+        if invoice_path and os.path.exists(invoice_path):
+            with open(invoice_path, 'rb') as f:
+                email.attach(os.path.basename(invoice_path), f.read(), 'image/png')
                 
         email.send(fail_silently=False)
         logger.info(f"Successfully sent registration email to {to_email}")

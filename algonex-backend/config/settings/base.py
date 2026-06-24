@@ -13,6 +13,8 @@ DEFAULT_FROM_EMAIL = "Algonex <solutions@algonex.co.in>"
 INSTALLED_APPS = [
     "unfold",
     "unfold.contrib.filters",
+    "unfold.contrib.import_export",
+    "import_export",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -197,9 +199,10 @@ UNFOLD = {
                 "items": [
                     {"title": "Courses", "link": "/admin/courses/course/", "icon": "menu_book"},
                     {"title": "Enrollments", "link": "/admin/courses/enrollment/", "icon": "how_to_reg"},
-                    {"title": "Skills", "link": "/admin/courses/skill/", "icon": "psychology"},
+                    {"title": "Communication", "link": "/admin/courses/communication/", "icon": "mail"},
+                    {"title": "Tags", "link": "/admin/courses/tag/", "icon": "psychology"},
                     {"title": "Student Outcomes", "link": "/admin/courses/studentoutcome/", "icon": "emoji_events"},
-                    {"title": "Reviews", "link": "/admin/courses/coursereview/", "icon": "rate_review"},
+                    {"title": "Feedback & Reviews", "link": "/admin/courses/feedback/", "icon": "rate_review"},
                     {"title": "Certificates", "link": "/admin/courses/certificate/", "icon": "workspace_premium"},
                 ],
             },
@@ -216,8 +219,8 @@ UNFOLD = {
                 "icon": "people",
                 "items": [
                     {"title": "Users", "link": "/admin/accounts/user/", "icon": "person"},
-                    {"title": "Signin Profiles", "link": "/admin/signin/signinprofile/", "icon": "login"},
-                    {"title": "Registration Profiles", "link": "/admin/signin/registrationprofile/", "icon": "assignment_ind"},
+                    {"title": "Student Registrations", "link": "/admin/signin/studentregistration/", "icon": "assignment_ind"},
+                    {"title": "Payments", "link": "/admin/signin/payment/", "icon": "payments"},
                 ],
             },
             {
@@ -228,7 +231,6 @@ UNFOLD = {
                     {"title": "Jobs", "link": "/admin/careers/job/", "icon": "business_center"},
                     {"title": "Applications", "link": "/admin/careers/application/", "icon": "description"},
                     {"title": "Case Studies", "link": "/admin/portfolio/casestudy/", "icon": "cases"},
-                    {"title": "Tech Tags", "link": "/admin/portfolio/techtag/", "icon": "label"},
                     {"title": "Media", "link": "/admin/common/media/", "icon": "photo_library"},
                 ],
             },
@@ -236,7 +238,6 @@ UNFOLD = {
                 "title": "Showcase",
                 "icon": "star",
                 "items": [
-                    {"title": "Alumni Profiles", "link": "/admin/showcase/alumniprofile/", "icon": "school"},
                     {"title": "Student Projects", "link": "/admin/showcase/studentproject/", "icon": "code"},
                 ],
             },
@@ -244,9 +245,7 @@ UNFOLD = {
                 "title": "Site Config",
                 "icon": "settings",
                 "items": [
-                    {"title": "Platform Settings", "link": "/admin/common/platformsettings/", "icon": "tune"},
-                    {"title": "Carousel", "link": "/admin/common/carouselslide/", "icon": "view_carousel"},
-                    {"title": "Site Banner", "link": "/admin/common/sitebanner/", "icon": "campaign"},
+                    {"title": "Site Config", "link": "/admin/common/siteconfig/", "icon": "tune"},
                     {"title": "Contact Submissions", "link": "/admin/contactform/contactform/", "icon": "mail"},
                 ],
             },

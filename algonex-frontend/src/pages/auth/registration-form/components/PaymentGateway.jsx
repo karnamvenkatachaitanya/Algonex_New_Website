@@ -125,7 +125,10 @@ const PaymentGateway = ({
                 <span className="qr-scan-label">
                   <i className="fa-solid fa-qrcode"></i> Scan to Pay
                 </span>
-                <div className="qr-upi-info">
+                <div className="qr-upi-info" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <span className="qr-upi-phone" style={{ fontSize: '18px', fontWeight: 'bold', letterSpacing: '1px', marginBottom: '4px', color: 'var(--color-primary)' }}>
+                    <i className="fa-solid fa-phone"></i> 9959789424
+                  </span>
                   <span className="qr-upi-name">{UPI_PAYEE_NAME}</span>
                   <span className="qr-upi-id">{UPI_ID}</span>
                 </div>

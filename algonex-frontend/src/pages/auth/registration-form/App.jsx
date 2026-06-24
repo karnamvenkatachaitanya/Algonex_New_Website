@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import './index.css';
 import Header from './components/Header';
 import PersonalDetails from './components/PersonalDetails';
@@ -13,6 +13,7 @@ import { generateStudentId } from './utils/studentId';
 const INITIAL_FORM = {
   fullName: '',
   email: '',
+  password: '',
   phone: '',
   dob: '',
   gender: '',
@@ -44,9 +45,35 @@ function App() {
   // Whether QR is revealed (after clicking "Pay Now")
   const [isQrRevealed, setIsQrRevealed] = useState(false);
 
+  const [courseOptions, setCourseOptions] = useState([
+    { value: '', label: 'Select Course', disabled: true },
+    { value: 'Python Full Stack with AI', label: 'Python Full Stack with AI' },
+    { value: 'Data Science with AI', label: 'Data Science with AI' },
+    { value: 'Others', label: 'Others' }
+  ]);
 
-
-  const handleChange = useCallback((e) => {
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || '/api/v1'}/courses/`);
+        if (response.ok) {
+          const data = await response.json();
+          const courses = Array.isArray(data) ? data : (data.results || []);
+          if (courses.length > 0) {
+            const apiOptions = courses.map(c => ({ value: c.name, label: c.name }));
+            setCourseOptions([
+              { value: '', label: 'Select Course', disabled: true },
+              ...apiOptions,
+              { value: 'Others', label: 'Others' }
+            ]);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch courses:', err);
+      }
+    };
+    fetchCourses();
+  }, []);  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
 
     // Filter out negative inputs for numeric fee fields
@@ -277,6 +304,7 @@ function App() {
             errors={errors}
             onChange={handleChange}
             shake={shakeSection === 'training'}
+            courseOptions={courseOptions}
           />
 
           {/* Payment Gateway is always visible, acts as the flow controller */}

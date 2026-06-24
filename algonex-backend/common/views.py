@@ -4,9 +4,6 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from django.db.models import Q, Count, Avg
 from django.contrib.auth import get_user_model
-from .models import GeneralFAQ, GalleryImage
-from .serializers import GeneralFAQSerializer, GalleryImageSerializer
-
 User = get_user_model()
 
 
@@ -19,36 +16,49 @@ class CarouselView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        from .models import CarouselSlide
+        from .models import SiteConfig
         from courses.models import Course
         from events.models import Event
         from programs.models import Program
 
-        slides = CarouselSlide.objects.filter(is_active=True)
+        config = SiteConfig.load()
+        slides = config.carousel_slides or []
+
+        try:
+            slides = sorted(slides, key=lambda x: x.get("order", 0))
+        except Exception:
+            pass
+
         result = []
-
         for slide in slides:
-            entry = {"slide_type": slide.slide_type, "order": slide.order, "item": None}
+            if not slide.get("is_active", True):
+                continue
 
-            if slide.slide_type == "hero":
-                entry["item"] = None  # Frontend renders default hero
-            elif slide.slide_type == "course" and slide.item_slug:
-                course = Course.objects.filter(slug=slide.item_slug, is_published=True).values(
+            slide_type = slide.get("slide_type")
+            item_slug = slide.get("item_slug")
+            order = slide.get("order", 0)
+
+            entry = {"slide_type": slide_type, "order": order, "item": None}
+
+            if slide_type == "hero":
+                entry["item"] = None
+            elif slide_type == "course" and item_slug:
+                course = Course.objects.filter(slug=item_slug, is_published=True).values(
                     "name", "slug", "description", "image", "duration", "price", "discount", "is_trending"
                 ).first()
                 entry["item"] = course
-            elif slide.slide_type == "event" and slide.item_slug:
-                event = Event.objects.filter(slug=slide.item_slug, is_published=True).values(
+            elif slide_type == "event" and item_slug:
+                event = Event.objects.filter(slug=item_slug, is_published=True).values(
                     "title", "slug", "summary", "image", "event_type", "location", "start_date", "capacity"
                 ).first()
                 entry["item"] = event
-            elif slide.slide_type == "program" and slide.item_slug:
-                program = Program.objects.filter(slug=slide.item_slug, is_published=True).values(
+            elif slide_type == "program" and item_slug:
+                program = Program.objects.filter(slug=item_slug, is_published=True).values(
                     "title", "slug", "description", "image", "program_type", "duration", "stipend", "location", "is_remote", "application_deadline"
                 ).first()
                 entry["item"] = program
 
-            if slide.slide_type == "hero" or entry["item"]:
+            if slide_type == "hero" or entry["item"]:
                 result.append(entry)
 
         return Response({"status": "success", "data": result})
@@ -63,16 +73,16 @@ class PlatformSettingsView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        from .models import PlatformSettings
-        settings = PlatformSettings.load()
+        from .models import SiteConfig
+        config = SiteConfig.load()
         return Response({
             "status": "success",
             "data": {
-                "maintenance_mode": settings.maintenance_mode,
-                "maintenance_message": settings.maintenance_message,
-                "course_enrollment_enabled": settings.course_enrollment_enabled,
-                "event_registration_enabled": settings.event_registration_enabled,
-                "program_registration_enabled": settings.program_registration_enabled,
+                "maintenance_mode": config.maintenance_mode,
+                "maintenance_message": config.maintenance_message,
+                "course_enrollment_enabled": config.course_enrollment_enabled,
+                "event_registration_enabled": config.event_registration_enabled,
+                "program_registration_enabled": config.program_registration_enabled,
             },
         })
 
@@ -86,17 +96,17 @@ class ActiveBannerView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        from .models import SiteBanner
-        banner = SiteBanner.objects.filter(is_active=True).first()
-        if not banner:
+        from .models import SiteConfig
+        config = SiteConfig.load()
+        if not config.banner_is_active:
             return Response({"status": "success", "data": None})
         return Response({
             "status": "success",
             "data": {
-                "text": banner.text,
-                "link": banner.link,
-                "bg_color": banner.bg_color,
-                "text_color": banner.text_color,
+                "text": config.banner_text,
+                "link": config.banner_link,
+                "bg_color": config.banner_bg_color,
+                "text_color": config.banner_text_color,
             },
         })
 
@@ -215,29 +225,44 @@ class AdminStatsView(APIView):
         })
 
 
-class GeneralFAQListView(generics.ListAPIView):
+class GeneralFAQListView(APIView):
     """
     GET /api/v1/faqs/
     List active general FAQs.
     """
-    serializer_class = GeneralFAQSerializer
     permission_classes = [AllowAny]
-    queryset = GeneralFAQ.objects.filter(is_active=True)
+
+    def get(self, request):
+        from courses.models import FAQ
+        from courses.serializers import FAQSerializer
+        faqs = FAQ.objects.filter(is_active=True, course__isnull=True)
+        serializer = FAQSerializer(faqs, many=True)
+        return Response({"status": "success", "data": serializer.data})
 
 
-class GalleryImageListView(generics.ListAPIView):
+class GalleryImageListView(APIView):
     """
     GET /api/v1/gallery/
     List active gallery images.
     """
-    serializer_class = GalleryImageSerializer
     permission_classes = [AllowAny]
 
-    def get_queryset(self):
-        qs = GalleryImage.objects.filter(is_active=True)
-        if self.request.query_params.get("featured") == "true":
-            qs = qs.filter(is_featured=True)
-        return qs
+    def get(self, request):
+        from .models import SiteConfig
+        config = SiteConfig.load()
+        images = config.gallery_images or []
+
+        if request.query_params.get("featured") == "true":
+            images = [img for img in images if img.get("is_featured", False)]
+
+        images = [img for img in images if img.get("is_active", True)]
+
+        try:
+            images = sorted(images, key=lambda x: x.get("order", 0))
+        except Exception:
+            pass
+
+        return Response({"status": "success", "data": images})
 
 
 from django.contrib.admin.views.decorators import staff_member_required
@@ -377,18 +402,22 @@ def send_enrollment_email_view(request):
         return JsonResponse({"error": "Method not allowed"}, status=405)
         
     try:
+        import base64
+        import json
+        from courses.models import EmailLog
+        from django.conf import settings
+
         data = json.loads(request.body)
         recipients = data.get("to", [])
         subject = data.get("subject", "")
         body = data.get("body", "")
         mode = data.get("mode", "individual")
+        attachments = data.get("attachments", [])
         
         if not recipients or not subject or not body:
             return JsonResponse({"error": "Missing required fields"}, status=400)
             
         html_content = build_html(body)
-        
-        from django.conf import settings
         from_email = getattr(settings, "DEFAULT_FROM_EMAIL", "Algonex <solutions@algonex.co.in>")
         
         sent_count = 0
@@ -404,6 +433,16 @@ def send_enrollment_email_view(request):
                     bcc=recipients
                 )
                 msg.content_subtype = "html"
+                
+                # Attach files
+                for att in attachments:
+                    filename = att.get("filename")
+                    content_b64 = att.get("content")
+                    content_type = att.get("contentType")
+                    if filename and content_b64:
+                        file_content = base64.b64decode(content_b64)
+                        msg.attach(filename, file_content, content_type)
+                        
                 msg.send()
                 sent_count = len(recipients)
             except Exception as e:
@@ -419,12 +458,34 @@ def send_enrollment_email_view(request):
                         to=[recipient]
                     )
                     msg.content_subtype = "html"
+                    
+                    # Attach files
+                    for att in attachments:
+                        filename = att.get("filename")
+                        content_b64 = att.get("content")
+                        content_type = att.get("contentType")
+                        if filename and content_b64:
+                            file_content = base64.b64decode(content_b64)
+                            msg.attach(filename, file_content, content_type)
+                            
                     msg.send()
                     sent_count += 1
                 except Exception as e:
                     logger.error(f"Failed to send email to {recipient}: {str(e)}")
                     failed_count += 1
                     
+        # Log email communication to database
+        attachment_filenames = [att.get("filename") for att in attachments if att.get("filename")]
+        EmailLog.objects.create(
+            subject=subject,
+            body=body,
+            recipient_count=len(recipients),
+            sent_count=sent_count,
+            failed_count=failed_count,
+            status="Delivered" if failed_count == 0 else ("Partial" if sent_count > 0 else "Failed"),
+            attachments=attachment_filenames
+        )
+        
         return JsonResponse({
             "success": sent_count > 0,
             "sent": sent_count,
@@ -434,3 +495,49 @@ def send_enrollment_email_view(request):
     except Exception as e:
         logger.exception("API Error in send_enrollment_email_view")
         return JsonResponse({"error": str(e)}, status=500)
+
+
+@staff_member_required
+def admin_communication_view(request):
+    from django.shortcuts import render
+    from django.contrib import admin
+    from courses.models import Course, Enrollment, EmailLog
+    import json
+    
+    courses = Course.objects.all()
+    
+    # Query enrollments and format into JSON
+    enrollments_data = []
+    for e in Enrollment.objects.select_related("student", "course"):
+        student_name = f"{e.student.first_name} {e.student.last_name}".strip() or e.student.username or e.student.email.split("@")[0]
+        enrollments_data.append({
+            "id": e.id,
+            "email": e.student.email,
+            "status": e.status,
+            "course_slug": e.course.slug,
+            "course_name": e.course.name,
+            "student_name": student_name
+        })
+        
+    email_logs = EmailLog.objects.all()
+    
+    # Stats computation
+    total_sent = 0
+    delivered_count = 0
+    failed_count = 0
+    for log in email_logs:
+        total_sent += log.recipient_count
+        delivered_count += log.sent_count
+        failed_count += log.failed_count
+        
+    context = admin.site.each_context(request)
+    context.update({
+        "courses": courses,
+        "enrollments_json": json.dumps(enrollments_data),
+        "email_logs": email_logs,
+        "stats_total_sent": total_sent,
+        "stats_delivered": delivered_count,
+        "stats_failed": failed_count,
+        "title": "Email Communication Console"
+    })
+    return render(request, "admin/courses/communication.html", context)

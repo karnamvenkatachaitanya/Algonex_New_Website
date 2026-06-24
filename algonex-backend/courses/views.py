@@ -7,14 +7,11 @@ from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 
 from django.shortcuts import get_object_or_404
 
-from .models import Course, Module, Topic, Enrollment, CourseFAQ, Certificate
+from .models import Course, Enrollment, FAQ, Certificate
 from .serializers import (
     CourseListSerializer,
     CourseDetailSerializer,
     CourseCreateUpdateSerializer,
-    ModuleSerializer,
-    ModuleCreateSerializer,
-    TopicCreateSerializer,
     EnrollmentSerializer,
     CourseReviewSerializer,
     CourseReviewSubmitSerializer,
@@ -117,7 +114,7 @@ class CourseViewSet(ModelViewSet):
         course = get_object_or_404(Course, slug=slug, is_published=True)
 
         if request.method == "GET":
-            reviews = course.reviews.select_related("student").all()
+            reviews = course.feedbacks.filter(student__isnull=False).select_related("student").all()
             serializer = CourseReviewSerializer(reviews, many=True)
             return Response({"status": "success", "data": serializer.data})
 
@@ -139,7 +136,7 @@ class CourseFAQViewSet(ModelViewSet):
     """CRUD for FAQs within a course. Instructor-only for write, public for read."""
 
     def get_queryset(self):
-        return CourseFAQ.objects.filter(course__slug=self.kwargs["course_slug"])
+        return FAQ.objects.filter(course__slug=self.kwargs["course_slug"])
 
     def get_serializer_class(self):
         if self.action in ("list", "retrieve"):
@@ -155,41 +152,6 @@ class CourseFAQViewSet(ModelViewSet):
         course = get_object_or_404(Course, slug=self.kwargs["course_slug"])
         self.check_object_permissions(self.request, course)
         serializer.save(course=course)
-
-
-class ModuleViewSet(ModelViewSet):
-    """CRUD for modules within a course. Instructor-only."""
-
-    serializer_class = ModuleCreateSerializer
-    permission_classes = [IsInstructorOwner]
-
-    def get_queryset(self):
-        return Module.objects.filter(course__slug=self.kwargs["course_slug"])
-
-    def perform_create(self, serializer):
-        course = get_object_or_404(Course, slug=self.kwargs["course_slug"])
-        self.check_object_permissions(self.request, course)
-        serializer.save(course=course)
-
-    def get_serializer_class(self):
-        if self.action in ("list", "retrieve"):
-            return ModuleSerializer
-        return ModuleCreateSerializer
-
-
-class TopicViewSet(ModelViewSet):
-    """CRUD for topics within a module. Instructor-only."""
-
-    serializer_class = TopicCreateSerializer
-    permission_classes = [IsInstructorOwner]
-
-    def get_queryset(self):
-        return Topic.objects.filter(module_id=self.kwargs["module_pk"])
-
-    def perform_create(self, serializer):
-        module = get_object_or_404(Module, pk=self.kwargs["module_pk"])
-        self.check_object_permissions(self.request, module)
-        serializer.save(module=module)
 
 
 class EnrollmentViewSet(ListModelMixin, GenericViewSet):
@@ -232,13 +194,26 @@ class StudentOutcomeViewSet(ListModelMixin, GenericViewSet):
 class CertificateViewSet(ModelViewSet):
     """
     Public: retrieve single certificate by ID.
-    Admin: create, list, update, partial_update, delete.
+    Authenticated User: list their own certificates.
+    Admin: full access.
     """
-    queryset = Certificate.objects.all()
     serializer_class = CertificateSerializer
     lookup_field = "certificate_id"
+
+    def get_queryset(self):
+        if self.action == "retrieve":
+            return Certificate.objects.all()
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            return Certificate.objects.none()
+        if user.is_staff or user.is_superuser:
+            return Certificate.objects.all()
+        return Certificate.objects.filter(student=user)
 
     def get_permissions(self):
         if self.action in ("retrieve",):
             return [AllowAny()]
+        if self.action in ("list",):
+            return [IsAuthenticated()]
         return [IsAdmin()]
+

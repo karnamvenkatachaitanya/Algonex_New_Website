@@ -5,10 +5,18 @@ from django.db import models
 from common.mixins import TimestampMixin, SlugMixin
 
 
-class Skill(models.Model):
-    """Reusable skill/technology tag shared across courses."""
+class Tag(models.Model):
+    """Unified tag/skill/technology label used across the platform."""
+
+    CATEGORY_CHOICES = [
+        ("skill", "Skill"),
+        ("tech", "Technology"),
+        ("tool", "Tool"),
+        ("general", "General"),
+    ]
 
     name = models.CharField(max_length=100, unique=True)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default="skill", db_index=True)
 
     class Meta:
         ordering = ["name"]
@@ -46,8 +54,36 @@ class Course(TimestampMixin, SlugMixin, models.Model):
     )
     is_trending = models.BooleanField(default=False, db_index=True)
     is_published = models.BooleanField(default=False, db_index=True)
-    skills = models.ManyToManyField(Skill, blank=True, related_name="courses")
+    skills = models.ManyToManyField(Tag, blank=True, related_name="courses")
     media = GenericRelation("common.Media")
+
+    # Program specific fields merged into Course
+    COURSE_TYPE_CHOICES = [
+        ("course", "Course"),
+        ("fellowship", "Fellowship"),
+        ("internship", "Internship"),
+    ]
+    DEGREE_CHOICES = [
+        ("diploma", "Diploma"),
+        ("bachelors", "Bachelors"),
+        ("masters", "Masters"),
+        ("phd", "PhD"),
+        ("other", "Other"),
+    ]
+
+    course_type = models.CharField(max_length=20, choices=COURSE_TYPE_CHOICES, default="course", db_index=True)
+    curriculum = models.JSONField(default=list, blank=True)
+    stipend = models.CharField(max_length=100, blank=True)
+    location = models.CharField(max_length=255, blank=True)
+    is_remote = models.BooleanField(default=False)
+    eligibility_criteria = models.TextField(blank=True)
+    min_degree_level = models.CharField(max_length=20, choices=DEGREE_CHOICES, blank=True)
+    eligible_branches = models.TextField(blank=True)
+    application_deadline = models.DateField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    capacity = models.PositiveIntegerField(null=True, blank=True)
+    is_featured = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         ordering = ["-created_at"]
@@ -55,35 +91,26 @@ class Course(TimestampMixin, SlugMixin, models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def is_accepting(self):
+        from django.utils import timezone
+        if self.application_deadline:
+            return self.application_deadline >= timezone.now().date()
+        return True
 
-class Module(models.Model):
-    """A module within a course, containing ordered topics."""
+    @property
+    def registration_count(self):
+        return self.__dict__.get("_registration_count", self.student_registrations.count())
 
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="modules")
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    order = models.PositiveIntegerField(default=0)
+    @registration_count.setter
+    def registration_count(self, value):
+        self.__dict__["_registration_count"] = value
 
-    class Meta:
-        ordering = ["order"]
-
-    def __str__(self):
-        return f"{self.course.name} — {self.title}"
-
-
-class Topic(models.Model):
-    """A topic within a module."""
-
-    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="topics")
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True)
-    order = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        ordering = ["order"]
-
-    def __str__(self):
-        return self.title
+    @property
+    def spots_left(self):
+        if self.capacity is not None:
+            return max(0, self.capacity - self.registration_count)
+        return 0
 
 
 class Enrollment(models.Model):
@@ -112,58 +139,73 @@ class Enrollment(models.Model):
         return f"{self.student.email} → {self.course.name}"
 
 
-class CourseFAQ(models.Model):
-    """FAQ entry for a course."""
+class FAQ(TimestampMixin, models.Model):
+    """Unified FAQ model replacing GeneralFAQ and CourseFAQ."""
 
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="faqs")
+    course = models.ForeignKey(
+        "courses.Course",
+        on_delete=models.CASCADE,
+        related_name="faqs",
+        null=True, blank=True
+    )
     question = models.CharField(max_length=500)
     answer = models.TextField()
     order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ["order"]
+        ordering = ["order", "created_at"]
+        verbose_name = "FAQ"
+        verbose_name_plural = "FAQs"
 
     def __str__(self):
-        return self.question[:50]
+        course_prefix = f"[{self.course.name}] " if self.course else "[General] "
+        return f"{course_prefix}{self.question[:50]}"
 
 
-class CourseReview(models.Model):
-    """Student-submitted review for a course they're enrolled in."""
+class Feedback(TimestampMixin, models.Model):
+    """Unified feedback model combining CourseReview and Testimonial."""
 
     student = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="course_reviews"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="feedbacks",
+        null=True, blank=True
     )
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="reviews")
+    course = models.ForeignKey(
+        "courses.Course",
+        on_delete=models.CASCADE,
+        related_name="feedbacks",
+        null=True, blank=True
+    )
+    name = models.CharField(max_length=150, blank=True)
+    role = models.CharField(max_length=150, blank=True)
+    image = models.ImageField(upload_to="testimonials/", blank=True, null=True)
     rating = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)]
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        default=5
     )
-    text = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    text = models.TextField()
+    is_approved = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ("student", "course")
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "course"],
+                name="unique_student_course_feedback",
+                condition=models.Q(student__isnull=False, course__isnull=False)
+            )
+        ]
 
     def __str__(self):
-        return f"{self.student.email} → {self.course.name} ({self.rating}★)"
-
-
-class Testimonial(models.Model):
-    """Admin-curated testimonial for a course."""
-
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="testimonials")
-    name = models.CharField(max_length=100)
-    role = models.CharField(max_length=100, blank=True)
-    image = models.ImageField(upload_to="testimonials/", blank=True, null=True)
-    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
-    text = models.TextField()
-
-    def __str__(self):
-        return f"{self.name} — {self.course.name}"
+        author = self.student.email if self.student else self.name
+        course_name = self.course.name if self.course else "General"
+        return f"{author} → {course_name} ({self.rating}★)"
 
 
 class StudentOutcome(TimestampMixin, models.Model):
-    """Published student achievement for the outcomes ticker."""
+    """Unified student placements & alumni wall profile."""
 
     class AchievementType(models.TextChoices):
         PLACED = "placed", "Placed"
@@ -171,20 +213,37 @@ class StudentOutcome(TimestampMixin, models.Model):
         FREELANCING = "freelancing", "Freelancing"
         PROJECT_LAUNCHED = "project_launched", "Project Launched"
 
-    student_name = models.CharField(max_length=100)
-    achievement_type = models.CharField(max_length=30, choices=AchievementType.choices)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="outcomes"
+    )
+    student_name = models.CharField(max_length=150)
+    avatar = models.ImageField(upload_to="alumni/avatars/", blank=True, null=True)
+    achievement_type = models.CharField(
+        max_length=30, choices=AchievementType.choices, default="placed"
+    )
     company_name = models.CharField(max_length=100, blank=True)
     role = models.CharField(max_length=100, blank=True)
     package_range = models.CharField(max_length=50, blank=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="outcomes")
-    achieved_at = models.DateField()
-    is_published = models.BooleanField(default=False)
+    course = models.ForeignKey(
+        "courses.Course", on_delete=models.CASCADE, related_name="outcomes"
+    )
+    achieved_at = models.DateField(null=True, blank=True)
+    batch_year = models.PositiveIntegerField(null=True, blank=True)
+    linkedin_url = models.URLField(blank=True)
+    short_quote = models.CharField(max_length=300, blank=True)
+    is_featured = models.BooleanField(default=False)
+    is_published = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ["-achieved_at"]
+        ordering = ["-batch_year", "-achieved_at", "student_name"]
 
     def __str__(self):
-        return f"{self.student_name} - {self.get_achievement_type_display()} at {self.company_name}"
+        achievement = self.get_achievement_type_display() if self.achievement_type else "Achievement"
+        at_company = f" at {self.company_name}" if self.company_name else ""
+        return f"{self.student_name} - {achievement}{at_company}"
 
 
 class Certificate(TimestampMixin, models.Model):
@@ -192,13 +251,31 @@ class Certificate(TimestampMixin, models.Model):
 
     certificate_id = models.CharField(max_length=50, unique=True, primary_key=True)
     intern_id = models.CharField(max_length=50, blank=True, null=True)
-    student_name = models.CharField(max_length=150)
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="certificates"
+    )
+    course = models.ForeignKey(
+        "courses.Course",
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="certificates"
+    )
+    student_name = models.CharField(max_length=150)  # Keep for backward compatibility/fallback
     certificate_type = models.CharField(max_length=100, default="Certification Of Internship")
     title = models.CharField(max_length=200, help_text="e.g. SQL AI SPARK Team Fellow")
     description = models.TextField()
-    worked_tools = models.CharField(
+    worked_tools_text = models.CharField(
         max_length=255,
+        blank=True,
         help_text="Comma-separated tools, e.g., Google Ads, Google Analytics",
+    )
+    worked_tools = models.ManyToManyField(
+        Tag,
+        blank=True,
+        related_name="certificates"
     )
     badge_text = models.CharField(max_length=100, default="EXCELLENCE of SPARK")
     is_verified = models.BooleanField(default=True)
@@ -209,3 +286,23 @@ class Certificate(TimestampMixin, models.Model):
 
     def __str__(self):
         return f"{self.student_name} — {self.certificate_id}"
+
+
+class EmailLog(models.Model):
+    """Tracks history of dispatched admin communications."""
+
+    subject = models.CharField(max_length=255)
+    body = models.TextField()
+    recipient_count = models.PositiveIntegerField(default=0)
+    sent_count = models.PositiveIntegerField(default=0)
+    failed_count = models.PositiveIntegerField(default=0)
+    date_sent = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, default="Delivered")  # Delivered, Partial, Failed
+    attachments = models.JSONField(default=list, blank=True)  # List of filenames sent
+
+    class Meta:
+        ordering = ["-date_sent"]
+
+    def __str__(self):
+        return f"{self.subject} ({self.recipient_count} recipients) — {self.date_sent.strftime('%Y-%m-%d')}"
+

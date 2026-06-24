@@ -16,8 +16,8 @@ def get_published_courses(*, filters=None):
 
     return qs.annotate(
         student_count=Count("enrollments", filter=Q(enrollments__status="active"), distinct=True),
-        average_rating=Avg("reviews__rating"),
-        review_count=Count("reviews", distinct=True),
+        average_rating=Avg("feedbacks__rating", filter=Q(feedbacks__student__isnull=False)),
+        review_count=Count("feedbacks", filter=Q(feedbacks__student__isnull=False), distinct=True),
     ).order_by("-created_at")
 
 
@@ -28,15 +28,13 @@ def get_course_detail(*, slug):
         .select_related("instructor")
         .prefetch_related(
             "skills",
-            "modules__topics",
             "faqs",
-            "testimonials",
-            "reviews__student",
+            "feedbacks__student",
         )
         .annotate(
             student_count=Count("enrollments", filter=Q(enrollments__status="active"), distinct=True),
-            average_rating=Avg("reviews__rating"),
-            review_count=Count("reviews", distinct=True),
+            average_rating=Avg("feedbacks__rating", filter=Q(feedbacks__student__isnull=False)),
+            review_count=Count("feedbacks", filter=Q(feedbacks__student__isnull=False), distinct=True),
         )
         .first()
     )

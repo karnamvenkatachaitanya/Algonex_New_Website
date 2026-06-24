@@ -163,7 +163,7 @@ class TestExternalJobListing(TestCase):
             apply_mode="external",
             external_link="https://careers.tcs.com/frontend",
             company_name="TCS",
-            tags="React, JavaScript, Frontend",
+            tags_text="React, JavaScript, Frontend",
         )
         self.internal_job = Job.objects.create(
             title="Internal Dev",
@@ -199,7 +199,7 @@ class TestExternalJobListing(TestCase):
         data = response.json()["data"]
         self.assertEqual(data["external_link"], "https://careers.tcs.com/frontend")
         self.assertEqual(data["company_name"], "TCS")
-        self.assertEqual(data["tags"], "React, JavaScript, Frontend")
+        self.assertEqual(data["tags_text"], "React, JavaScript, Frontend")
 
     def test_apply_to_external_rejected(self):
         user = User.objects.create_user(email="student@test.com", password="pass123")
@@ -233,7 +233,7 @@ class TestExternalJobAdmin(TestCase):
             "apply_mode": "external",
             "external_link": "https://careers.infosys.com/data",
             "company_name": "Infosys",
-            "tags": "SQL, Python, Data",
+            "tags_text": "SQL, Python, Data",
         })
         self.assertEqual(response.status_code, 201)
 

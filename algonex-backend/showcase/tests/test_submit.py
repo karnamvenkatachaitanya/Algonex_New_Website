@@ -2,7 +2,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from accounts.models import User
 from courses.models import Course
-from common.models import PlatformSettings
+from common.models import SiteConfig
 from showcase.models import StudentProject
 
 
@@ -53,9 +53,9 @@ class TestStudentProjectSubmission(TestCase):
         assert response.status_code == 400
 
     def test_auto_publish_when_setting_enabled(self):
-        settings = PlatformSettings.load()
-        settings.auto_publish_student_projects = True
-        settings.save()
+        config = SiteConfig.load()
+        config.auto_publish_student_projects = True
+        config.save()
 
         self.client.force_authenticate(self.student)
         self.client.post("/api/v1/projects/", {
@@ -67,9 +67,9 @@ class TestStudentProjectSubmission(TestCase):
         assert project.is_published is True
 
     def test_not_published_when_setting_disabled(self):
-        settings = PlatformSettings.load()
-        settings.auto_publish_student_projects = False
-        settings.save()
+        config = SiteConfig.load()
+        config.auto_publish_student_projects = False
+        config.save()
 
         self.client.force_authenticate(self.student)
         response = self.client.post("/api/v1/projects/", {

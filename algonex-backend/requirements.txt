@@ -22,10 +22,11 @@ factory-boy>=3.3,<4.0
 
 # Admin
 django-unfold>=0.47,<1.0
+django-import-export>=3.3.7
 
 # AI / Buddy Chatbot
 langchain>=0.3.0,<1.0
 langchain-core>=0.3.0,<1.0
 langgraph>=0.2.0,<1.0
 langchain-google-genai>=2.0.0,<3.0   # Gemini (default provider)
-langchain-openai>=0.2.0,<1.0         # OpenAI (optional — easy to switch)
+langchain-openai>=0.2.0,<1.0         # OpenAI (optional  easy to switch)

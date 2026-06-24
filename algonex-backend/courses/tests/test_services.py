@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from courses.models import Course, Module, Topic, Enrollment
+from courses.models import Course, Enrollment
 from courses.services import create_course, update_course, enroll_student, drop_enrollment
 from courses.exceptions import CourseNotPublished, AlreadyEnrolled, CourseNotReady
 
@@ -60,8 +60,8 @@ class TestUpdateCourse(TestCase):
             update_course(course=self.course, is_published=True)
 
     def test_publish_with_modules_and_topics_succeeds(self):
-        module = Module.objects.create(course=self.course, title="M1", order=1)
-        Topic.objects.create(module=module, title="T1", order=1)
+        self.course.curriculum = [{"title": "M1", "topics": [{"title": "T1"}]}]
+        self.course.save()
         updated = update_course(course=self.course, is_published=True)
         self.assertTrue(updated.is_published)
 

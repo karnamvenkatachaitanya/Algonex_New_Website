@@ -1,6 +1,8 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
-from portfolio.models import CaseStudy, TechTag, Screenshot
+from portfolio.models import CaseStudy
+from common.models import Media
+from courses.models import Tag
 
 
 class TestCaseStudyAPI(TestCase):
@@ -18,11 +20,11 @@ class TestCaseStudyAPI(TestCase):
             is_published=True,
             published_at="2026-01-15",
         )
-        tag1 = TechTag.objects.create(name="React")
-        tag2 = TechTag.objects.create(name="Django")
+        tag1 = Tag.objects.create(name="React", category="tech")
+        tag2 = Tag.objects.create(name="Django", category="tech")
         self.case_study.tech_tags.add(tag1, tag2)
-        Screenshot.objects.create(
-            case_study=self.case_study, image="test.jpg", caption="Dashboard", order=1
+        Media.objects.create(
+            content_object=self.case_study, image="test.jpg", caption="Dashboard", order=1
         )
 
     def test_list_published_case_studies(self):

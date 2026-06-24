@@ -25,6 +25,13 @@ export function validateAllFields(formData, photo) {
     }
   }
 
+  // Password
+  if (!formData.password) {
+    errors.password = 'Password is required.';
+  } else if (formData.password.length < 8) {
+    errors.password = 'Password must be at least 8 characters.';
+  }
+
   // Phone
   if (!formData.phone.trim()) {
     errors.phone = 'Phone Number is required.';
@@ -124,6 +131,10 @@ export function validateField(name, value) {
       if (!value.trim()) return 'Email Address is required.';
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return !emailRegex.test(value.trim()) ? 'Please enter a valid email address.' : '';
+    }
+    case 'password': {
+      if (!value) return 'Password is required.';
+      return value.length < 8 ? 'Password must be at least 8 characters.' : '';
     }
     case 'phone': {
       if (!value.trim()) return 'Phone Number is required.';

@@ -1,15 +1,18 @@
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from .models import RegistrationProfile
+from .models import StudentRegistration
 from .exceptions import UserNotFound, TermsNotAgreed
 
 User = get_user_model()
 
 
-def register_step1(*, first_name, last_name, email, phone):
-    """Create or find a user by email. No password set for new users."""
+def register_step1(*, first_name, last_name, email, phone, password=None):
+    """Create or find a user by email. Sets password if provided."""
     try:
         user = User.objects.get(email=email)
+        if password and not user.has_usable_password():
+            user.set_password(password)
+            user.save(update_fields=['password'])
         return {
             "is_new": False,
             "has_password": user.has_usable_password(),
@@ -17,7 +20,7 @@ def register_step1(*, first_name, last_name, email, phone):
     except User.DoesNotExist:
         pass
 
-    # Create new user with no password
+    # Create new user
     # Use savepoints for PostgreSQL compatibility on IntegrityError
     from django.db import transaction
     username = email.split("@")[0]
@@ -28,7 +31,7 @@ def register_step1(*, first_name, last_name, email, phone):
             with transaction.atomic():
                 user = User.objects.create_user(
                     email=email,
-                    password=None,
+                    password=password,
                     first_name=first_name,
                     last_name=last_name,
                     phone=phone,
@@ -45,7 +48,7 @@ def register_step1(*, first_name, last_name, email, phone):
 
 
 def register_step2(*, email, program_slug=None, terms_agreed, **profile_data):
-    """Create or update RegistrationProfile for the user."""
+    """Create or update StudentRegistration profile for the user."""
     if not terms_agreed:
         raise TermsNotAgreed()
 
@@ -60,10 +63,18 @@ def register_step2(*, email, program_slug=None, terms_agreed, **profile_data):
         from programs.models import Program
         program = Program.objects.filter(slug=program_slug, is_published=True).first()
 
-    profile_data["program"] = program
+    profile_data["course"] = program
     profile_data["terms_agreed"] = terms_agreed
 
-    RegistrationProfile.objects.update_or_create(
+    if "college" in profile_data:
+        profile_data["college_name"] = profile_data.pop("college")
+
+    if "interest_category" in profile_data:
+        profile_data["course_selected"] = profile_data.pop("interest_category")
+
+    profile_data.pop("specific_interests", None)
+
+    StudentRegistration.objects.update_or_create(
         user=user,
         defaults=profile_data,
     )

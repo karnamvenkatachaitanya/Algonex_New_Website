@@ -163,8 +163,8 @@ export default function RegisterPage() {
         </h1>
         <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", maxWidth: 500, margin: "0 auto" }}>
           {programName
-            ? "Complete the form below to express your interest"
-            : "Join Algonex — no password required to get started"
+            ? "Complete the form below to express your interest and create an account."
+            : "Join Algonex — complete the form to create your account."
           }
         </p>
       </section>
@@ -185,7 +185,7 @@ export default function RegisterPage() {
         {currentStep === 0 && (
           <Card style={{ borderRadius: 12 }}>
             <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>Basic Information</h2>
-            <p style={{ color: "#666", marginBottom: 24 }}>Tell us who you are — no password needed</p>
+            <p style={{ color: "#666", marginBottom: 24 }}>Tell us who you are and set up your password</p>
 
             <Form
               form={step1Form}
@@ -232,6 +232,17 @@ export default function RegisterPage() {
                 rules={[{ required: true, message: "Please enter your phone number" }]}
               >
                 <Input prefix={<PhoneOutlined />} placeholder="+91 98765 43210" />
+              </Form.Item>
+
+              <Form.Item
+                name="password"
+                label="Password"
+                rules={[
+                  { required: true, message: "Please enter a password" },
+                  { min: 8, message: "Password must be at least 8 characters" },
+                ]}
+              >
+                <Input.Password placeholder="Password" />
               </Form.Item>
 
               <Form.Item>

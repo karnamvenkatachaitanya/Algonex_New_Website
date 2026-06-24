@@ -1,25 +1,26 @@
 from django.db.models import Q
-from .models import AlumniProfile, StudentProject
+from courses.models import StudentOutcome
+from .models import StudentProject
 
 
 def get_published_alumni(*, course_slug=None, batch_year=None, company=None, search=None):
     """Return published alumni profiles with optional filters."""
-    qs = AlumniProfile.objects.filter(is_published=True).select_related("course")
+    qs = StudentOutcome.objects.filter(is_published=True, achievement_type="placed").select_related("course")
     if course_slug:
         qs = qs.filter(course__slug=course_slug)
     if batch_year:
         qs = qs.filter(batch_year=batch_year)
     if company:
-        qs = qs.filter(current_company__icontains=company)
+        qs = qs.filter(company_name__icontains=company)
     if search:
-        qs = qs.filter(Q(name__icontains=search) | Q(current_company__icontains=search))
+        qs = qs.filter(Q(student_name__icontains=search) | Q(company_name__icontains=search))
     return qs
 
 
 def get_featured_alumni():
     """Return featured alumni profiles (no pagination, expected <10)."""
-    return AlumniProfile.objects.filter(
-        is_published=True, is_featured=True
+    return StudentOutcome.objects.filter(
+        is_published=True, is_featured=True, achievement_type="placed"
     ).select_related("course")
 
 

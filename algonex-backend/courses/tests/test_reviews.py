@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
 from django.contrib.auth import get_user_model
-from courses.models import Course, Module, Topic, Enrollment, CourseReview
+from courses.models import Course, Enrollment, Feedback
 from courses.services import submit_review
 from courses.exceptions import NotEnrolled, AlreadyReviewed
 
@@ -69,7 +69,7 @@ class TestReviewAPI(TestCase):
         self.assertEqual(response.data["data"]["rating"], 5)
 
     def test_list_reviews(self):
-        CourseReview.objects.create(
+        Feedback.objects.create(
             student=self.student, course=self.course, rating=4, text="Good"
         )
         response = self.client.get("/api/v1/courses/test-course/reviews/")
@@ -77,7 +77,7 @@ class TestReviewAPI(TestCase):
         self.assertEqual(len(response.data["data"]), 1)
 
     def test_average_rating_in_course_detail(self):
-        CourseReview.objects.create(
+        Feedback.objects.create(
             student=self.student, course=self.course, rating=4, text="Good"
         )
         response = self.client.get("/api/v1/courses/test-course/")

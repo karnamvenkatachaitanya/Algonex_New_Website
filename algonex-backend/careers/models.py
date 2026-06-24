@@ -47,7 +47,8 @@ class Job(TimestampMixin, SlugMixin, models.Model):
     company_name = models.CharField(max_length=255, blank=True)
     company_logo = models.ImageField(upload_to="careers/logos/", blank=True, null=True)
     eligibility_criteria = models.TextField(blank=True, help_text="Markdown eligibility for external listings")
-    tags = models.TextField(blank=True, help_text="Comma-separated tags, e.g. 'Python, Django, Remote'")
+    tags_text = models.TextField(blank=True, help_text="Comma-separated tags, e.g. 'Python, Django, Remote'")
+    tags = models.ManyToManyField("courses.Tag", blank=True, related_name="jobs")
 
     # SlugMixin auto-generates slug from `title`
 

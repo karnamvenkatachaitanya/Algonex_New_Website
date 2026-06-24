@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from courses.models import Course, Skill
+from courses.models import Course, Tag, StudentOutcome
 from courses.serializers import SkillSerializer
-from .models import AlumniProfile, StudentProject
+from .models import StudentProject
 
 
 class ShowcaseCourseSerializer(serializers.Serializer):
@@ -12,9 +12,12 @@ class ShowcaseCourseSerializer(serializers.Serializer):
 
 class AlumniProfileSerializer(serializers.ModelSerializer):
     course = ShowcaseCourseSerializer(read_only=True)
+    name = serializers.CharField(source="student_name")
+    current_company = serializers.CharField(source="company_name", default="")
+    current_role = serializers.CharField(source="role", default="")
 
     class Meta:
-        model = AlumniProfile
+        model = StudentOutcome
         fields = [
             "id", "name", "avatar", "course", "batch_year",
             "current_company", "current_role", "linkedin_url",
@@ -73,19 +76,19 @@ class StudentProjectSubmitSerializer(serializers.ModelSerializer):
         course = Course.objects.get(slug=course_slug)
         user = self.context["request"].user
 
-        from common.models import PlatformSettings
-        settings = PlatformSettings.load()
+        from common.models import SiteConfig
+        config = SiteConfig.load()
 
         project = StudentProject.objects.create(
             **validated_data,
             course=course,
             student_name=f"{user.first_name} {user.last_name}".strip() or user.email,
             batch_year=__import__("datetime").date.today().year,
-            is_published=settings.auto_publish_student_projects,
+            is_published=config.auto_publish_student_projects,
         )
 
         for tag_name in tech_tag_names:
-            skill, _ = Skill.objects.get_or_create(name=tag_name)
-            project.tech_tags.add(skill)
+            tag, _ = Tag.objects.get_or_create(name=tag_name, defaults={"category": "skill"})
+            project.tech_tags.add(tag)
 
         return project

@@ -1,14 +1,24 @@
 from datetime import date, timedelta
 from django.test import TestCase
+from django.contrib.auth import get_user_model
 from programs.models import Program
+
+User = get_user_model()
 
 
 def _create_program(**kwargs):
+    # Map convenience aliases to actual model fields if callers pass them
+    if "title" in kwargs:
+        kwargs.setdefault("name", kwargs.pop("title"))
+    if "program_type" in kwargs:
+        kwargs.setdefault("course_type", kwargs.pop("program_type"))
+
     defaults = {
-        "title": "Test Fellowship",
+        "name": "Test Fellowship",
         "description": "A test program",
-        "program_type": "fellowship",
+        "course_type": "fellowship",
         "duration": "3 months",
+        "price": 0,
         "location": "Hyderabad",
         "eligibility_criteria": "B.Tech students",
         "application_deadline": date.today() + timedelta(days=30),
@@ -23,11 +33,11 @@ def _create_program(**kwargs):
 
 class TestProgramModel(TestCase):
     def test_str_representation(self):
-        program = _create_program(title="AI Fellowship", program_type="fellowship")
+        program = _create_program(name="AI Fellowship", course_type="fellowship")
         self.assertEqual(str(program), "AI Fellowship (Fellowship)")
 
     def test_slug_auto_generated(self):
-        program = _create_program(title="ML Internship")
+        program = _create_program(name="ML Internship")
         self.assertEqual(program.slug, "ml-internship")
 
     def test_is_accepting_future_deadline(self):
@@ -51,7 +61,7 @@ class TestProgramModel(TestCase):
         self.assertEqual(program.registration_count, 0)
 
     def test_ordering(self):
-        p1 = _create_program(title="P1", is_featured=False, application_deadline=date.today() + timedelta(days=5))
-        p2 = _create_program(title="P2", is_featured=True, application_deadline=date.today() + timedelta(days=10))
+        p1 = _create_program(name="P1", is_featured=False, application_deadline=date.today() + timedelta(days=5))
+        p2 = _create_program(name="P2", is_featured=True, application_deadline=date.today() + timedelta(days=10))
         programs = list(Program.objects.all())
         self.assertEqual(programs[0], p2)  # featured first

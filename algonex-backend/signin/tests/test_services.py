@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from signin.models import RegistrationProfile
+from signin.models import StudentRegistration
 from signin.services import register_step1, register_step2
 from signin.exceptions import UserNotFound, TermsNotAgreed
 from programs.models import Program
@@ -75,16 +75,16 @@ class TestRegisterStep2(TestCase):
             terms_agreed=True,
         )
         self.assertTrue(result["registered"])
-        profile = RegistrationProfile.objects.get(user=self.user)
+        profile = StudentRegistration.objects.get(user=self.user)
         self.assertEqual(profile.city, "Hyderabad")
-        self.assertEqual(profile.interest_category, "fellowship")
+        self.assertEqual(profile.course_selected, "fellowship")
 
     def test_updates_existing_profile(self):
-        RegistrationProfile.objects.create(
+        StudentRegistration.objects.create(
             user=self.user, city="Old City", state="Old State",
-            college="Old College", branch="Old Branch",
+            college_name="Old College", branch="Old Branch",
             degree_level="bachelors", graduation_year=2024,
-            employment_status="student", interest_category="course",
+            employment_status="student", course_selected="course",
             terms_agreed=True,
         )
         register_step2(
@@ -96,14 +96,14 @@ class TestRegisterStep2(TestCase):
             interest_category="fellowship",
             terms_agreed=True,
         )
-        profile = RegistrationProfile.objects.get(user=self.user)
+        profile = StudentRegistration.objects.get(user=self.user)
         self.assertEqual(profile.city, "New City")
         self.assertEqual(profile.degree_level, "masters")
 
     def test_links_to_program(self):
         program = Program.objects.create(
-            title="AI Fellowship", description="Test",
-            program_type="fellowship", duration="3 months",
+            name="AI Fellowship", description="Test",
+            course_type="fellowship", duration="3 months", price=0,
             location="Online", eligibility_criteria="Open",
             application_deadline=date.today() + timedelta(days=30),
             start_date=date.today() + timedelta(days=60),
@@ -120,8 +120,8 @@ class TestRegisterStep2(TestCase):
             program_slug=program.slug,
             terms_agreed=True,
         )
-        profile = RegistrationProfile.objects.get(user=self.user)
-        self.assertEqual(profile.program, program)
+        profile = StudentRegistration.objects.get(user=self.user)
+        self.assertEqual(profile.course, program)
 
     def test_nonexistent_email_raises(self):
         with self.assertRaises(UserNotFound):

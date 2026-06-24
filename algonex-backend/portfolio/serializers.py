@@ -1,16 +1,15 @@
 from rest_framework import serializers
-from .models import CaseStudy, TechTag, Screenshot
+from courses.models import Tag
+from courses.serializers import TagSerializer
+from common.models import Media
+from .models import CaseStudy
 
-
-class TechTagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TechTag
-        fields = ["id", "name"]
+TechTagSerializer = TagSerializer
 
 
 class ScreenshotSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Screenshot
+        model = Media
         fields = ["id", "image", "caption", "order"]
 
 

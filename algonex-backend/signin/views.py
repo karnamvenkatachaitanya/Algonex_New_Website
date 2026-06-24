@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import SigninProfileSerializer, Step1Serializer, Step2Serializer
 from .services import register_step1, register_step2
 from django.views.decorators.csrf import csrf_exempt
@@ -57,7 +57,7 @@ class RegisterStep2View(APIView):
 
 
 from decimal import Decimal
-from .models import StudentRegistration
+from .models import StudentRegistration, Payment
 from .registration_utils import generate_student_id, create_id_card, create_invoice, send_confirmation_email
 
 class StudentRegisterView(APIView):
@@ -87,11 +87,12 @@ class StudentRegisterView(APIView):
             upi_transaction_id = request.data.get("upiTransactionId")
             student_id = request.data.get("studentId")
             photo = request.FILES.get("photo")
+            password = request.data.get("password")
 
             # Validate required fields
-            if not all([full_name, email, phone, upi_transaction_id, photo]):
+            if not all([full_name, email, phone, upi_transaction_id, photo, password]):
                 return Response(
-                    {"error": "Missing required fields (fullName, email, phone, upiTransactionId, photo)"},
+                    {"error": "Missing required fields (fullName, email, phone, password, upiTransactionId, photo)"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
@@ -110,28 +111,72 @@ class StudentRegisterView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-            # Create Student Registration record
-            registration = StudentRegistration.objects.create(
-                student_id=student_id,
-                full_name=full_name,
-                email=email,
-                phone=phone,
-                dob=dob,
-                gender=gender,
-                city=city,
-                state=state,
-                college_name=college_name,
-                branch=branch,
-                current_year=current_year,
-                course_selected=course_selected,
-                batch_type=batch_type,
-                joining_date=joining_date,
-                total_fee=total_fee,
-                paid_fee=paid_fee,
-                balance_fee=balance_fee,
-                upi_transaction_id=upi_transaction_id,
-                photo=photo
-            )
+            from django.contrib.auth import get_user_model
+            from django.db import transaction
+            from .models import Payment
+
+            User = get_user_model()
+            email_normalized = email.strip().lower()
+
+            with transaction.atomic():
+                user_exists = User.objects.filter(email=email_normalized).exists()
+                if user_exists:
+                    user = User.objects.get(email=email_normalized)
+                    if not user.has_usable_password():
+                        user.set_password(password)
+                        user.save()
+                else:
+                    name_parts = full_name.strip().split(None, 1)
+                    first_name = name_parts[0] if name_parts else ""
+                    last_name = name_parts[1] if len(name_parts) > 1 else ""
+
+                    username_base = email_normalized.split("@")[0]
+                    username = username_base
+                    for suffix in [""] + [str(i) for i in range(1, 100)]:
+                        candidate = f"{username_base}{suffix}"
+                        if not User.objects.filter(username=candidate).exists():
+                            username = candidate
+                            break
+
+                    user = User.objects.create_user(
+                        email=email_normalized,
+                        password=password,
+                        first_name=first_name,
+                        last_name=last_name,
+                        phone=phone,
+                        username=username,
+                        role="student"
+                    )
+
+                registration, created = StudentRegistration.objects.update_or_create(
+                    user=user,
+                    defaults={
+                        "student_id": student_id,
+                        "dob": dob or "",
+                        "gender": gender or "",
+                        "city": city or "",
+                        "state": state or "",
+                        "college_name": college_name or "",
+                        "branch": branch or "",
+                        "current_year": current_year or "",
+                        "course_selected": course_selected or "",
+                        "batch_type": batch_type or "",
+                        "joining_date": joining_date or "",
+                        "total_fee": total_fee,
+                        "paid_fee": 0.0,
+                        "balance_fee": total_fee,
+                        "upi_transaction_id": upi_transaction_id,
+                        "photo": photo
+                    }
+                )
+
+                Payment.objects.create(
+                    student_registration=registration,
+                    amount=paid_fee,
+                    upi_transaction_id=upi_transaction_id,
+                    status="pending",
+                    remarks="Initial registration payment."
+                )
 
             # Generate ID card
             card_path = create_id_card(
@@ -145,37 +190,27 @@ class StudentRegisterView(APIView):
             )
 
             # Generate Invoice
+            registration.refresh_from_db()
             invoice_path = create_invoice(
                 student_id=student_id,
                 name=full_name,
                 course=course_selected,
                 batch_type=batch_type,
                 joining_date=joining_date,
-                total_fee=float(total_fee),
-                paid_fee=float(paid_fee),
-                balance_fee=float(balance_fee),
+                total_fee=float(registration.total_fee),
+                paid_fee=float(registration.paid_fee),
+                balance_fee=float(registration.balance_fee),
                 transaction_id=upi_transaction_id,
                 registration_date=registration.registration_date.isoformat()
-            )
-
-            # Send Email
-            email_sent = send_confirmation_email(
-                to_email=email,
-                student_name=full_name,
-                student_id=student_id,
-                course=course_selected,
-                batch_type=batch_type,
-                joining_date=joining_date,
-                card_path=card_path
             )
 
             return Response({
                 "success": True,
                 "student_id": student_id,
-                "card_url": f"/media/cards/{student_id}.png",
-                "invoice_url": f"/media/invoices/invoice_{student_id}.png",
-                "email_sent": email_sent,
-                "message": "Registration completed successfully!"
+                "card_url": request.build_absolute_uri(f"/media/cards/{student_id}.png"),
+                "invoice_url": request.build_absolute_uri(f"/media/invoices/invoice_{student_id}.png"),
+                "email_sent": False,
+                "message": "Registration completed successfully! Awaiting payment approval."
             }, status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -184,3 +219,98 @@ class StudentRegisterView(APIView):
                 {"error": "Registration pipeline failed", "details": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class PaymentSummaryView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        try:
+            registration = request.user.student_registration
+        except StudentRegistration.DoesNotExist:
+            return Response(
+                {"error": "No student registration found for this account."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        payments_qs = registration.payments.all()
+        payments_data = []
+        for p in payments_qs:
+            payments_data.append({
+                "id": p.id,
+                "amount": str(p.amount),
+                "upi_transaction_id": p.upi_transaction_id,
+                "status": p.status,
+                "remarks": p.remarks,
+                "payment_date": p.payment_date.isoformat(),
+            })
+            
+        return Response({
+            "student_id": registration.student_id,
+            "course_selected": registration.course_selected,
+            "total_fee": str(registration.total_fee),
+            "paid_fee": str(registration.paid_fee),
+            "balance_fee": str(registration.balance_fee),
+            "status": registration.status,
+            "payments": payments_data
+        }, status=status.HTTP_200_OK)
+
+
+class SubmitPaymentView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        try:
+            registration = request.user.student_registration
+        except StudentRegistration.DoesNotExist:
+            return Response(
+                {"error": "No student registration found for this account."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        amount = request.data.get("amount")
+        upi_transaction_id = request.data.get("upiTransactionId") or request.data.get("upi_transaction_id")
+        remarks = request.data.get("remarks", "")
+        
+        if not amount or not upi_transaction_id:
+            return Response(
+                {"error": "Amount and UPI transaction ID are required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        try:
+            amount_dec = Decimal(str(amount))
+            if amount_dec <= 0:
+                raise ValueError("Amount must be positive.")
+        except Exception:
+            return Response(
+                {"error": "Invalid amount value. Must be a positive number."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # Check for duplicate transaction id
+        if Payment.objects.filter(upi_transaction_id=upi_transaction_id).exists():
+            return Response(
+                {"error": "This UPI transaction ID has already been submitted."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        payment = Payment.objects.create(
+            student_registration=registration,
+            amount=amount_dec,
+            upi_transaction_id=upi_transaction_id,
+            status="pending",
+            remarks=remarks
+        )
+        
+        return Response({
+            "success": True,
+            "payment": {
+                "id": payment.id,
+                "amount": str(payment.amount),
+                "upi_transaction_id": payment.upi_transaction_id,
+                "status": payment.status,
+                "payment_date": payment.payment_date.isoformat()
+            },
+            "message": "Payment submitted successfully and is pending verification."
+        }, status=status.HTTP_201_CREATED)
