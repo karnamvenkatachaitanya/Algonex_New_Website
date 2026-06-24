@@ -115,6 +115,16 @@ class StudentRegisterView(APIView):
             from django.db import transaction
             from .models import Payment
 
+            # Check if this transaction ID was already used
+            if Payment.objects.filter(upi_transaction_id=upi_transaction_id).exists():
+                return Response(
+                    {
+                        "error": "This UPI transaction ID / UTR has already been submitted.",
+                        "detail": "This UPI transaction ID / UTR has already been submitted."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             User = get_user_model()
             email_normalized = email.strip().lower()
 
