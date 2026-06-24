@@ -126,7 +126,7 @@ class Payment(TimestampMixin, models.Model):
 
             if self.status == "approved" and old_status == "pending":
                 try:
-                    from .registration_utils import create_invoice, send_confirmation_email
+                    from .registration_utils import create_invoice, send_confirmation_email, send_payment_receipt_email
                     from django.conf import settings
                     
                     # Generate or update the invoice with new payment values
@@ -140,21 +140,37 @@ class Payment(TimestampMixin, models.Model):
                         paid_fee=float(reg.paid_fee),
                         balance_fee=float(reg.balance_fee),
                         transaction_id=self.upi_transaction_id,
-                        registration_date=reg.registration_date.isoformat()
+                        registration_date=reg.registration_date.isoformat(),
+                        amount_paid_now=float(self.amount)
                     )
                     
-                    card_path = f"{settings.MEDIA_ROOT}/cards/{reg.student_id}.png"
-                    send_confirmation_email(
-                        to_email=reg.user.email,
-                        student_name=reg.full_name,
-                        student_id=reg.student_id,
-                        course=reg.course_selected,
-                        batch_type=reg.batch_type,
-                        joining_date=reg.joining_date,
-                        card_path=card_path,
-                        password=None,
-                        invoice_path=invoice_path
-                    )
+                    # Determine if this is the initial registration payment or a subsequent payment
+                    first_payment = reg.payments.order_by("payment_date").first()
+                    is_initial = (first_payment.id == self.id) if first_payment else True
+                    
+                    if is_initial:
+                        card_path = f"{settings.MEDIA_ROOT}/cards/{reg.student_id}.png"
+                        send_confirmation_email(
+                            to_email=reg.user.email,
+                            student_name=reg.full_name,
+                            student_id=reg.student_id,
+                            course=reg.course_selected,
+                            batch_type=reg.batch_type,
+                            joining_date=reg.joining_date,
+                            card_path=card_path,
+                            password=None,
+                            invoice_path=invoice_path
+                        )
+                    else:
+                        send_payment_receipt_email(
+                            to_email=reg.user.email,
+                            student_name=reg.full_name,
+                            student_id=reg.student_id,
+                            course=reg.course_selected,
+                            payment_amount=float(self.amount),
+                            transaction_id=self.upi_transaction_id,
+                            invoice_path=invoice_path
+                        )
                 except Exception as e:
                     import logging
                     logging.getLogger(__name__).error(f"Failed to generate invoice or send email on approval: {e}")

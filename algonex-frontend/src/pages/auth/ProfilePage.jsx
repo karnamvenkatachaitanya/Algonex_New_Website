@@ -148,6 +148,27 @@ export default function ProfilePage() {
       </Tag>
     )},
     { title: "Date", dataIndex: "payment_date", key: "payment_date", render: (date) => new Date(date).toLocaleDateString() },
+    {
+      title: "Receipt",
+      key: "receipt",
+      render: (_, record) => {
+        if (record.status === "approved" && record.invoice_url) {
+          return (
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              size="small"
+              href={record.invoice_url}
+              target="_blank"
+              download
+            >
+              Download
+            </Button>
+          );
+        }
+        return null;
+      }
+    },
   ];
 
   return (

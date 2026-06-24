@@ -271,7 +271,8 @@ def create_invoice(
     paid_fee: float,
     balance_fee: float,
     transaction_id: str,
-    registration_date: str
+    registration_date: str,
+    amount_paid_now: float = None
 ) -> str:
     """Composes a beautifully themed digital invoice using Pillow."""
     card_width = 600
@@ -361,16 +362,26 @@ def create_invoice(
     draw.text((55, 280), "FEE BREAKDOWN & DETAILS", fill=(50, 60, 80, 255), font=font_section_h)
     draw.text((card_width - 150, 280), "AMOUNT (INR)", fill=(50, 60, 80, 255), font=font_section_h)
     
-    fee_rows = [
-        ("Total Course Fee (as agreed)", total_fee),
-        ("Amount Paid (via UPI Gateway)", paid_fee),
-        ("Balance Due (Outstanding)", balance_fee)
-    ]
+    if amount_paid_now is not None:
+        fee_rows = [
+            ("Total Course Fee (as agreed)", total_fee),
+            ("Amount Paid (in this transaction)", amount_paid_now),
+            ("Total Paid to Date", paid_fee),
+            ("Balance Due (Outstanding)", balance_fee)
+        ]
+        total_paid_now = amount_paid_now
+    else:
+        fee_rows = [
+            ("Total Course Fee (as agreed)", total_fee),
+            ("Amount Paid (via UPI Gateway)", paid_fee),
+            ("Balance Due (Outstanding)", balance_fee)
+        ]
+        total_paid_now = paid_fee
     
     row_y = 320
     for desc, amt in fee_rows:
         color = (12, 6, 28, 255)
-        is_bold_row = "Balance" in desc or "Paid" in desc
+        is_bold_row = "Balance" in desc or "Paid" in desc or "Total Paid" in desc
         if desc == "Balance Due (Outstanding)":
             color = (220, 38, 38, 255)
             
@@ -387,7 +398,7 @@ def create_invoice(
     draw.rectangle([40, row_y + 10, card_width - 40, row_y + 60], fill=(124, 58, 237, 12), outline=(124, 58, 237, 40), width=1)
     draw.text((55, row_y + 24), "TOTAL PAID NOW", fill=(124, 58, 237, 255), font=font_total)
     
-    total_paid_str = f"₹{paid_fee:,.2f}"
+    total_paid_str = f"₹{total_paid_now:,.2f}"
     try:
         tot_w = draw.textbbox((0, 0), total_paid_str, font=font_total)[2]
     except AttributeError:
@@ -442,7 +453,7 @@ def create_invoice(
     
     image = Image.alpha_composite(image, overlay)
     
-    invoice_filename = f"invoice_{student_id}.png"
+    invoice_filename = f"invoice_{student_id}_{transaction_id}.png"
     output_path = os.path.join(invoices_dir, invoice_filename)
     image.save(output_path, "PNG")
     return output_path
@@ -647,4 +658,194 @@ def send_confirmation_email(
         return True
     except Exception as e:
         logger.error(f"Failed to send confirmation email: {e}")
+        return False
+
+
+def send_payment_receipt_email(
+    to_email: str,
+    student_name: str,
+    student_id: str,
+    course: str,
+    payment_amount: float,
+    transaction_id: str,
+    invoice_path: str
+) -> bool:
+    """Sends a rich HTML email with the payment receipt attached."""
+    try:
+        subject = f"Payment Receipt Confirmed - Algonex (Student ID: {student_id})"
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'support@algonex.co.in')
+
+        # HTML Body with Algonex Theme
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Payment Receipt - Algonex</title>
+            <style>
+                body {{
+                    margin: 0;
+                    padding: 0;
+                    background-color: #0b0518;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    color: #ffffff;
+                }}
+                .container {{
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: linear-gradient(135deg, #18092d 0%, #0d031b 100%);
+                    border: 2px solid #a855f7;
+                    border-radius: 12px;
+                    padding: 30px;
+                    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+                }}
+                .header {{
+                    text-align: center;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                    padding-bottom: 20px;
+                }}
+                .brand {{
+                    color: #a855f7;
+                    font-size: 28px;
+                    font-weight: bold;
+                    letter-spacing: 2px;
+                    margin: 0;
+                    text-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
+                }}
+                .subbrand {{
+                    color: #06b6d4;
+                    font-size: 12px;
+                    letter-spacing: 4px;
+                    margin: 5px 0 0 0;
+                }}
+                .content {{
+                    padding: 20px 0;
+                    line-height: 1.6;
+                }}
+                h2 {{
+                    color: #06b6d4;
+                    font-size: 20px;
+                    margin-top: 0;
+                }}
+                .highlight-box {{
+                    background: rgba(16, 185, 129, 0.1);
+                    border: 1px solid rgba(16, 185, 129, 0.3);
+                    border-left: 4px solid #10b981;
+                    border-radius: 6px;
+                    padding: 15px;
+                    margin: 20px 0;
+                }}
+                .details-table {{
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }}
+                .details-table td {{
+                    padding: 8px 0;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                }}
+                .label {{
+                    color: #9ca3af;
+                    font-weight: bold;
+                    width: 150px;
+                }}
+                .value {{
+                    color: #ffffff;
+                }}
+                .status-badge {{
+                    display: inline-block;
+                    background-color: #064e3b;
+                    color: #34d399;
+                    border: 1px solid #059669;
+                    padding: 4px 12px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    font-weight: bold;
+                    letter-spacing: 1px;
+                }}
+                .footer {{
+                    text-align: center;
+                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    padding-top: 20px;
+                    font-size: 12px;
+                    color: #6b7280;
+                }}
+                .btn {{
+                    display: inline-block;
+                    background: linear-gradient(90deg, #3b82f6 0%, #ec4899 100%);
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 24px;
+                    border-radius: 6px;
+                    font-weight: bold;
+                    margin: 15px 0;
+                    box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+                }}
+            </style>
+        </head>
+        <body>
+            <div style="background-color: #05020a; padding: 20px;">
+                <div class="container">
+                    <div class="header">
+                        <p class="brand">ALGONEX</p>
+                        <p class="subbrand">IT SOLUTIONS</p>
+                    </div>
+                    <div class="content">
+                        <h2>Thank you for your payment, {student_name}!</h2>
+                        <p>We are pleased to inform you that your payment request has been verified and approved.</p>
+                        
+                        <div class="highlight-box">
+                            <strong>Amount Paid:</strong> <span style="font-size: 18px; color: #10b981; font-weight: bold; font-family: monospace;">₹{payment_amount:,.2f}</span><br>
+                            <strong>Transaction / UTR ID:</strong> <span style="font-size: 14px; color: #06b6d4; font-family: monospace;">{transaction_id}</span><br>
+                            <strong>Payment Status:</strong> <span class="status-badge">APPROVED</span>
+                        </div>
+                        
+                        <p>Your receipt is attached directly to this email. Your remaining balance and fee ledger have been updated automatically in your profile dashboard.</p>
+                        
+                        <h3>Payment Details:</h3>
+                        <table class="details-table">
+                            <tr>
+                                <td class="label">Student ID:</td>
+                                <td class="value" style="font-family: monospace;">{student_id}</td>
+                            </tr>
+                            <tr>
+                                <td class="label">Course Track:</td>
+                                <td class="value">{course}</td>
+                            </tr>
+                        </table>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="https://algonex.co.in/profile" class="btn">View Profile Dashboard</a>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <p>This is an automated message from Algonex IT Solutions.</p>
+                        <p>&copy; 2026 Algonex IT Solutions. All rights reserved.</p>
+                        <p>Website: <a href="https://algonex.co.in/" style="color: #06b6d4; text-decoration: none;">algonex.co.in</a> | Email: support@algonex.co.in</p>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        email = EmailMessage(
+            subject=subject,
+            body=html_content,
+            from_email=from_email,
+            to=[to_email]
+        )
+        email.content_subtype = "html"
+        
+        # Attach the Invoice
+        if invoice_path and os.path.exists(invoice_path):
+            with open(invoice_path, 'rb') as f:
+                email.attach(os.path.basename(invoice_path), f.read(), 'image/png')
+                
+        email.send(fail_silently=False)
+        logger.info(f"Successfully sent payment receipt email to {to_email}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to send payment receipt email: {e}")
         return False

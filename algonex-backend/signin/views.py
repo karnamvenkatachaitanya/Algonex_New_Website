@@ -213,14 +213,15 @@ class StudentRegisterView(APIView):
                 paid_fee=float(registration.paid_fee),
                 balance_fee=float(registration.balance_fee),
                 transaction_id=upi_transaction_id,
-                registration_date=registration.registration_date.isoformat()
+                registration_date=registration.registration_date.isoformat(),
+                amount_paid_now=None
             )
 
             return Response({
                 "success": True,
                 "student_id": student_id,
                 "card_url": request.build_absolute_uri(f"/media/cards/{student_id}.png"),
-                "invoice_url": request.build_absolute_uri(f"/media/invoices/invoice_{student_id}.png"),
+                "invoice_url": request.build_absolute_uri(f"/media/invoices/invoice_{student_id}_{upi_transaction_id}.png"),
                 "email_sent": False,
                 "message": "Registration completed successfully! Awaiting payment approval."
             }, status=status.HTTP_201_CREATED)
@@ -248,6 +249,11 @@ class PaymentSummaryView(APIView):
         payments_qs = registration.payments.all()
         payments_data = []
         for p in payments_qs:
+            invoice_url = None
+            if p.status == "approved":
+                invoice_filename = f"invoice_{registration.student_id}_{p.upi_transaction_id}.png"
+                invoice_url = request.build_absolute_uri(f"/media/invoices/{invoice_filename}")
+            
             payments_data.append({
                 "id": p.id,
                 "amount": str(p.amount),
@@ -255,6 +261,7 @@ class PaymentSummaryView(APIView):
                 "status": p.status,
                 "remarks": p.remarks,
                 "payment_date": p.payment_date.isoformat(),
+                "invoice_url": invoice_url,
             })
             
         return Response({
