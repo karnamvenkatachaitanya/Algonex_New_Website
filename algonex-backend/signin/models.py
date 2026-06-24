@@ -61,6 +61,7 @@ class StudentRegistration(models.Model):
     
     # initial transaction
     upi_transaction_id = models.CharField(max_length=100, blank=True)
+    why_join = models.TextField(blank=True, help_text="Why do you want to join Algonex?")
 
     class Meta:
         ordering = ["-registration_date"]

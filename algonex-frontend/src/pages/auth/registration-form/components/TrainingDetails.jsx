@@ -90,6 +90,20 @@ const TrainingDetails = ({ formData, errors, onChange, shake, courseOptions }) =
           }}
           onWheel={(e) => e.target.blur()}
         />
+
+        <div style={{ gridColumn: '1 / -1' }}>
+          <FormField
+            id="whyJoinAlgonex"
+            name="whyJoinAlgonex"
+            label="Why do you want to join Algonex?"
+            type="textarea"
+            icon="fa-solid fa-circle-question"
+            value={formData.whyJoinAlgonex}
+            onChange={onChange}
+            error={errors.whyJoinAlgonex}
+            placeholder="Tell us why you want to enroll in this program (Optional)"
+          />
+        </div>
       </div>
     </section>
   );

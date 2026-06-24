@@ -30,7 +30,7 @@ class StudentRegistrationAdmin(ImportExportModelAdmin, ModelAdmin):
             "fields": ("college_name", "branch", "degree_level", "graduation_year", "current_year")
         }),
         ("Course / Training Information", {
-            "fields": ("course_selected", "course", "batch_type", "joining_date")
+            "fields": ("course_selected", "course", "batch_type", "joining_date", "why_join")
         }),
         ("Payment Details", {
             "fields": ("total_fee", "paid_fee", "balance_fee", "upi_transaction_id", "status")

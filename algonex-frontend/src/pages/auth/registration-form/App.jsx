@@ -29,6 +29,7 @@ const INITIAL_FORM = {
   totalFee: '',
   paidFee: '',
   upiTransactionId: '',
+  whyJoinAlgonex: '',
 };
 
 function App() {

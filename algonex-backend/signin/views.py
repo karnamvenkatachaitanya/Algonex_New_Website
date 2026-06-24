@@ -88,6 +88,7 @@ class StudentRegisterView(APIView):
             student_id = request.data.get("studentId")
             photo = request.FILES.get("photo")
             password = request.data.get("password")
+            why_join = request.data.get("whyJoinAlgonex") or ""
 
             # Validate required fields
             if not all([full_name, email, phone, upi_transaction_id, photo, password]):
@@ -176,7 +177,8 @@ class StudentRegisterView(APIView):
                         "paid_fee": 0.0,
                         "balance_fee": total_fee,
                         "upi_transaction_id": upi_transaction_id,
-                        "photo": photo
+                        "photo": photo,
+                        "why_join": why_join
                     }
                 )
 

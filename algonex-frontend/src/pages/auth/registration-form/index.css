@@ -258,7 +258,8 @@
 }
 
 .input-wrapper input,
-.input-wrapper select {
+.input-wrapper select,
+.input-wrapper textarea {
     width: 100%;
     background: #ffffff;
     border: 1px solid #cbd5e1;
@@ -271,7 +272,18 @@
     transition: all var(--transition-fast);
 }
 
-.input-wrapper input::placeholder {
+.input-wrapper textarea {
+    min-height: 100px;
+    resize: vertical;
+    padding-top: 15px;
+}
+
+.input-wrapper:has(textarea) .input-icon {
+    top: 18px;
+}
+
+.input-wrapper input::placeholder,
+.input-wrapper textarea::placeholder {
     color: var(--color-text-dim);
 }
 
@@ -303,14 +315,16 @@
 }
 
 .input-wrapper input:focus,
-.input-wrapper select:focus {
+.input-wrapper select:focus,
+.input-wrapper textarea:focus {
     border-color: var(--color-primary);
     background: #ffffff;
     box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15), 0 0 12px rgba(14, 165, 233, 0.08);
 }
 
 .input-wrapper:has(input:focus) .input-icon,
-.input-wrapper:has(select:focus) .input-icon {
+.input-wrapper:has(select:focus) .input-icon,
+.input-wrapper:has(textarea:focus) .input-icon {
     color: var(--color-primary);
 }
 
@@ -329,7 +343,8 @@
 }
 
 .input-wrapper.invalid input,
-.input-wrapper.invalid select {
+.input-wrapper.invalid select,
+.input-wrapper.invalid textarea {
     border-color: #f43f5e !important;
     background: rgba(244, 63, 94, 0.02) !important;
     box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1), 0 0 12px rgba(244, 63, 94, 0.06) !important;

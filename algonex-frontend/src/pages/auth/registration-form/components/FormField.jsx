@@ -19,6 +19,7 @@ const FormField = ({
   ...rest
 }) => {
   const isSelect = type === 'select';
+  const isTextarea = type === 'textarea';
   const hasError = !!error;
 
   return (
@@ -46,6 +47,17 @@ const FormField = ({
               </option>
             ))}
           </select>
+        ) : isTextarea ? (
+          <textarea
+            id={id}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            required={required}
+            maxLength={maxLength}
+            {...rest}
+          />
         ) : (
           <input
             type={type}
