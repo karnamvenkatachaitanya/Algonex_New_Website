@@ -59,8 +59,13 @@ const CertificateVerification = () => {
     try {
       await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
       await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      
+      // Wait for all fonts to be fully loaded before capturing
+      if (document.fonts) {
+        await document.fonts.ready;
+      }
     } catch (e) {
-      console.error('Failed to load PDF libraries:', e);
+      console.error('Failed to load PDF libraries or fonts:', e);
       return;
     }
 
@@ -420,7 +425,7 @@ const CertificateVerification = () => {
           </svg>
 
           {/* Certificate Content Wrapper */}
-          <div style={{ position: 'relative', zIndex: 10, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ position: 'relative', zIndex: 10, height: '100%', display: 'flex', flexDirection: 'column' }}>
 
             {/* Header Row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -505,7 +510,7 @@ const CertificateVerification = () => {
               justifyContent: 'center',
               alignItems: 'center',
               gap: 35,
-              marginTop: 15
+              marginTop: 20
             }}>
               {/* Left Column: Course/Internship Title (Right-aligned, positioned flush next to divider) */}
               <div style={{ textAlign: 'right', width: '380px', paddingRight: '20px' }}>
@@ -530,8 +535,8 @@ const CertificateVerification = () => {
                 <div className="font-cursive" style={{
                   fontSize: 76,
                   color: '#091e42',
-                  lineHeight: '0.75',
-                  marginBottom: 8
+                  lineHeight: '0.85',
+                  marginBottom: 10
                 }}>
                   Certification
                 </div>
@@ -552,7 +557,7 @@ const CertificateVerification = () => {
             </div>
 
             {/* Awarded To Name */}
-            <div style={{ textAlign: 'center', marginTop: 15 }}>
+            <div style={{ textAlign: 'center', marginTop: 20 }}>
               <div style={{ fontSize: 15, color: '#444', letterSpacing: '0.5px', marginBottom: 6, fontWeight: 500 }}>
                 This certificate is awarded to
               </div>
@@ -572,7 +577,7 @@ const CertificateVerification = () => {
             </div>
 
             {/* Description Text */}
-            <div style={{ textAlign: 'center', maxWidth: 880, margin: '15px auto 0 auto', padding: '0 30px' }}>
+            <div style={{ textAlign: 'center', maxWidth: 880, margin: '20px auto 0 auto', padding: '0 30px' }}>
               <p style={{
                 fontSize: 14.5,
                 color: '#222',
@@ -587,7 +592,7 @@ const CertificateVerification = () => {
 
             {/* Tools Section */}
             {toolsList.length > 0 && (
-              <div style={{ textAlign: 'center', marginTop: 15 }}>
+              <div style={{ textAlign: 'center', marginTop: 20 }}>
                 <div style={{ fontSize: 13.5, color: '#444', marginBottom: 8, fontWeight: 600 }}>
                   He/she worked with Tools such as
                 </div>
@@ -612,7 +617,7 @@ const CertificateVerification = () => {
               </div>
             )}
 
-            <div style={{ textAlign: 'center', marginTop: 10, fontSize: 14, color: '#333', fontStyle: 'italic', fontWeight: 500 }}>
+            <div style={{ textAlign: 'center', marginTop: 15, fontSize: 14, color: '#333', fontStyle: 'italic', fontWeight: 500 }}>
               We appreciate the efforts and all the best for the future.
             </div>
 
@@ -621,7 +626,7 @@ const CertificateVerification = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-end',
-              marginTop: 15,
+              marginTop: 'auto',
               padding: '0 55px 10px 55px'
             }}>
 
@@ -666,17 +671,16 @@ const CertificateVerification = () => {
                   src={algonexStamp} 
                   alt="Algonex Stamp" 
                   style={{ 
-                    width: 130, 
-                    height: 130, 
-                    objectFit: 'contain',
-                    marginBottom: -25
+                    width: 110, 
+                    height: 110, 
+                    objectFit: 'contain'
                   }} 
                 />
                 <div style={{ 
                   fontSize: 11.5, 
                   color: '#333', 
                   fontWeight: 700, 
-                  marginTop: 6, 
+                  marginTop: 4, 
                   letterSpacing: '0.5px',
                   fontFamily: '"Outfit", "Inter", sans-serif'
                 }}>
